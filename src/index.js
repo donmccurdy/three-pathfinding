@@ -1,242 +1,12 @@
 const THREE = require('three');
-
-var computeCentroids = function (geometry) {
-	var f, fl, face;
-
-	for ( f = 0, fl = geometry.faces.length; f < fl; f ++ ) {
-
-		face = geometry.faces[ f ];
-		face.centroid = new THREE.Vector3( 0, 0, 0 );
-
-		face.centroid.add( geometry.vertices[ face.a ] );
-		face.centroid.add( geometry.vertices[ face.b ] );
-		face.centroid.add( geometry.vertices[ face.c ] );
-		face.centroid.divideScalar( 3 );
-
-	}
-};
-
-
-function roundNumber(number, decimals) {
-    var newnumber = Number(number + '').toFixed(parseInt(decimals));
-    return parseFloat(newnumber);
-}
-
-function sample (list) {
-	return list[Math.floor(Math.random() * list.length)];
-}
+const utils = require('./utils');
+const Channel = require('./channel');
 
 var polygonId = 1;
-
-var mergeVertexIds = function (aList, bList) {
-
-	var sharedVertices = [];
-
-	aList.forEach((vID) => {
-		if (bList.indexOf(vID) >= 0) {
-			sharedVertices.push(vID);
-		}
-	});
-
-	if (sharedVertices.length < 2) return [];
-
-	// console.log("TRYING aList:", aList, ", bList:", bList, ", sharedVertices:", sharedVertices);
-
-	if (sharedVertices.includes(aList[0]) && sharedVertices.includes(aList[aList.length - 1])) {
-		// Vertices on both edges are bad, so shift them once to the left
-		aList.push(aList.shift());
-	}
-
-	if (sharedVertices.includes(bList[0]) && sharedVertices.includes(bList[bList.length - 1])) {
-		// Vertices on both edges are bad, so shift them once to the left
-		bList.push(bList.shift());
-	}
-
-	// Again!
-	sharedVertices = [];
-
-	aList.forEach((vId) => {
-		if (bList.includes(vId)) {
-			sharedVertices.push(vId);
-		}
-	});
-
-	var clockwiseMostSharedVertex = sharedVertices[1];
-	var counterClockwiseMostSharedVertex = sharedVertices[0];
-
-
-	var cList = aList.slice();
-	while (cList[0] !== clockwiseMostSharedVertex) {
-		cList.push(cList.shift());
-	}
-
-	var c = 0;
-
-	var temp = bList.slice();
-	while (temp[0] !== counterClockwiseMostSharedVertex) {
-		temp.push(temp.shift());
-
-		if (c++ > 10) debugger;
-	}
-
-	// Shave
-	temp.shift();
-	temp.pop();
-
-	cList = cList.concat(temp);
-
-	return cList;
-};
-
-var setPolygonCentroid = function (polygon, navigationMesh) {
-	var sum = new THREE.Vector3();
-
-	var vertices = navigationMesh.vertices;
-
-	polygon.vertexIds.forEach((vId) => {
-		sum.add(vertices[vId]);
-	});
-
-	sum.divideScalar(polygon.vertexIds.length);
-
-	polygon.centroid.copy(sum);
-};
-
-var cleanPolygon = function (polygon, navigationMesh) {
-
-	var newVertexIds = [];
-
-	var vertices = navigationMesh.vertices;
-
-	for (var i = 0; i < polygon.vertexIds.length; i++) {
-
-		var vertex = vertices[polygon.vertexIds[i]];
-
-		var nextVertexId, previousVertexId;
-		var nextVertex, previousVertex;
-
-		// console.log("nextVertex: ", nextVertex);
-
-		if (i === 0) {
-			nextVertexId = polygon.vertexIds[1];
-			previousVertexId = polygon.vertexIds[polygon.vertexIds.length - 1];
-		} else if (i === polygon.vertexIds.length - 1) {
-			nextVertexId = polygon.vertexIds[0];
-			previousVertexId = polygon.vertexIds[polygon.vertexIds.length - 2];
-		} else {
-			nextVertexId = polygon.vertexIds[i + 1];
-			previousVertexId = polygon.vertexIds[i - 1];
-		}
-
-		nextVertex = vertices[nextVertexId];
-		previousVertex = vertices[previousVertexId];
-
-		var a = nextVertex.clone().sub(vertex);
-		var b = previousVertex.clone().sub(vertex);
-
-		var angle = a.angleTo(b);
-
-		// console.log(angle);
-
-		if (angle > Math.PI - 0.01 && angle < Math.PI + 0.01) {
-			// Unneccesary vertex
-			// console.log("Unneccesary vertex: ", polygon.vertexIds[i]);
-			// console.log("Angle between "+previousVertexId+", "+polygon.vertexIds[i]+" "+nextVertexId+" was: ", angle);
-
-
-			// Remove the neighbours who had this vertex
-			var goodNeighbours = [];
-			polygon.neighbours.forEach((neighbour) => {
-				if (!neighbour.vertexIds.includes(polygon.vertexIds[i])) {
-					goodNeighbours.push(neighbour);
-				}
-			});
-			polygon.neighbours = goodNeighbours;
-
-
-			// TODO cleanup the list of vertices and rebuild vertexIds for all polygons
-		} else {
-			newVertexIds.push(polygon.vertexIds[i]);
-		}
-
-	}
-
-	// console.log("New vertexIds: ", newVertexIds);
-
-	polygon.vertexIds = newVertexIds;
-
-	setPolygonCentroid(polygon, navigationMesh);
-
-};
-
-var isConvex = function (polygon, navigationMesh) {
-
-	var vertices = navigationMesh.vertices;
-
-	if (polygon.vertexIds.length < 3) return false;
-
-	var convex = true;
-
-	var total = 0;
-
-	var results = [];
-
-	for (var i = 0; i < polygon.vertexIds.length; i++) {
-
-		var vertex = vertices[polygon.vertexIds[i]];
-
-		var nextVertex, previousVertex;
-
-		// console.log("nextVertex: ", nextVertex);
-
-		if (i === 0) {
-			nextVertex = vertices[polygon.vertexIds[1]];
-			previousVertex = vertices[polygon.vertexIds[polygon.vertexIds.length - 1]];
-		} else if (i === polygon.vertexIds.length - 1) {
-			nextVertex = vertices[polygon.vertexIds[0]];
-			previousVertex = vertices[polygon.vertexIds[polygon.vertexIds.length - 2]];
-		} else {
-			nextVertex = vertices[polygon.vertexIds[i + 1]];
-			previousVertex = vertices[polygon.vertexIds[i - 1]];
-		}
-
-		var a = nextVertex.clone().sub(vertex);
-		var b = previousVertex.clone().sub(vertex);
-
-		var angle = a.angleTo(b);
-		total += angle;
-
-		// console.log(angle);
-		if (angle === Math.PI || angle === 0) return false;
-
-		var r = a.cross(b).y;
-		results.push(r);
-		// console.log("pushed: ", r);
-	}
-
-	// if ( total > (polygon.vertexIds.length-2)*Math.PI ) return false;
-
-	results.forEach((r) => {
-		if (r === 0) convex = false;
-	});
-
-	if (results[0] > 0) {
-		results.forEach((r) => {
-			if (r < 0) convex = false;
-		});
-	} else {
-		results.forEach((r) => {
-			if (r > 0) convex = false;
-		});
-	}
-
-	return convex;
-};
 
 var buildPolygonGroups = function (navigationMesh) {
 
 	var polygons = navigationMesh.polygons;
-	var vertices = navigationMesh.vertices;
 
 	var polygonGroups = [];
 	var groupCount = 0;
@@ -263,45 +33,10 @@ var buildPolygonGroups = function (navigationMesh) {
 		polygonGroups[polygon.group].push(polygon);
 	});
 
-	console.log("Groups built: ", polygonGroups.length);
+	console.log('Groups built: ', polygonGroups.length);
 
 	return polygonGroups;
 };
-
-function array_intersect() {
-	var i, all, shortest, nShortest, n, len, ret = [],
-		obj = {},
-		nOthers;
-	nOthers = arguments.length - 1;
-	nShortest = arguments[0].length;
-	shortest = 0;
-	for (i = 0; i <= nOthers; i++) {
-		n = arguments[i].length;
-		if (n < nShortest) {
-			shortest = i;
-			nShortest = n;
-		}
-	}
-
-	for (i = 0; i <= nOthers; i++) {
-		n = (i === shortest) ? 0 : (i || shortest); //Read the shortest array first. Read the first array instead of the shortest
-		len = arguments[n].length;
-		for (var j = 0; j < len; j++) {
-			var elem = arguments[n][j];
-			if (obj[elem] === i - 1) {
-				if (i === nOthers) {
-					ret.push(elem);
-					obj[elem] = 0;
-				} else {
-					obj[elem] = i;
-				}
-			} else if (i === 0) {
-				obj[elem] = 0;
-			}
-		}
-	}
-	return ret;
-}
 
 var buildPolygonNeighbours = function (polygon, navigationMesh) {
 	polygon.neighbours = [];
@@ -313,7 +48,7 @@ var buildPolygonNeighbours = function (polygon, navigationMesh) {
 		// Don't check polygons that are too far, since the intersection tests take a long time
 		if (polygon.centroid.distanceToSquared(navigationMesh.polygons[i].centroid) > 100 * 100) continue;
 
-		var matches = array_intersect(polygon.vertexIds, navigationMesh.polygons[i].vertexIds);
+		var matches = utils.array_intersect(polygon.vertexIds, navigationMesh.polygons[i].vertexIds);
 
 		if (matches.length >= 2) {
 			polygon.neighbours.push(navigationMesh.polygons[i]);
@@ -323,7 +58,7 @@ var buildPolygonNeighbours = function (polygon, navigationMesh) {
 
 var buildPolygonsFromGeometry = function (geometry) {
 
-	console.log("Vertices:", geometry.vertices.length, "polygons:", geometry.faces.length);
+	console.log('Vertices:', geometry.vertices.length, 'polygons:', geometry.faces.length);
 
 	var polygons = [];
 	var vertices = geometry.vertices;
@@ -354,156 +89,11 @@ var buildPolygonsFromGeometry = function (geometry) {
 	return navigationMesh;
 };
 
-var cleanNavigationMesh = function (navigationMesh) {
-
-	var polygons = navigationMesh.polygons;
-	var vertices = navigationMesh.vertices;
-
-
-	// Remove steep triangles
-	var up = new THREE.Vector3(0, 1, 0);
-	polygons = polygons.filter((polygon) => {
-		var angle = Math.acos(up.dot(polygon.normal));
-		return angle < (Math.PI / 4);
-	});
-
-
-	// Remove unnecessary edges using the Hertel-Mehlhorn algorithm
-
-	// 1. Find a pair of adjacent nodes (i.e., two nodes that share an edge between them)
-	//    whose normals are nearly identical (i.e., their surfaces face the same direction).
-
-
-	var newPolygons = [];
-
-	polygons.forEach((polygon) => {
-
-		if (polygon.toBeDeleted) return;
-
-		var keepLooking = true;
-
-		while (keepLooking) {
-			keepLooking = false;
-
-			polygon.neighbours.forEach((otherPolygon) => {
-
-				if (polygon === otherPolygon) return;
-
-				if (Math.acos(polygon.normal.dot(otherPolygon.normal)) < 0.01) {
-					// That's pretty equal alright!
-
-					// Merge otherPolygon with polygon
-
-					var testVertexIdList = [];
-
-					var testPolygon = {
-						vertexIds: mergeVertexIds(polygon.vertexIds, otherPolygon.vertexIds),
-						neighbours: polygon.neighbours,
-						normal: polygon.normal.clone(),
-						centroid: polygon.centroid.clone()
-					};
-
-					cleanPolygon(testPolygon, navigationMesh);
-
-					if (isConvex(testPolygon, navigationMesh)) {
-						otherPolygon.toBeDeleted = true;
-
-
-						// Inherit the neighbours from the to be merged polygon, except ourself
-						otherPolygon.neighbours.forEach((otherPolygonNeighbour) => {
-
-							// Set this poly to be merged to be no longer our neighbour
-							otherPolygonNeighbour.neighbours = otherPolygonNeighbour.neighbours.filter((poly) => poly !== otherPolygon);
-
-							if (otherPolygonNeighbour !== polygon) {
-								// Tell the old Polygon's neighbours about the new neighbour who has merged
-								otherPolygonNeighbour.neighbours.push(polygon);
-							} else {
-								// For ourself, we don't need to know about ourselves
-								// But we inherit the old neighbours
-								polygon.neighbours = polygon.neighbours.concat(otherPolygon.neighbours);
-								polygon.neighbours = Array.from(new Set(polygon.neighbours));
-
-								// Without ourselves in it!
-								polygon.neighbours = polygon.neighbours.filter((poly) => poly !== polygon);
-							}
-						});
-
-						polygon.vertexIds = mergeVertexIds(polygon.vertexIds, otherPolygon.vertexIds);
-
-						// console.log(polygon.vertexIds);
-						// console.log("Merge!");
-
-						cleanPolygon(polygon, navigationMesh);
-
-						keepLooking = true;
-					}
-
-				}
-			});
-		}
-
-
-		if (!polygon.toBeDeleted) {
-			newPolygons.push(polygon);
-		}
-
-	});
-
-	var isUsed = function (vId) {
-		var contains = false;
-		newPolygons.forEach((p) => {
-			if (!contains && p.vertexIds.includes(vId)) {
-				contains = true;
-			}
-		});
-		return contains;
-	};
-
-	// Clean vertices
-	var keepChecking = false;
-	for (var i = 0; i < vertices.length; i++) {
-		if (!isUsed(i)) {
-
-			// Decrement all vertices that are higher than i
-			newPolygons.forEach((p) => {
-				for (var j = 0; j < p.vertexIds.length; j++) {
-					if (p.vertexIds[j] > i) {
-						p.vertexIds[j] --;
-					}
-				}
-			});
-
-			vertices.splice(i, 1);
-			i--;
-		}
-
-	};
-
-
-	navigationMesh.polygons = newPolygons;
-	navigationMesh.vertices = vertices;
-
-};
-
 var buildNavigationMesh = function (geometry) {
-
 	// Prepare geometry
-	computeCentroids(geometry);
+	utils.computeCentroids(geometry);
 	geometry.mergeVertices();
-	// THREE.GeometryUtils.triangulateQuads(geometry);
-
-	// console.log("vertices:", geometry.vertices.length, "polygons:", geometry.faces.length);
-
-	var navigationMesh = buildPolygonsFromGeometry(geometry);
-
-	// cleanNavigationMesh(navigationMesh);
-	// console.log("Pre-clean:", navigationMesh.polygons.length, "polygons,", navigationMesh.vertices.length, "vertices.");
-
-	// console.log("")
-	// console.log("Vertices:", navigationMesh.vertices.length, "polygons,", navigationMesh.polygons.length, "vertices.");
-
-	return navigationMesh;
+	return buildPolygonsFromGeometry(geometry);
 };
 
 var getSharedVerticesInOrder = function (a, b) {
@@ -550,9 +140,9 @@ var groupNavMesh = function (navigationMesh) {
 	var saveObj = {};
 
 	navigationMesh.vertices.forEach((v) => {
-		v.x = roundNumber(v.x, 2);
-		v.y = roundNumber(v.y, 2);
-		v.z = roundNumber(v.z, 2);
+		v.x = utils.roundNumber(v.x, 2);
+		v.y = utils.roundNumber(v.y, 2);
+		v.z = utils.roundNumber(v.z, 2);
 	});
 
 	saveObj.vertices = navigationMesh.vertices;
@@ -587,9 +177,9 @@ var groupNavMesh = function (navigationMesh) {
 			});
 
 
-			p.centroid.x = roundNumber(p.centroid.x, 2);
-			p.centroid.y = roundNumber(p.centroid.y, 2);
-			p.centroid.z = roundNumber(p.centroid.z, 2);
+			p.centroid.x = utils.roundNumber(p.centroid.x, 2);
+			p.centroid.y = utils.roundNumber(p.centroid.y, 2);
+			p.centroid.z = utils.roundNumber(p.centroid.z, 2);
 
 			newGroup.push({
 				id: findPolygonIndex(group, p),
@@ -733,14 +323,6 @@ BinaryHeap.prototype = {
 	}
 };
 
-var distanceToSquared = function (a, b) {
-	var dx = a.x - b.x;
-	var dy = a.y - b.y;
-	var dz = a.z - b.z;
-
-	return dx * dx + dy * dy + dz * dz;
-};
-
 var astar = {
 	init: function (graph) {
 		for (var x = 0; x < graph.length; x++) {
@@ -822,7 +404,7 @@ var astar = {
 					// Found an optimal (so far) path to this node.  Take score for node to see how good it is.
 					neighbour.visited = true;
 					neighbour.parent = currentNode;
-					if (!neighbour.centroid || !end.centroid) debugger;
+					if (!neighbour.centroid || !end.centroid) throw new Error('Unexpected state');
 					neighbour.h = neighbour.h || astar.heuristic(neighbour.centroid, end.centroid);
 					neighbour.g = gScore;
 					neighbour.f = neighbour.g + neighbour.h;
@@ -842,7 +424,7 @@ var astar = {
 		return [];
 	},
 	heuristic: function (pos1, pos2) {
-		return distanceToSquared(pos1, pos2);
+		return utils.distanceToSquared(pos1, pos2);
 	},
 	neighbours: function (graph, node) {
 		var ret = [];
@@ -855,154 +437,7 @@ var astar = {
 	}
 };
 
-
-var distanceToSquared = function (a, b) {
-
-	var dx = a.x - b.x;
-	var dy = a.y - b.y;
-	var dz = a.z - b.z;
-
-	return dx * dx + dy * dy + dz * dz;
-
-};
-
-
-//+ Jonas Raoni Soares Silva
-//@ http://jsfromhell.com/math/is-point-in-poly [rev. #0]
-function isPointInPoly(poly, pt) {
-	for (var c = false, i = -1, l = poly.length, j = l - 1; ++i < l; j = i)
-		((poly[i].z <= pt.z && pt.z < poly[j].z) || (poly[j].z <= pt.z && pt.z < poly[i].z)) && (pt.x < (poly[j].x - poly[i].x) * (pt.z - poly[i].z) / (poly[j].z - poly[i].z) + poly[i].x) && (c = !c);
-	return c;
-}
-
-function isVectorInPolygon(vector, polygon, vertices) {
-
-	// reference point will be the centroid of the polygon
-	// We need to rotate the vector as well as all the points which the polygon uses
-
-	var center = polygon.centroid;
-
-	var lowestPoint = 100000;
-	var highestPoint = -100000;
-
-	var polygonVertices = [];
-
-	polygon.vertexIds.forEach((vId) => {
-		lowestPoint = Math.min(vertices[vId].y, lowestPoint);
-		highestPoint = Math.max(vertices[vId].y, highestPoint);
-		polygonVertices.push(vertices[vId]);
-	});
-
-	if (vector.y < highestPoint + 0.5 && vector.y > lowestPoint - 0.5 &&
-		isPointInPoly(polygonVertices, vector)) {
-		return true;
-	}
-	return false;
-}
-
-
-function triarea2(a, b, c) {
-	var ax = b.x - a.x;
-	var az = b.z - a.z;
-	var bx = c.x - a.x;
-	var bz = c.z - a.z;
-	return bx * az - ax * bz;
-}
-
-function vequal(a, b) {
-	return distanceToSquared(a, b) < 0.00001;
-}
-
-function Channel() {
-	this.portals = [];
-}
-
-Channel.prototype.push = function (p1, p2) {
-	if (p2 === undefined) p2 = p1;
-	this.portals.push({
-		left: p1,
-		right: p2
-	});
-};
-
-Channel.prototype.stringPull = function () {
-	var portals = this.portals;
-	var pts = [];
-	// Init scan state
-	var portalApex, portalLeft, portalRight;
-	var apexIndex = 0,
-		leftIndex = 0,
-		rightIndex = 0;
-
-	portalApex = portals[0].left;
-	portalLeft = portals[0].left;
-	portalRight = portals[0].right;
-
-	// Add start point.
-	pts.push(portalApex);
-
-	for (var i = 1; i < portals.length; i++) {
-		var left = portals[i].left;
-		var right = portals[i].right;
-
-		// Update right vertex.
-		if (triarea2(portalApex, portalRight, right) <= 0.0) {
-			if (vequal(portalApex, portalRight) || triarea2(portalApex, portalLeft, right) > 0.0) {
-				// Tighten the funnel.
-				portalRight = right;
-				rightIndex = i;
-			} else {
-				// Right over left, insert left to path and restart scan from portal left point.
-				pts.push(portalLeft);
-				// Make current left the new apex.
-				portalApex = portalLeft;
-				apexIndex = leftIndex;
-				// Reset portal
-				portalLeft = portalApex;
-				portalRight = portalApex;
-				leftIndex = apexIndex;
-				rightIndex = apexIndex;
-				// Restart scan
-				i = apexIndex;
-				continue;
-			}
-		}
-
-		// Update left vertex.
-		if (triarea2(portalApex, portalLeft, left) >= 0.0) {
-			if (vequal(portalApex, portalLeft) || triarea2(portalApex, portalRight, left) < 0.0) {
-				// Tighten the funnel.
-				portalLeft = left;
-				leftIndex = i;
-			} else {
-				// Left over right, insert right to path and restart scan from portal right point.
-				pts.push(portalRight);
-				// Make current right the new apex.
-				portalApex = portalRight;
-				apexIndex = rightIndex;
-				// Reset portal
-				portalLeft = portalApex;
-				portalRight = portalApex;
-				leftIndex = apexIndex;
-				rightIndex = apexIndex;
-				// Restart scan
-				i = apexIndex;
-				continue;
-			}
-		}
-	}
-
-	if ((pts.length === 0) || (!vequal(pts[pts.length - 1], portals[portals.length - 1].left))) {
-		// Append last point to path.
-		pts.push(portals[portals.length - 1].left);
-	}
-
-	this.path = pts;
-	return pts;
-};
-
 var zoneNodes = {};
-var path = null;
 
 module.exports = {
 	buildNodes: function (geometry) {
@@ -1025,7 +460,7 @@ module.exports = {
 
 		zoneNodes[zone].groups.forEach((group, index) => {
 			group.forEach((node) => {
-				var measuredDistance = distanceToSquared(node.centroid, position);
+				var measuredDistance = utils.distanceToSquared(node.centroid, position);
 				if (measuredDistance < distance) {
 					closestNodeGroup = index;
 					distance = measuredDistance;
@@ -1048,7 +483,7 @@ module.exports = {
 
 		polygons.forEach((p) => {
 			if (nearPosition && nearRange) {
-				if (distanceToSquared(nearPosition, p.centroid) < nearRange * nearRange) {
+				if (utils.distanceToSquared(nearPosition, p.centroid) < nearRange * nearRange) {
 					candidates.push(p.centroid);
 				}
 			} else {
@@ -1056,7 +491,7 @@ module.exports = {
 			}
 		});
 
-		return sample(candidates) || new THREE.Vector3();
+		return utils.sample(candidates) || new THREE.Vector3();
 	},
 	findPath: function (startPosition, targetPosition, zone, group) {
 
@@ -1067,7 +502,7 @@ module.exports = {
 		var distance = Math.pow(50, 2);
 
 		allNodes.forEach((node) => {
-			var measuredDistance = distanceToSquared(node.centroid, startPosition);
+			var measuredDistance = utils.distanceToSquared(node.centroid, startPosition);
 			if (measuredDistance < distance) {
 				closestNode = node;
 				distance = measuredDistance;
@@ -1079,9 +514,9 @@ module.exports = {
 		distance = Math.pow(50, 2);
 
 		allNodes.forEach((node) => {
-			var measuredDistance = distanceToSquared(node.centroid, targetPosition);
+			var measuredDistance = utils.distanceToSquared(node.centroid, targetPosition);
 			if (measuredDistance < distance &&
-				isVectorInPolygon(targetPosition, node, vertices)) {
+				utils.isVectorInPolygon(targetPosition, node, vertices)) {
 				farthestNode = node;
 				distance = measuredDistance;
 			}
@@ -1133,8 +568,6 @@ module.exports = {
 
 		channel.path.forEach((c) => {
 			var vec = new THREE.Vector3(c.x, c.y, c.z);
-
-			// console.log(vec.clone().sub(startPosition).length());
 
 			// Ensure the intermediate steps aren't too close to the start position
 			// var dist = vec.clone().sub(startPosition).lengthSq();
