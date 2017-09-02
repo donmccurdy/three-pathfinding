@@ -1,0 +1,1 @@
+THREE.Pathfinding = require('./src');

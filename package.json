@@ -1,0 +1,35 @@
+{
+	"name": "three-pathfinding",
+	"version": "0.1.0",
+	"description": "Navigation mesh toolkit for three.js, based on PatrolJS",
+	"main": "src/index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [
+		"patrol",
+		"patroljs",
+		"patrol.js",
+		"three",
+		"three.js",
+		"threejs",
+		"pathfinding",
+		"aframe",
+		"astar",
+		"nav",
+		"navmesh",
+		"navigation"
+	],
+	"author": "Don McCurdy <dm@donmccurdy.com>",
+	"license": "MIT",
+	"peerDependencies": {
+		"three": "^0.87.1"
+	},
+	"devDependencies": {
+		"browserify": "^14.4.0",
+		"budo": "^10.0.4"
+	},
+	"dependencies": {
+		"three": "^0.87.1"
+	}
+}
