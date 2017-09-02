@@ -155,8 +155,6 @@
 
 			function onDocumentMouseClick (event) {
 
-				// event.preventDefault();
-
 				mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
 				mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
@@ -169,6 +167,15 @@
 				if ( intersects.length > 0 ) {
 					var vec = intersects[0].point;
 					target.position.copy(vec);
+
+					// Teleport on middle-click.
+					if (event.metaKey || event.ctrlKey) {
+						player.position.copy(target.position);
+						playerNavMeshGroup = patrol.getGroup('level', player.position);
+						if (pathLines) scene.remove(pathLines);
+						if (calculatedPath) calculatedPath.length = 0;
+						return;
+					}
 
 					// Calculate a path to the target and store it
 					calculatedPath = patrol.findPath(player.position, target.position, 'level', playerNavMeshGroup);
