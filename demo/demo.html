@@ -168,7 +168,7 @@
 					var vec = intersects[0].point;
 					target.position.copy(vec);
 
-					// Teleport on middle-click.
+					// Teleport on ctrl/cmd click.
 					if (event.metaKey || event.ctrlKey) {
 						player.position.copy(target.position);
 						playerNavMeshGroup = patrol.getGroup('level', player.position);
