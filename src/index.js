@@ -1,4 +1,3 @@
-const THREE = require('three');
 const utils = require('./utils');
 const Channel = require('./channel');
 
