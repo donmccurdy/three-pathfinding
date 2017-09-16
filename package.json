@@ -22,14 +22,8 @@
 	],
 	"author": "Don McCurdy <dm@donmccurdy.com>",
 	"license": "MIT",
-	"peerDependencies": {
-		"three": "^0.87.1"
-	},
 	"devDependencies": {
 		"browserify": "^14.4.0",
 		"budo": "^10.0.4"
-	},
-	"dependencies": {
-		"three": "^0.87.1"
 	}
 }
