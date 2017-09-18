@@ -253,43 +253,38 @@ module.exports = {
 
 		return utils.sample(candidates) || new THREE.Vector3();
 	},
-	findPath: function (startPosition, targetPosition, zone, group) {
+	getClosestNode: function (position, zone, group, checkPolygon = false) {
+		const nodes = zoneNodes[zone].groups[group];
+		const vertices = zoneNodes[zone].vertices;
+		let closestNode = null;
+		let closestDistance = Infinity;
 
-		var allNodes = zoneNodes[zone].groups[group];
-		var vertices = zoneNodes[zone].vertices;
-
-		var closestNode = null;
-		var distance = Math.pow(50, 2);
-
-		allNodes.forEach((node) => {
-			var measuredDistance = utils.distanceToSquared(node.centroid, startPosition);
-			if (measuredDistance < distance) {
+		nodes.forEach((node) => {
+			const distance = utils.distanceToSquared(node.centroid, position);
+			if (distance < closestDistance
+					&& (!checkPolygon || utils.isVectorInPolygon(position, node, vertices))) {
 				closestNode = node;
-				distance = measuredDistance;
+				closestDistance = distance;
 			}
 		});
 
+		return closestNode;
+	},
+	findPath: function (startPosition, targetPosition, zone, group) {
+		const nodes = zoneNodes[zone].groups[group];
+		const vertices = zoneNodes[zone].vertices;
 
-		var farthestNode = null;
-		distance = Math.pow(50, 2);
-
-		allNodes.forEach((node) => {
-			var measuredDistance = utils.distanceToSquared(node.centroid, targetPosition);
-			if (measuredDistance < distance &&
-				utils.isVectorInPolygon(targetPosition, node, vertices)) {
-				farthestNode = node;
-				distance = measuredDistance;
-			}
-		});
+		const closestNode = this.getClosestNode(startPosition, zone, group);
+		const farthestNode = this.getClosestNode(targetPosition, zone, group, true);
 
 		// If we can't find any node, just go straight to the target
 		if (!closestNode || !farthestNode) {
 			return null;
 		}
 
-		var paths = AStar.search(allNodes, closestNode, farthestNode);
+		const paths = AStar.search(nodes, closestNode, farthestNode);
 
-		var getPortalFromTo = function (a, b) {
+		const getPortalFromTo = function (a, b) {
 			for (var i = 0; i < a.neighbours.length; i++) {
 				if (a.neighbours[i] === b.id) {
 					return a.portals[i];
@@ -297,50 +292,27 @@ module.exports = {
 			}
 		};
 
-		// We got the corridor
-		// Now pull the rope
-
-		var channel = new Channel();
-
+		// We have the corridor, now pull the rope.
+		const channel = new Channel();
 		channel.push(startPosition);
-
-		for (var i = 0; i < paths.length; i++) {
-			var polygon = paths[i];
-
-			var nextPolygon = paths[i + 1];
+		for (let i = 0; i < paths.length; i++) {
+			const polygon = paths[i];
+			const nextPolygon = paths[i + 1];
 
 			if (nextPolygon) {
-				var portals = getPortalFromTo(polygon, nextPolygon);
+				const portals = getPortalFromTo(polygon, nextPolygon);
 				channel.push(
 					vertices[portals[0]],
 					vertices[portals[1]]
 				);
 			}
-
 		}
-
 		channel.push(targetPosition);
-
 		channel.stringPull();
 
-
-		var threeVectors = [];
-
-		channel.path.forEach((c) => {
-			var vec = new THREE.Vector3(c.x, c.y, c.z);
-
-			// Ensure the intermediate steps aren't too close to the start position
-			// var dist = vec.clone().sub(startPosition).lengthSq();
-			// if (dist > 0.01 * 0.01) {
-				threeVectors.push(vec);
-			// }
-
-
-		});
-
-		// We don't need the first one, as we already know our start position
-		threeVectors.shift();
-
-		return threeVectors;
+		// Return the path, omitting first position (which is already known).
+		const path = channel.path.map((c) => new THREE.Vector3(c.x, c.y, c.z));
+		path.shift();
+		return path;
 	}
 };
