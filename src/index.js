@@ -270,6 +270,72 @@ module.exports = {
 
 		return closestNode;
 	},
+	/**
+	 * Given start- and end-points for a path, and the current Node, returns
+	 * a new end-point along the path that does not leave the nav mesh.
+	 * @param  {THREE.Vector3} start
+	 * @param  {THREE.Vector3} end
+	 * @param  {Node} node
+	 * @param  {string} zone
+	 * @param  {THREE.Vector3} endTarget
+	 * @return {THREE.Vector3}
+	 */
+	projectPathOnNode: (function () {
+		const plane = new THREE.Plane();
+		const line = new THREE.Line3();
+		const point = new THREE.Vector3();
+
+		// Decay factor that slows the player down while traversing along an edge,
+		// and prevents precision errors from causing an overstep.
+		const decayFactor = 0.9;
+
+		const projectedPath = new THREE.Vector3();
+
+		return function (start, end, node, zone, endTarget) {
+			endTarget = endTarget || new THREE.Vector3();
+
+			const vertices = zoneNodes[zone].vertices;
+
+			// Only handle paths starting within the node and
+			// ending outside it.
+			if (!utils.isVectorInPolygon(start, node, vertices)
+					|| utils.isVectorInPolygon(end, node, vertices)) {
+				return null;
+			}
+
+			line.set(start, end);
+			projectedPath.copy(end).sub(start);
+
+			// For each edge in the node:
+			// (1) Create plane from co-planar points, assuming +Y up.
+			// (2) Intersect path against the plane.
+			// (3) If they intersect, project the path against the plane.
+			for (let i = 0; i < node.vertexIds.length; i++) {
+				point.copy(vertices[node.vertexIds[i]]);
+				point.y += 1;
+				plane.setFromCoplanarPoints(
+					vertices[node.vertexIds[i]],
+					vertices[node.vertexIds[(i + 1) % node.vertexIds.length]],
+					point
+				);
+				if (plane.intersectLine(line, point)) {
+					projectedPath.projectOnPlane(plane.normal);
+				}
+			}
+
+			// Add re-projected path to starting point.
+			endTarget
+				.copy(start)
+				.add(projectedPath.multiplyScalar(decayFactor));
+
+			// TODO: Why does this happen?
+			if (!utils.isVectorInPolygon(endTarget, node, vertices)) {
+				return start;
+			}
+
+			return endTarget;
+		};
+	}()),
 	findPath: function (startPosition, targetPosition, zone, group) {
 		const nodes = zoneNodes[zone].groups[group];
 		const vertices = zoneNodes[zone].vertices;

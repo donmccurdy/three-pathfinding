@@ -160,7 +160,7 @@ class Utils {
 
     polygon.vertexIds = newVertexIds;
 
-    setPolygonCentroid(polygon, navigationMesh);
+    this.setPolygonCentroid(polygon, navigationMesh);
 
   }
 
@@ -312,7 +312,5 @@ class Utils {
     return ret;
   }
 }
-
-
 
 module.exports = Utils;
