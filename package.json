@@ -5,6 +5,7 @@
 	"main": "src/index.js",
 	"scripts": {
 		"dev": "budo browser.js:bundle.js --live",
+		"docs": "documentation build src/index.js --shallow -f md | replace-between --target README.md --token API",
 		"postversion": "git push && git push --tags && npm publish"
 	},
 	"keywords": [
@@ -25,6 +26,8 @@
 	"license": "MIT",
 	"devDependencies": {
 		"browserify": "^14.4.0",
-		"budo": "^10.0.4"
+		"budo": "^10.0.4",
+		"documentation": "^5.3.3",
+		"replace-between": "0.0.8"
 	}
 }
