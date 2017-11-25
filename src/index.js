@@ -1,3 +1,5 @@
+/* global THREE */
+
 const utils = require('./utils');
 const AStar = require('./AStar');
 const Channel = require('./Channel');
@@ -200,27 +202,38 @@ var groupNavMesh = function (navigationMesh) {
 var zoneNodes = {};
 
 module.exports = {
+	/**
+	 * Builds a zone/node set from navigation mesh.
+	 * @param  {THREE.Geometry} geometry
+	 * @return {Path.Zone}
+	 */
 	buildNodes: function (geometry) {
-		var navigationMesh = buildNavigationMesh(geometry);
-
-		var zoneNodes = groupNavMesh(navigationMesh);
-
-		return zoneNodes;
+		return groupNavMesh(buildNavigationMesh(geometry));
 	},
-	setZoneData: function (zone, data) {
-		zoneNodes[zone] = data;
+
+	/**
+	 * Sets data for the given zone.
+	 * @param {string} zoneID
+	 * @param {Path.Zone} zone
+	 */
+	setZoneData: function (zoneID, zone) {
+		zoneNodes[zoneID] = zone;
 	},
-	getGroup: function (zone, position) {
+	/**
+	 * Returns closest node group for given position.
+	 * @param  {string} zoneID
+	 * @param  {THREE.Vector3} position
+	 * @return {Path.Group}
+	 */
+	getGroup: function (zoneID, position) {
+		if (!zoneNodes[zoneID]) return null;
 
-		if (!zoneNodes[zone]) return null;
+		let closestNodeGroup = null;
+		let distance = Math.pow(50, 2);
 
-		var closestNodeGroup = null;
-
-		var distance = Math.pow(50, 2);
-
-		zoneNodes[zone].groups.forEach((group, index) => {
+		zoneNodes[zoneID].groups.forEach((group, index) => {
 			group.forEach((node) => {
-				var measuredDistance = utils.distanceToSquared(node.centroid, position);
+				const measuredDistance = utils.distanceToSquared(node.centroid, position);
 				if (measuredDistance < distance) {
 					closestNodeGroup = index;
 					distance = measuredDistance;
@@ -230,16 +243,25 @@ module.exports = {
 
 		return closestNodeGroup;
 	},
-	getRandomNode: function (zone, group, nearPosition, nearRange) {
 
-		if (!zoneNodes[zone]) return new THREE.Vector3();
+	/**
+	 * Returns a random node within a given range of a given position.
+	 * @param  {string} zoneID
+	 * @param  {Path.Group} group
+	 * @param  {THREE.Vector3} nearPosition
+	 * @param  {number} nearRange
+	 * @return {Path.Node}
+	 */
+	getRandomNode: function (zoneID, group, nearPosition, nearRange) {
+
+		if (!zoneNodes[zoneID]) return new THREE.Vector3();
 
 		nearPosition = nearPosition || null;
 		nearRange = nearRange || 0;
 
 		var candidates = [];
 
-		var polygons = zoneNodes[zone].groups[group];
+		var polygons = zoneNodes[zoneID].groups[group];
 
 		polygons.forEach((p) => {
 			if (nearPosition && nearRange) {
@@ -253,9 +275,18 @@ module.exports = {
 
 		return utils.sample(candidates) || new THREE.Vector3();
 	},
-	getClosestNode: function (position, zone, group, checkPolygon = false) {
-		const nodes = zoneNodes[zone].groups[group];
-		const vertices = zoneNodes[zone].vertices;
+
+	/**
+	 * Returns the closest node to the target position.
+	 * @param  {THREE.Vector3} position
+	 * @param  {string}  zoneID
+	 * @param  {Path.Group}  group
+	 * @param  {boolean} checkPolygon
+	 * @return {Path.Node}
+	 */
+	getClosestNode: function (position, zoneID, group, checkPolygon = false) {
+		const nodes = zoneNodes[zoneID].groups[group];
+		const vertices = zoneNodes[zoneID].vertices;
 		let closestNode = null;
 		let closestDistance = Infinity;
 
@@ -271,77 +302,99 @@ module.exports = {
 		return closestNode;
 	},
 	/**
-	 * Given start- and end-points for a path, and the current Node, returns
-	 * a new end-point along the path that does not leave the nav mesh.
+	 * Clamps a step along the navmesh, given start and desired endpoint. May be
+	 * used to constrain first-person / WASD controls.
+	 *
 	 * @param  {THREE.Vector3} start
-	 * @param  {THREE.Vector3} end
-	 * @param  {Node} node
-	 * @param  {string} zone
-	 * @param  {THREE.Vector3} endTarget
-	 * @return {THREE.Vector3}
+	 * @param  {THREE.Vector3} end Desired endpoint.
+	 * @param  {Path.Node} node
+	 * @param  {string} zoneID
+	 * @param  {Path.Group} group
+	 * @param  {THREE.Vector3} endTarget Updated endpoint.
+	 * @return {Path.Node} Updated node.
 	 */
-	projectPathOnNode: (function () {
-		const plane = new THREE.Plane();
-		const line = new THREE.Line3();
+	clampStep: (function () {
 		const point = new THREE.Vector3();
+		const plane = new THREE.Plane();
+		const triangle = new THREE.Triangle();
 
-		// Decay factor that slows the player down while traversing along an edge,
-		// and prevents precision errors from causing an overstep.
-		const decayFactor = 0.9;
+		let closestNode;
+		let closestPoint = new THREE.Vector3();
+		let closestDistance;
 
-		const projectedPath = new THREE.Vector3();
+		return function (start, end, node, zoneID, group, endTarget) {
+			const vertices = zoneNodes[zoneID].vertices;
+			const nodes = zoneNodes[zoneID].groups[group];
 
-		return function (start, end, node, zone, endTarget) {
-			endTarget = endTarget || new THREE.Vector3();
+			const nodeQueue = [node];
+			const nodeDepth = {};
+			nodeDepth[node.id] = 0;
 
-			const vertices = zoneNodes[zone].vertices;
+			closestNode = undefined;
+			closestPoint.set(0, 0, 0);
+			closestDistance = Infinity;
 
-			// Only handle paths starting within the node and
-			// ending outside it.
-			if (!utils.isVectorInPolygon(start, node, vertices)
-					|| utils.isVectorInPolygon(end, node, vertices)) {
-				return null;
-			}
+			// Project the step along the current node.
+			plane.setFromCoplanarPoints(
+				vertices[node.vertexIds[0]],
+				vertices[node.vertexIds[1]],
+				vertices[node.vertexIds[2]]
+			);
+			plane.projectPoint(end, point);
+			end.copy(point);
 
-			line.set(start, end);
-			projectedPath.copy(end).sub(start);
+			for (let currentNode = nodeQueue.pop(); currentNode; currentNode = nodeQueue.pop()) {
 
-			// For each edge in the node:
-			// (1) Create plane from co-planar points, assuming +Y up.
-			// (2) Intersect path against the plane.
-			// (3) If they intersect, project the path against the plane.
-			for (let i = 0; i < node.vertexIds.length; i++) {
-				point.copy(vertices[node.vertexIds[i]]);
-				point.y += 1;
-				plane.setFromCoplanarPoints(
-					vertices[node.vertexIds[i]],
-					vertices[node.vertexIds[(i + 1) % node.vertexIds.length]],
-					point
+				triangle.set(
+					vertices[currentNode.vertexIds[0]],
+					vertices[currentNode.vertexIds[1]],
+					vertices[currentNode.vertexIds[2]]
 				);
-				if (plane.intersectLine(line, point)) {
-					projectedPath.projectOnPlane(plane.normal);
+
+				if (triangle.containsPoint(end)) {
+					endTarget.copy(end);
+					return currentNode;
+				}
+
+				triangle.closestPointToPoint(end, point);
+
+				if (point.distanceToSquared(end) < closestDistance) {
+					closestNode = currentNode;
+					closestPoint.copy(point);
+					closestDistance = point.distanceToSquared(end);
+				}
+
+				const depth = nodeDepth[currentNode];
+				if (depth > 2) continue;
+
+				for (let i = 0; i < currentNode.neighbours.length; i++) {
+					const neighbour = nodes[currentNode.neighbours[i]];
+					if (neighbour.id in nodeDepth) continue;
+
+					nodeQueue.push(neighbour);
+					nodeDepth[neighbour.id] = depth + 1;
 				}
 			}
 
-			// Add re-projected path to starting point.
-			endTarget
-				.copy(start)
-				.add(projectedPath.multiplyScalar(decayFactor));
-
-			// TODO: Why does this happen?
-			if (!utils.isVectorInPolygon(endTarget, node, vertices)) {
-				return start;
-			}
-
-			return endTarget;
+			endTarget.copy(closestPoint);
+			return closestNode;
 		};
 	}()),
-	findPath: function (startPosition, targetPosition, zone, group) {
-		const nodes = zoneNodes[zone].groups[group];
-		const vertices = zoneNodes[zone].vertices;
 
-		const closestNode = this.getClosestNode(startPosition, zone, group);
-		const farthestNode = this.getClosestNode(targetPosition, zone, group, true);
+	/**
+	 * Returns a path between given start and end points.
+	 * @param  {THREE.Vector3} startPosition
+	 * @param  {THREE.Vector3} targetPosition
+	 * @param  {string} zoneID
+	 * @param  {Path.Group} group
+	 * @return {Array<THREE.Vector3>}
+	 */
+	findPath: function (startPosition, targetPosition, zoneID, group) {
+		const nodes = zoneNodes[zoneID].groups[group];
+		const vertices = zoneNodes[zoneID].vertices;
+
+		const closestNode = this.getClosestNode(startPosition, zoneID, group);
+		const farthestNode = this.getClosestNode(targetPosition, zoneID, group, true);
 
 		// If we can't find any node, just go straight to the target
 		if (!closestNode || !farthestNode) {
