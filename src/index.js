@@ -128,7 +128,7 @@ class Path {
 		const vertices = this.zones[zoneID].vertices;
 
 		const closestNode = this.getClosestNode(startPosition, zoneID, groupID);
-		const farthestNode = this.getClosestNode(targetPosition, zoneID, groupID);
+		const farthestNode = this.getClosestNode(targetPosition, zoneID, groupID, true);
 
 		// If we can't find any node, just go straight to the target
 		if (!closestNode || !farthestNode) {

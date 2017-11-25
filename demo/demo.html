@@ -42,7 +42,7 @@
 
 		<script>
 
-			var patrol = THREE.Pathfinding;
+			var pathfinder = new THREE.Pathfinding();
 
 			var container;
 
@@ -102,9 +102,9 @@
 
 		        jsonLoader.load( 'meshes/level.nav.js', function( geometry, materials ) {
 
-					var zoneNodes = patrol.buildNodes(geometry);
+					var zoneNodes = THREE.Pathfinding.createZone(geometry);
 
-					patrol.setZoneData('level', zoneNodes);
+					pathfinder.setZoneData('level', zoneNodes);
 
 		        	var mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
 		        		color: 0xd79fd4,
@@ -115,7 +115,7 @@
 		        	scene.add(mesh);
 
 		        	// Set the player's navigation mesh group
-		        	playerNavMeshGroup = patrol.getGroup('level', player.position);
+		        	playerNavMeshGroup = pathfinder.getGroup('level', player.position);
 
 		        }, null);
 
@@ -168,14 +168,14 @@
 					// Teleport on ctrl/cmd click.
 					if (event.metaKey || event.ctrlKey) {
 						player.position.copy(target.position);
-						playerNavMeshGroup = patrol.getGroup('level', player.position);
+						playerNavMeshGroup = pathfinder.getGroup('level', player.position);
 						if (pathLines) scene.remove(pathLines);
 						if (calculatedPath) calculatedPath.length = 0;
 						return;
 					}
 
 					// Calculate a path to the target and store it
-					calculatedPath = patrol.findPath(player.position, target.position, 'level', playerNavMeshGroup);
+					calculatedPath = pathfinder.findPath(player.position, target.position, 'level', playerNavMeshGroup);
 
 					if (calculatedPath && calculatedPath.length) {
 
