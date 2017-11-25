@@ -103,8 +103,6 @@ class Builder {
       polygonGroups[polygon.group].push(polygon);
     });
 
-    console.log('Groups built: ', polygonGroups.length);
-
     return polygonGroups;
   }
 
@@ -127,8 +125,6 @@ class Builder {
   }
 
   static _buildPolygonsFromGeometry (geometry) {
-
-    console.log('Vertices:', geometry.vertices.length, 'polygons:', geometry.faces.length);
 
     const polygons = [];
     const vertices = geometry.vertices;
@@ -173,8 +169,6 @@ class Builder {
     });
 
     if (sharedVertices.length < 2) return [];
-
-    // console.log("TRYING aList:", aList, ", bList:", bList, ", sharedVertices:", sharedVertices);
 
     if (sharedVertices.includes(aList[0]) && sharedVertices.includes(aList[aList.length - 1])) {
       // Vertices on both edges are bad, so shift them once to the left

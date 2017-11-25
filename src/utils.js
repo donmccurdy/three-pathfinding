@@ -110,8 +110,6 @@ class Utils {
       var nextVertexId, previousVertexId;
       var nextVertex, previousVertex;
 
-      // console.log("nextVertex: ", nextVertex);
-
       if (i === 0) {
         nextVertexId = polygon.vertexIds[1];
         previousVertexId = polygon.vertexIds[polygon.vertexIds.length - 1];
@@ -131,13 +129,7 @@ class Utils {
 
       var angle = a.angleTo(b);
 
-      // console.log(angle);
-
       if (angle > Math.PI - 0.01 && angle < Math.PI + 0.01) {
-        // Unneccesary vertex
-        // console.log("Unneccesary vertex: ", polygon.vertexIds[i]);
-        // console.log("Angle between "+previousVertexId+", "+polygon.vertexIds[i]+" "+nextVertexId+" was: ", angle);
-
 
         // Remove the neighbours who had this vertex
         var goodNeighbours = [];
@@ -155,8 +147,6 @@ class Utils {
       }
 
     }
-
-    // console.log("New vertexIds: ", newVertexIds);
 
     polygon.vertexIds = newVertexIds;
 
