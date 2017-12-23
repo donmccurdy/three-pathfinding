@@ -1,6 +1,6 @@
 {
 	"name": "three-pathfinding",
-	"version": "0.5.0",
+	"version": "0.5.1",
 	"description": "Navigation mesh toolkit for three.js, based on PatrolJS",
 	"main": "src/index.js",
 	"scripts": {
@@ -30,7 +30,16 @@
 		"documentation": "^5.3.3",
 		"replace-between": "0.0.8"
 	},
-  "browserify": {
-    "transform": [["babelify", { "presets": ["env"] }]]
-  }
+	"browserify": {
+		"transform": [
+			[
+				"babelify",
+				{
+					"presets": [
+						"env"
+					]
+				}
+			]
+		]
+	}
 }
