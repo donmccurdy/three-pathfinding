@@ -29,5 +29,8 @@
 		"budo": "^10.0.4",
 		"documentation": "^5.3.3",
 		"replace-between": "0.0.8"
-	}
+	},
+  "browserify": {
+    "transform": [["babelify", { "presets": ["env"] }]]
+  }
 }
