@@ -13,12 +13,12 @@ npm install --save three-pathfinding
 ### Example
 
 ```js
-const Path = require('three-pathfinding');
-const pathfinder = new Path();
+const Pathfinder = require('three-pathfinding');
+const pathfinder = new Pathfinder();
 
 // Create level.
 const ZONE = 'level1';
-pathfinder.setZoneData(ZONE, Path.createZone(this.navMesh.geometry));
+pathfinder.setZoneData(ZONE, Pathfinder.createZone(this.navMesh.geometry));
 
 // Find path from A to B.
 const groupID = pathfinder.getGroup(ZONE, a);
