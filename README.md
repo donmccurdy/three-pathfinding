@@ -25,6 +25,18 @@ const groupID = pathfinder.getGroup(ZONE, a);
 const path = pathfinder.findPath(a, b, ZONE, groupID);
 ```
 
+### Running the demo locally
+
+```
+git clone https://github.com/donmccurdy/three-pathfinding.git
+cd three-pathfinding
+
+npm install
+npm run dev
+```
+
+The demo will start at http://localhost:9966/demo/demo.html.
+
 ## API
 
 <!--- API BEGIN --->
