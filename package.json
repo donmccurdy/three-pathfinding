@@ -6,6 +6,8 @@
 	"scripts": {
 		"dev": "budo browser.js:bundle.js --live",
 		"docs": "documentation build src/index.js --shallow -f md | replace-between --target README.md --token API",
+		"dist": "browserify browser.js -o dist/three-pathfinding.js && uglifyjs dist/three-pathfinding.js --mangle > dist/three-pathfinding.min.js",
+		"version": "npm run dist && git add -A dist",
 		"postversion": "git push && git push --tags && npm publish"
 	},
 	"keywords": [
@@ -25,10 +27,14 @@
 	"author": "Don McCurdy <dm@donmccurdy.com>",
 	"license": "MIT",
 	"devDependencies": {
+		"babel-core": "^6.26.0",
+		"babel-preset-env": "^1.6.1",
+		"babelify": "^8.0.0",
 		"browserify": "^14.4.0",
 		"budo": "^10.0.4",
 		"documentation": "^5.3.3",
-		"replace-between": "0.0.8"
+		"replace-between": "0.0.8",
+		"uglify-js": "^3.3.3"
 	},
 	"browserify": {
 		"transform": [
