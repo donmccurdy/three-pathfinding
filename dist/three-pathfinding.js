@@ -887,11 +887,6 @@ Path.prototype.clampStep = function () {
 
 			triangle.set(vertices[currentNode.vertexIds[0]], vertices[currentNode.vertexIds[1]], vertices[currentNode.vertexIds[2]]);
 
-			if (triangle.containsPoint(end)) {
-				endTarget.copy(end);
-				return currentNode;
-			}
-
 			triangle.closestPointToPoint(end, point);
 
 			if (point.distanceToSquared(end) < closestDistance) {

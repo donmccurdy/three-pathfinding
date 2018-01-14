@@ -1,6 +1,6 @@
 {
 	"name": "three-pathfinding",
-	"version": "0.5.2",
+	"version": "0.5.3",
 	"description": "Navigation mesh toolkit for three.js, based on PatrolJS",
 	"main": "src/index.js",
 	"scripts": {
