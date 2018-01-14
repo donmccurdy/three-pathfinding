@@ -220,11 +220,6 @@ Path.prototype.clampStep = (function () {
 				vertices[currentNode.vertexIds[2]]
 			);
 
-			if (triangle.containsPoint(end)) {
-				endTarget.copy(end);
-				return currentNode;
-			}
-
 			triangle.closestPointToPoint(end, point);
 
 			if (point.distanceToSquared(end) < closestDistance) {
