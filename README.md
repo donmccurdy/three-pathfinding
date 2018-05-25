@@ -2,7 +2,15 @@
 
 Navigation mesh toolkit for ThreeJS, based on [PatrolJS](https://github.com/nickjanssen/PatrolJS). Computes paths between points on a 3D nav mesh, supports multiple zones, and clamps movement vectors for FPS controls. To learn how to create a navigation mesh using Blender, see [Creating a Nav Mesh](https://www.donmccurdy.com/2017/08/20/creating-a-nav-mesh-for-a-webvr-scene/).
 
+Thanks to [Nick Janssen](nickjanssen) for creating [PatrolJS](https://github.com/nickjanssen/PatrolJS), which was the basis for this library.
+
 ![screenshot](https://user-images.githubusercontent.com/1848368/34424850-d79e5a24-ebf4-11e7-87c4-afc75cdc41bd.png)
+
+## Introduction
+
+Traditionally games and 3D apps used waypoints to help their AI agents navigate. This is bad and has a lot of problems, but is generally easier to implement than navigation meshes. Navmeshes are far more accurate, faster, and take into account the size of the AI agent (e.g. tanks require move space to maneuver than soldiers).
+
+For a thorough introduction to Navigation mesh pathfinding, see AI Blog's article, [Fixing Pathfinding Once and For All](http://www.ai-blog.net/archives/000152.html).
 
 ## Quickstart
 
@@ -12,7 +20,30 @@ Navigation mesh toolkit for ThreeJS, based on [PatrolJS](https://github.com/nick
 npm install --save three-pathfinding
 ```
 
+### Creating a Navigation Mesh
+
+This library does not build navigation meshes for you — instead, create a navigation mesh using [Blender](https://youtu.be/v4d_6ZCGlAg?t=6m8s), [Recast](https://github.com/recastnavigation/recastnavigation) ([CLI](https://github.com/but0n/recastCLI.js)), or another tool.
+
+The library accepts a [THREE.Geometry](https://threejs.org/docs/#api/core/Geometry) instance, which can be loaded with any three.js loader and converted from BufferGeometry if necessary.
+
 ### Example
+
+Loading a mesh from a `.gltf` file:
+
+```js
+let mesh;
+
+const loader = new THREE.GLTFLoader();
+loader.load( 'navmesh.gltf', ({scene}) => {
+    scene.traverse((node) => {
+        if (node.isMesh) mesh = node;
+    });
+}, undefined, (e) => {
+    console.error(e);
+});
+```
+
+Initializing the library, creating a level, and finding a path:
 
 ```js
 const Pathfinder = require('three-pathfinding');
