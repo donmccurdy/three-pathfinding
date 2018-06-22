@@ -35,17 +35,5 @@
 		"documentation": "^5.3.3",
 		"replace-between": "0.0.8",
 		"uglify-js": "^3.3.3"
-	},
-	"browserify": {
-		"transform": [
-			[
-				"babelify",
-				{
-					"presets": [
-						"env"
-					]
-				}
-			]
-		]
 	}
 }
