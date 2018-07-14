@@ -46,16 +46,21 @@ loader.load( 'navmesh.gltf', ({scene}) => {
 Initializing the library, creating a level, and finding a path:
 
 ```js
-const Pathfinder = require('three-pathfinding');
-const pathfinder = new Pathfinder();
+// ES6
+import { Pathfinding } from 'three-pathfinding';
+// CommonJS
+const Pathfinding = require('three-pathfinding').Pathfinding;
+// UMD
+const Pathfinding = window.threePathfinding.Pathfinding;
 
 // Create level.
+const pathfinding = new Pathfinding();
 const ZONE = 'level1';
-pathfinder.setZoneData(ZONE, Pathfinder.createZone(mesh.geometry));
+pathfinding.setZoneData(ZONE, Pathfinding.createZone(mesh.geometry));
 
 // Find path from A to B.
-const groupID = pathfinder.getGroup(ZONE, a);
-const path = pathfinder.findPath(a, b, ZONE, groupID);
+const groupID = pathfinding.getGroup(ZONE, a);
+const path = pathfinding.findPath(a, b, ZONE, groupID);
 ```
 
 ### Running the demo locally
@@ -78,19 +83,19 @@ The demo will start at http://localhost:9966/demo/demo.html.
 
 ### Table of Contents
 
--   [Path](#path)
-    -   [setZoneData](#setzonedata)
-    -   [getGroup](#getgroup)
-    -   [getRandomNode](#getrandomnode)
-    -   [getClosestNode](#getclosestnode)
-    -   [findPath](#findpath)
-    -   [clampStep](#clampstep)
-    -   [createZone](#createzone)
--   [Zone](#zone)
--   [Group](#group)
--   [Node](#node)
+-   [Pathfinding][1]
+    -   [setZoneData][2]
+    -   [getGroup][3]
+    -   [getRandomNode][4]
+    -   [getClosestNode][5]
+    -   [findPath][6]
+    -   [clampStep][7]
+    -   [createZone][8]
+-   [Zone][9]
+-   [Group][10]
+-   [Node][11]
 
-## Path
+## Pathfinding
 
 Defines an instance of the pathfinding module, with one or more zones.
 
@@ -100,8 +105,8 @@ Sets data for the given zone.
 
 **Parameters**
 
--   `zoneID` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
--   `zone` **[Zone](#zone)** 
+-   `zoneID` **[string][12]** 
+-   `zone` **[Zone][13]** 
 
 ### getGroup
 
@@ -109,10 +114,10 @@ Returns closest node group ID for given position.
 
 **Parameters**
 
--   `zoneID` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+-   `zoneID` **[string][12]** 
 -   `position` **THREE.Vector3** 
 
-Returns **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
+Returns **[number][14]** 
 
 ### getRandomNode
 
@@ -120,12 +125,12 @@ Returns a random node within a given range of a given position.
 
 **Parameters**
 
--   `zoneID` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
--   `groupID` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
+-   `zoneID` **[string][12]** 
+-   `groupID` **[number][14]** 
 -   `nearPosition` **THREE.Vector3** 
--   `nearRange` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
+-   `nearRange` **[number][14]** 
 
-Returns **[Node](#node)** 
+Returns **[Node][15]** 
 
 ### getClosestNode
 
@@ -134,11 +139,11 @@ Returns the closest node to the target position.
 **Parameters**
 
 -   `position` **THREE.Vector3** 
--   `zoneID` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
--   `groupID` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
--   `checkPolygon` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)**  (optional, default `false`)
+-   `zoneID` **[string][12]** 
+-   `groupID` **[number][14]** 
+-   `checkPolygon` **[boolean][16]**  (optional, default `false`)
 
-Returns **[Node](#node)** 
+Returns **[Node][15]** 
 
 ### findPath
 
@@ -149,10 +154,10 @@ cannot be found, will return the nearest endpoint available.
 
 -   `startPosition` **THREE.Vector3** Start position.
 -   `targetPosition` **THREE.Vector3** Destination.
--   `zoneID` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** ID of current zone.
--   `groupID` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** Current group ID.
+-   `zoneID` **[string][12]** ID of current zone.
+-   `groupID` **[number][14]** Current group ID.
 
-Returns **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;THREE.Vector3>** Array of points defining the path.
+Returns **[Array][17]&lt;THREE.Vector3>** Array of points defining the path.
 
 ### clampStep
 
@@ -163,12 +168,12 @@ used to constrain first-person / WASD controls.
 
 -   `start` **THREE.Vector3** 
 -   `end` **THREE.Vector3** Desired endpoint.
--   `node` **[Node](#node)** 
--   `zoneID` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
--   `groupID` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
+-   `node` **[Node][15]** 
+-   `zoneID` **[string][12]** 
+-   `groupID` **[number][14]** 
 -   `endTarget` **THREE.Vector3** Updated endpoint.
 
-Returns **[Node](#node)** Updated node.
+Returns **[Node][15]** Updated node.
 
 ### createZone
 
@@ -178,7 +183,7 @@ Returns **[Node](#node)** Updated node.
 
 -   `geometry` **THREE.Geometry** 
 
-Returns **[Zone](#zone)** 
+Returns **[Zone][13]** 
 
 ## Zone
 
@@ -186,7 +191,7 @@ Defines a zone of interconnected groups on a navigation mesh.
 
 **Properties**
 
--   `groups` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[Group](#group)>** 
+-   `groups` **[Array][17]&lt;[Group][18]>** 
 
 ## Group
 
@@ -198,12 +203,48 @@ Defines a node (or polygon) within a group.
 
 **Properties**
 
--   `id` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
--   `neighbours` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)>** IDs of neighboring nodes.
+-   `id` **[number][14]** 
+-   `neighbours` **[Array][17]&lt;[number][14]>** IDs of neighboring nodes.
 -   `centroid` **THREE.Vector3** 
--   `portals` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)>>** Array of portals, each defined by two vertex IDs.
--   `closed` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 
--   `cost` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
+-   `portals` **[Array][17]&lt;[Array][17]&lt;[number][14]>>** Array of portals, each defined by two vertex IDs.
+-   `closed` **[boolean][16]** 
+-   `cost` **[number][14]** 
+
+[1]: #pathfinding
+
+[2]: #setzonedata
+
+[3]: #getgroup
+
+[4]: #getrandomnode
+
+[5]: #getclosestnode
+
+[6]: #findpath
+
+[7]: #clampstep
+
+[8]: #createzone
+
+[9]: #zone
+
+[10]: #group
+
+[11]: #node
+
+[12]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
+
+[13]: #zone
+
+[14]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
+
+[15]: #node
+
+[16]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean
+
+[17]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
+
+[18]: #group
 <!--- API END --->
 
 ## Thanks to
