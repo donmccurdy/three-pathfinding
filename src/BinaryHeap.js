@@ -131,4 +131,4 @@ class BinaryHeap {
 
 }
 
-module.exports = BinaryHeap;
+export { BinaryHeap };

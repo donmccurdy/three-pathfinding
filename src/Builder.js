@@ -1,4 +1,4 @@
-const utils = require('./utils');
+import { Utils } from './Utils';
 
 let polygonId = 1;
 
@@ -15,9 +15,9 @@ class Builder {
     const zone = {};
 
     navMesh.vertices.forEach((v) => {
-      v.x = utils.roundNumber(v.x, 2);
-      v.y = utils.roundNumber(v.y, 2);
-      v.z = utils.roundNumber(v.z, 2);
+      v.x = Utils.roundNumber(v.x, 2);
+      v.y = Utils.roundNumber(v.y, 2);
+      v.z = Utils.roundNumber(v.z, 2);
     });
 
     zone.vertices = navMesh.vertices;
@@ -43,9 +43,9 @@ class Builder {
         // Build a portal list to each neighbour
         const portals = p.neighbours.map((n) => this._getSharedVerticesInOrder(p, n));
 
-        p.centroid.x = utils.roundNumber(p.centroid.x, 2);
-        p.centroid.y = utils.roundNumber(p.centroid.y, 2);
-        p.centroid.z = utils.roundNumber(p.centroid.z, 2);
+        p.centroid.x = Utils.roundNumber(p.centroid.x, 2);
+        p.centroid.y = Utils.roundNumber(p.centroid.y, 2);
+        p.centroid.z = Utils.roundNumber(p.centroid.z, 2);
 
         newGroup.push({
           id: findPolygonIndex(group, p),
@@ -69,7 +69,7 @@ class Builder {
    * @return {Object}
    */
   static _buildNavigationMesh (geometry) {
-    utils.computeCentroids(geometry);
+    Utils.computeCentroids(geometry);
     geometry.mergeVertices();
     return this._buildPolygonsFromGeometry(geometry);
   }
@@ -116,7 +116,7 @@ class Builder {
       // Don't check polygons that are too far, since the intersection tests take a long time
       if (polygon.centroid.distanceToSquared(navigationMesh.polygons[i].centroid) > 100 * 100) continue;
 
-      const matches = utils.array_intersect(polygon.vertexIds, navigationMesh.polygons[i].vertexIds);
+      const matches = Utils.array_intersect(polygon.vertexIds, navigationMesh.polygons[i].vertexIds);
 
       if (matches.length >= 2) {
         polygon.neighbours.push(navigationMesh.polygons[i]);
@@ -193,4 +193,4 @@ class Builder {
   }
 }
 
-module.exports = Builder;
+export { Builder };

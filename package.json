@@ -2,11 +2,19 @@
 	"name": "three-pathfinding",
 	"version": "0.5.5",
 	"description": "Navigation mesh toolkit for three.js, based on PatrolJS",
-	"main": "src/index.js",
+	"author": "Don McCurdy <dm@donmccurdy.com>",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/donmccurdy/three-pathfinding.git"
+	},
+	"main": "dist/three-pathfinding.js",
+	"module": "dist/three-pathfinding.module.js",
+	"source": "src/index.js",
 	"scripts": {
-		"dev": "budo browser.js:bundle.js --live",
+		"dev": "concurrently \"microbundle watch --target browser\" \"serve --listen 5000\"",
 		"docs": "documentation build src/index.js --shallow -f md | replace-between --target README.md --token API",
-		"dist": "browserify browser.js -o dist/three-pathfinding.js && uglifyjs dist/three-pathfinding.js --mangle > dist/three-pathfinding.min.js",
+		"dist": "microbundle --target browser",
 		"version": "npm run dist && git add -A dist",
 		"postversion": "git push && git push --tags && npm publish"
 	},
@@ -24,28 +32,12 @@
 		"navmesh",
 		"navigation"
 	],
-	"author": "Don McCurdy <dm@donmccurdy.com>",
-	"license": "MIT",
 	"devDependencies": {
-		"babel-core": "^6.26.0",
-		"babel-preset-env": "^1.6.1",
-		"babelify": "^8.0.0",
-		"browserify": "^14.4.0",
-		"budo": "^10.0.4",
+		"concurrently": "^3.6.0",
 		"documentation": "^5.3.3",
+		"microbundle": "^0.5.1",
 		"replace-between": "0.0.8",
+		"serve": "^9.2.0",
 		"uglify-js": "^3.3.3"
-	},
-	"browserify": {
-		"transform": [
-			[
-				"babelify",
-				{
-					"presets": [
-						"env"
-					]
-				}
-			]
-		]
 	}
 }

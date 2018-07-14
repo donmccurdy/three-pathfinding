@@ -303,4 +303,4 @@ class Utils {
   }
 }
 
-module.exports = Utils;
+export { Utils };

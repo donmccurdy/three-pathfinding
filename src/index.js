@@ -1,14 +1,14 @@
 /* global THREE */
 
-const utils = require('./utils');
-const AStar = require('./AStar');
-const Builder = require('./Builder');
-const Channel = require('./Channel');
+import { Utils } from './Utils';
+import { AStar } from './AStar';
+import { Builder } from './Builder';
+import { Channel } from './Channel';
 
 /**
  * Defines an instance of the pathfinding module, with one or more zones.
  */
-class Path {
+class Pathfinding {
 	constructor () {
 		this.zones = {};
 	}
@@ -45,7 +45,7 @@ class Path {
 
 		this.zones[zoneID].groups.forEach((group, index) => {
 			group.forEach((node) => {
-				const measuredDistance = utils.distanceToSquared(node.centroid, position);
+				const measuredDistance = Utils.distanceToSquared(node.centroid, position);
 				if (measuredDistance < distance) {
 					closestNodeGroup = index;
 					distance = measuredDistance;
@@ -76,7 +76,7 @@ class Path {
 
 		polygons.forEach((p) => {
 			if (nearPosition && nearRange) {
-				if (utils.distanceToSquared(nearPosition, p.centroid) < nearRange * nearRange) {
+				if (Utils.distanceToSquared(nearPosition, p.centroid) < nearRange * nearRange) {
 					candidates.push(p.centroid);
 				}
 			} else {
@@ -84,7 +84,7 @@ class Path {
 			}
 		});
 
-		return utils.sample(candidates) || new THREE.Vector3();
+		return Utils.sample(candidates) || new THREE.Vector3();
 	}
 
 	/**
@@ -102,9 +102,9 @@ class Path {
 		let closestDistance = Infinity;
 
 		nodes.forEach((node) => {
-			const distance = utils.distanceToSquared(node.centroid, position);
+			const distance = Utils.distanceToSquared(node.centroid, position);
 			if (distance < closestDistance
-					&& (!checkPolygon || utils.isVectorInPolygon(position, node, vertices))) {
+					&& (!checkPolygon || Utils.isVectorInPolygon(position, node, vertices))) {
 				closestNode = node;
 				closestDistance = distance;
 			}
@@ -182,7 +182,7 @@ class Path {
  * @param  {THREE.Vector3} endTarget Updated endpoint.
  * @return {Node} Updated node.
  */
-Path.prototype.clampStep = (function () {
+Pathfinding.prototype.clampStep = (function () {
 	const point = new THREE.Vector3();
 	const plane = new THREE.Plane();
 	const triangle = new THREE.Triangle();
@@ -275,4 +275,4 @@ const Group = {}; // jshint ignore:line
  */
 const Node = {}; // jshint ignore:line
 
-module.exports = Path;
+export { Pathfinding };

@@ -34,7 +34,7 @@
 
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r71/three.js"></script>
 		<script src="OrbitControls.js"></script>
-		<script src="../bundle.js"></script>
+		<script src="../dist/three-pathfinding.umd.js"></script>
 
 		<div class="info">
 			<p>Click anywhere on the level to calculate a path. Meta+Click to teleport.</p>
@@ -42,6 +42,9 @@
 
 		<script>
 
+			/* global threePathfinding */
+
+			THREE.Pathfinding = threePathfinding.Pathfinding;
 			var pathfinder = new THREE.Pathfinding();
 
 			var container;

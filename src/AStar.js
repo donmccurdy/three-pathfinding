@@ -1,5 +1,5 @@
-const BinaryHeap = require('./BinaryHeap');
-const utils = require('./utils.js');
+import { BinaryHeap } from './BinaryHeap';
+import { Utils } from './Utils.js';
 
 class AStar {
   static init (graph) {
@@ -106,7 +106,7 @@ class AStar {
   }
 
   static heuristic (pos1, pos2) {
-    return utils.distanceToSquared(pos1, pos2);
+    return Utils.distanceToSquared(pos1, pos2);
   }
 
   static neighbours (graph, node) {
@@ -120,4 +120,4 @@ class AStar {
   }
 }
 
-module.exports = AStar;
+export { AStar };

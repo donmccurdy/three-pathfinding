@@ -1,4 +1,4 @@
-const utils = require('./utils');
+import { Utils } from './Utils';
 
 class Channel {
   constructor () {
@@ -34,8 +34,8 @@ class Channel {
       const right = portals[i].right;
 
       // Update right vertex.
-      if (utils.triarea2(portalApex, portalRight, right) <= 0.0) {
-        if (utils.vequal(portalApex, portalRight) || utils.triarea2(portalApex, portalLeft, right) > 0.0) {
+      if (Utils.triarea2(portalApex, portalRight, right) <= 0.0) {
+        if (Utils.vequal(portalApex, portalRight) || Utils.triarea2(portalApex, portalLeft, right) > 0.0) {
           // Tighten the funnel.
           portalRight = right;
           rightIndex = i;
@@ -57,8 +57,8 @@ class Channel {
       }
 
       // Update left vertex.
-      if (utils.triarea2(portalApex, portalLeft, left) >= 0.0) {
-        if (utils.vequal(portalApex, portalLeft) || utils.triarea2(portalApex, portalRight, left) < 0.0) {
+      if (Utils.triarea2(portalApex, portalLeft, left) >= 0.0) {
+        if (Utils.vequal(portalApex, portalLeft) || Utils.triarea2(portalApex, portalRight, left) < 0.0) {
           // Tighten the funnel.
           portalLeft = left;
           leftIndex = i;
@@ -80,7 +80,7 @@ class Channel {
       }
     }
 
-    if ((pts.length === 0) || (!utils.vequal(pts[pts.length - 1], portals[portals.length - 1].left))) {
+    if ((pts.length === 0) || (!Utils.vequal(pts[pts.length - 1], portals[portals.length - 1].left))) {
       // Append last point to path.
       pts.push(portals[portals.length - 1].left);
     }
@@ -90,4 +90,4 @@ class Channel {
   }
 }
 
-module.exports = Channel;
+export { Channel };
