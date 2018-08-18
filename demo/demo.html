@@ -8,32 +8,32 @@
 	</head>
 
 	<style>
-    body {
-      font-family: Helvetica, sans-serify;
-      background-color: #000;
-      color: #fff;
-      margin: 0px;
-      overflow: hidden;
-    }
+		body {
+			font-family: Helvetica, sans-serify;
+			background-color: #000;
+			color: #fff;
+			margin: 0px;
+			overflow: hidden;
+		}
 
-    .info {
-      padding: 1em;
-      width: 100%;
-      position: absolute;
-      background-color: rgba(0, 0, 0, 0.8);
-      font-size: 14px;
-    }
+		.info {
+			padding: 1em;
+			width: 100%;
+			position: absolute;
+			background-color: rgba(0, 0, 0, 0.8);
+			font-size: 14px;
+		}
 
-    .info p {
-      padding: 0;
-      margin: 0;
-    }
+		.info p {
+			padding: 0;
+			margin: 0;
+		}
 	</style>
 
 	<body>
 
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r71/three.js"></script>
-		<script src="OrbitControls.js"></script>
+		<script src="../node_modules/three/build/three.js"></script>
+		<script src="../node_modules/three/examples/js/controls/OrbitControls.js"></script>
 		<script src="../dist/three-pathfinding.umd.js"></script>
 
 		<div class="info">
@@ -96,33 +96,35 @@
 				directionalLight.position.set( 0, 0.5, 0.5 );
 				scene.add( directionalLight );
 
-  				var jsonLoader = new THREE.JSONLoader();
+					var jsonLoader = new THREE.JSONLoader();
 
-		        jsonLoader.load( 'meshes/level.js', function( geometry, materials ) {
-		        	level = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial(materials));
-		        	scene.add(level);
-		        }, null);
+						jsonLoader.load( 'meshes/level.js', function( geometry, materials ) {
+							level = new THREE.Mesh(geometry, materials);
+							scene.add(level);
+						}, null);
 
-		        jsonLoader.load( 'meshes/level.nav.js', function( geometry, materials ) {
+						jsonLoader.load( 'meshes/level.nav.js', function( geometry, materials ) {
 
+					console.time('createZone()');
 					var zoneNodes = THREE.Pathfinding.createZone(geometry);
+					console.timeEnd('createZone()');
 
 					pathfinder.setZoneData('level', zoneNodes);
 
-		        	var mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
-		        		color: 0xd79fd4,
-		        		opacity: 0.5,
-		        		transparent: true
-		        	}));
+							var mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+								color: 0xd79fd4,
+								opacity: 0.5,
+								transparent: true
+							}));
 
-		        	scene.add(mesh);
+							scene.add(mesh);
 
-		        	// Set the player's navigation mesh group
-		        	playerNavMeshGroup = pathfinder.getGroup('level', player.position);
+							// Set the player's navigation mesh group
+							playerNavMeshGroup = pathfinder.getGroup('level', player.position);
 
-		        }, null);
+						}, null);
 
-		        // Add test sphere
+						// Add test sphere
 				var geometry = new THREE.SphereGeometry( 0.25, 32, 32 );
 				var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
 				player = new THREE.Mesh( geometry, material );
@@ -227,13 +229,13 @@
 			}
 
 			function animate() {
-                var currTime = window.performance.now();
-                var delta = (currTime - lastFrameTime) / 1000;
-                var dTime = Math.min(delta, maxFrameTime);
-                elapsedTime += delta;
-                lastFrameTime = currTime;
+								var currTime = window.performance.now();
+								var delta = (currTime - lastFrameTime) / 1000;
+								var dTime = Math.min(delta, maxFrameTime);
+								elapsedTime += delta;
+								lastFrameTime = currTime;
 
-                tick(dTime);
+								tick(dTime);
 
 				requestAnimationFrame( animate );
 				render();

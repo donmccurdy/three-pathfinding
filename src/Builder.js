@@ -32,12 +32,16 @@ class Builder {
       }
     };
 
+    // TODO: This block represents 50-60% of navigation mesh construction time,
+    // and could probably be optimized. For example, construct portals while
+    // determining the neighbor graph.
     groups.forEach((group) => {
 
       const newGroup = [];
 
       group.forEach((p) => {
 
+        // TODO: Optimize.
         const neighbours = p.neighbours.map((n) => findPolygonIndex(group, n));
 
         // Build a portal list to each neighbour
@@ -106,22 +110,28 @@ class Builder {
     return polygonGroups;
   }
 
-  static _buildPolygonNeighbours (polygon, navigationMesh) {
-    polygon.neighbours = [];
+  static _buildPolygonNeighbours (polygon, navigationMesh, vertexPolygonMap) {
+    const neighbors = new Set();
 
-    // All other nodes that contain at least two of our vertices are our neighbours
-    for (let i = 0, len = navigationMesh.polygons.length; i < len; i++) {
-      if (polygon === navigationMesh.polygons[i]) continue;
+    const groupA = vertexPolygonMap.get(polygon.vertexIds[0]);
+    const groupB = vertexPolygonMap.get(polygon.vertexIds[1]);
+    const groupC = vertexPolygonMap.get(polygon.vertexIds[2]);
 
-      // Don't check polygons that are too far, since the intersection tests take a long time
-      if (polygon.centroid.distanceToSquared(navigationMesh.polygons[i].centroid) > 100 * 100) continue;
-
-      const matches = Utils.array_intersect(polygon.vertexIds, navigationMesh.polygons[i].vertexIds);
-
-      if (matches.length >= 2) {
-        polygon.neighbours.push(navigationMesh.polygons[i]);
+    // It's only necessary to iterate groups A and B. Polygons contained only
+    // in group C cannot share a >1 vertex with this polygon.
+    // IMPORTANT: Bublé cannot compile for-of loops.
+    groupA.forEach((candidate) => {
+      if (groupB.has(candidate) || groupC.has(candidate)) {
+        neighbors.add(navigationMesh.polygons[candidate]);
       }
-    }
+    });
+    groupB.forEach((candidate) => {
+      if (groupC.has(candidate)) {
+        neighbors.add(navigationMesh.polygons[candidate]);
+      }
+    });
+
+    polygon.neighbours = Array.from(neighbors);
   }
 
   static _buildPolygonsFromGeometry (geometry) {
@@ -129,6 +139,15 @@ class Builder {
     const polygons = [];
     const vertices = geometry.vertices;
     const faceVertexUvs = geometry.faceVertexUvs;
+
+    // Constructing the neighbor graph brute force is O(n²). To avoid that,
+    // create a map from vertices to the polygons that contain them, and use it
+    // while connecting polygons. This reduces complexity to O(n*m), where 'm'
+    // is related to connectivity of the mesh.
+    const vertexPolygonMap = new Map(); // Map<vertexID, Set<polygonIndex>>
+    for (let i = 0; i < vertices.length; i++) {
+      vertexPolygonMap.set(i, new Set());
+    }
 
     // Convert the faces into a custom format that supports more than 3 vertices
     geometry.faces.forEach((face) => {
@@ -139,6 +158,9 @@ class Builder {
         normal: face.normal,
         neighbours: []
       });
+      vertexPolygonMap.get(face.a).add(polygons.length - 1);
+      vertexPolygonMap.get(face.b).add(polygons.length - 1);
+      vertexPolygonMap.get(face.c).add(polygons.length - 1);
     });
 
     const navigationMesh = {
@@ -149,7 +171,7 @@ class Builder {
 
     // Build a list of adjacent polygons
     polygons.forEach((polygon) => {
-      this._buildPolygonNeighbours(polygon, navigationMesh);
+      this._buildPolygonNeighbours(polygon, navigationMesh, vertexPolygonMap);
     });
 
     return navigationMesh;
@@ -160,36 +182,36 @@ class Builder {
     const aList = a.vertexIds;
     const bList = b.vertexIds;
 
-    const sharedVertices = [];
+    const sharedVertices = new Set();
 
     aList.forEach((vId) => {
       if (bList.includes(vId)) {
-        sharedVertices.push(vId);
+        sharedVertices.add(vId);
       }
     });
 
-    if (sharedVertices.length < 2) return [];
+    if (sharedVertices.size < 2) return [];
 
-    if (sharedVertices.includes(aList[0]) && sharedVertices.includes(aList[aList.length - 1])) {
+    if (sharedVertices.has(aList[0]) && sharedVertices.has(aList[aList.length - 1])) {
       // Vertices on both edges are bad, so shift them once to the left
       aList.push(aList.shift());
     }
 
-    if (sharedVertices.includes(bList[0]) && sharedVertices.includes(bList[bList.length - 1])) {
+    if (sharedVertices.has(bList[0]) && sharedVertices.has(bList[bList.length - 1])) {
       // Vertices on both edges are bad, so shift them once to the left
       bList.push(bList.shift());
     }
 
     // Again!
-    sharedVertices.length = 0;
+    const sharedVerticesOrdered = [];
 
     aList.forEach((vId) => {
       if (bList.includes(vId)) {
-        sharedVertices.push(vId);
+        sharedVerticesOrdered.push(vId);
       }
     });
 
-    return sharedVertices;
+    return sharedVerticesOrdered;
   }
 }
 

@@ -16,9 +16,8 @@ class Utils {
     }
   }
 
-  static roundNumber (number, decimals) {
-    var newnumber = Number(number + '').toFixed(parseInt(decimals));
-    return parseFloat(newnumber);
+  static roundNumber (value, decimals) {
+    return Number(value.toFixed(decimals));
   }
 
   static sample (list) {
@@ -265,41 +264,6 @@ class Utils {
 
   static vequal (a, b) {
     return this.distanceToSquared(a, b) < 0.00001;
-  }
-
-  static array_intersect () {
-    let i, shortest, nShortest, n, len, ret = [],
-      obj = {},
-      nOthers;
-    nOthers = arguments.length - 1;
-    nShortest = arguments[0].length;
-    shortest = 0;
-    for (i = 0; i <= nOthers; i++) {
-      n = arguments[i].length;
-      if (n < nShortest) {
-        shortest = i;
-        nShortest = n;
-      }
-    }
-
-    for (i = 0; i <= nOthers; i++) {
-      n = (i === shortest) ? 0 : (i || shortest); //Read the shortest array first. Read the first array instead of the shortest
-      len = arguments[n].length;
-      for (var j = 0; j < len; j++) {
-        var elem = arguments[n][j];
-        if (obj[elem] === i - 1) {
-          if (i === nOthers) {
-            ret.push(elem);
-            obj[elem] = 0;
-          } else {
-            obj[elem] = i;
-          }
-        } else if (i === 0) {
-          obj[elem] = 0;
-        }
-      }
-    }
-    return ret;
   }
 }
 
