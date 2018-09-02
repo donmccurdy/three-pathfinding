@@ -51,18 +51,11 @@
 
 			var camera, scene, renderer, controls;
 
-			var raycaster, intersectedObject;
+			var raycaster;
+
+			var clock = new THREE.Clock();
 
 			var mouse = new THREE.Vector2();
-
-			var startTime	= Date.now();
-
-			var windowHalfX = window.innerWidth / 2;
-			var windowHalfY = window.innerHeight / 2;
-
-			var lastFrameTime = 0;
-			var maxFrameTime = 0.03;
-			var elapsedTime = 0;
 
 			var level;
 
@@ -219,8 +212,6 @@
 			}
 
 			function onWindowResize() {
-				windowHalfX = window.innerWidth / 2;
-				windowHalfY = window.innerHeight / 2;
 
 				camera.aspect = window.innerWidth / window.innerHeight;
 				camera.updateProjectionMatrix();
@@ -229,14 +220,8 @@
 			}
 
 			function animate() {
-								var currTime = window.performance.now();
-								var delta = (currTime - lastFrameTime) / 1000;
-								var dTime = Math.min(delta, maxFrameTime);
-								elapsedTime += delta;
-								lastFrameTime = currTime;
 
-								tick(dTime);
-
+				tick(clock.getDelta());
 				requestAnimationFrame( animate );
 				render();
 			}
@@ -257,11 +242,9 @@
 
 					if (vel.lengthSq() > 0.05 * 0.05) {
 						vel.normalize();
-
 						// Mve player to target
 						player.position.add(vel.multiplyScalar(dTime * speed));
-					}
-					else {
+					} else {
 						// Remove node from the path we calculated
 						calculatedPath.shift();
 					}
@@ -269,9 +252,9 @@
 			}
 
 			function render() {
+
 				camera.lookAt( scene.position );
 				camera.updateMatrixWorld();
-
 				renderer.render( scene, camera );
 
 			}

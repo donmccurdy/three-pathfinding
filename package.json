@@ -38,7 +38,7 @@
 		"microbundle": "^0.5.1",
 		"replace-between": "0.0.8",
 		"serve": "^9.2.0",
-		"three": "^0.95.0",
+		"three": "^0.96.0",
 		"uglify-js": "^3.3.3"
 	}
 }

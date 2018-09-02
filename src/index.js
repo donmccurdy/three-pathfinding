@@ -15,10 +15,18 @@ class Pathfinding {
 
 	/**
 	 * (Static) Builds a zone/node set from navigation mesh geometry.
-	 * @param  {THREE.Geometry} geometry
+	 * @param  {THREE.BufferGeometry} geometry
 	 * @return {Zone}
 	 */
 	static createZone (geometry) {
+		if ( geometry.isGeometry ) {
+			// Haven't actually implemented support for BufferGeometry yet, but Geometry is somewhat
+			// not-recommended these days, so go ahead and start warning.
+			console.warn('[three-pathfinding]: Use THREE.BufferGeometry, not THREE.Geometry, to create zone.');
+		} else {
+			geometry = new THREE.Geometry().fromBufferGeometry(geometry);
+		}
+
 		return Builder.buildZone(geometry);
 	}
 
