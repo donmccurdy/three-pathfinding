@@ -1,6 +1,6 @@
 {
 	"name": "three-pathfinding",
-	"version": "0.7.0",
+	"version": "0.8.0",
 	"description": "Navigation mesh toolkit for three.js, based on PatrolJS",
 	"author": "Don McCurdy <dm@donmccurdy.com>",
 	"license": "MIT",
