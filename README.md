@@ -181,7 +181,7 @@ Returns **[Node][15]** Updated node.
 
 **Parameters**
 
--   `geometry` **THREE.Geometry** 
+-   `geometry` **THREE.BufferGeometry** 
 
 Returns **[Zone][13]** 
 
