@@ -47,7 +47,7 @@ test('pathing near close, adjacent nodes', (t) => {
   );
   geometry.faces.push( new THREE.Face3( 0, 1, 2 ) );
   geometry.faces.push( new THREE.Face3( 0, 3, 4 ) );
-  geometry.faces.push( new THREE.Face3( 0, 1, 4 ) );
+  geometry.faces.push( new THREE.Face3( 0, 4, 1 ) );
 
   const zone = Pathfinding.createZone(geometry);
   pathfinding.setZoneData(ZONE, zone);
