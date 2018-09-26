@@ -135,7 +135,7 @@ class Pathfinding {
 		const nodes = this.zones[zoneID].groups[groupID];
 		const vertices = this.zones[zoneID].vertices;
 
-		const closestNode = this.getClosestNode(startPosition, zoneID, groupID);
+		const closestNode = this.getClosestNode(startPosition, zoneID, groupID, true);
 		const farthestNode = this.getClosestNode(targetPosition, zoneID, groupID, true);
 
 		// If we can't find any node, just go straight to the target
