@@ -54,10 +54,8 @@ test('pathing near close nodes in a different group', (t) => {
 
   const a = new THREE.Vector3(0.1, 0, 0.2);
   const b = new THREE.Vector3(0.9, 0, 0.2);
-  const groupID = pathfinding.getGroup(ZONE, a);
+  const groupID = pathfinding.getGroup(ZONE, a, true);
   const path = pathfinding.findPath(a, b, ZONE, groupID);
-
-  console.log(path);
 
   t.ok(path, 'finds path');
   t.equal(path.length, 1, 'path contains 1 waypoint');
