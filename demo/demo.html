@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -27,10 +26,17 @@
 		.info p {
 			padding: 0;
 			margin: 0;
-				margin-bottom: 0.1em;
+			margin-bottom: 0.1em;
 		}
 
-		.swatch { display: inline-block; width: 1em; height: 1em; vertical-align: top; margin: 0.1em; border: 1px solid white; }
+		.swatch {
+			display: inline-block;
+			width: 1em;
+			height: 1em;
+			vertical-align: top;
+			margin: 0.1em;
+			border: 1px solid white;
+		}
 	</style>
 
 	<body>
@@ -65,8 +71,6 @@
 			var mouse = new THREE.Vector2();
 
 			var level;
-
-			var levelNav;
 
 			var closestNodeMarker = new THREE.Mesh(
 				new THREE.BoxGeometry(0.1, 0.8, 0.1),
@@ -133,13 +137,13 @@
 					navWireframe.position.y = 0.01;
 					scene.add(navWireframe);
 
-					levelNav = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+					var mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
 						color: 0xd79fd4,
-						transparent: true,
-						opacity: 0.2
+						opacity: 0.5,
+						transparent: true
 					}));
 
-					scene.add(levelNav);
+					scene.add(mesh);
 
 					// Set the player's navigation mesh group
 					playerNavMeshGroup = pathfinder.getGroup('level', player.position);
@@ -147,18 +151,16 @@
 				}, null);
 
 				// Add test sphere
-				var geometry = new THREE.SphereGeometry( 0.15, 6, 2 );
+				var geometry = new THREE.SphereGeometry( 0.25, 32, 32 );
 				var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
 				player = new THREE.Mesh( geometry, material );
-				player.scale.y = 4;
 				scene.add( player );
 
 				player.position.set(-3.5, 0.5, 5.5);
 
-				geometry = new THREE.SphereGeometry( 0.1, 6, 2 );
+				geometry = new THREE.BoxGeometry( 0.3, 0.3, 0.3 );
 				var material = new THREE.MeshBasicMaterial( {color: 0xff0000} );
 				target = new THREE.Mesh( geometry, material );
-				target.scale.y = 4;
 				scene.add( target );
 
 				target.position.copy(player.position);
@@ -247,7 +249,7 @@
 						var debugPath = [player.position].concat(calculatedPath);
 
 						for (var i = 0; i < debugPath.length - 1; i++) {
-							geometry = new THREE.BoxGeometry( 0.1, 0.6, 0.1 );
+							geometry = new THREE.BoxGeometry( 0.3, 0.3, 0.3 );
 							var material = new THREE.MeshBasicMaterial( {color: 0x00ffff} );
 							var node = new THREE.Mesh( geometry, material );
 							node.position.copy(debugPath[i]);
@@ -275,7 +277,7 @@
 			}
 
 			function tick(dTime) {
-				if (!levelNav) {
+				if (!level) {
 					return;
 				}
 
