@@ -14,7 +14,7 @@ Thanks to [Nick Janssen](https://github.com/nickjanssen) for creating [PatrolJS]
 
 Traditionally games and 3D apps used waypoints to help their AI agents navigate. This is bad and has a lot of problems, but is generally easier to implement than navigation meshes. Navmeshes are far more accurate, faster, and take into account the size of the AI agent (e.g. tanks require move space to maneuver than soldiers).
 
-For a thorough introduction to Navigation mesh pathfinding, see AI Blog's article, [Fixing Pathfinding Once and For All](http://www.ai-blog.net/archives/000152.html).
+For a thorough introduction to Navigation mesh pathfinding, see AI Blog's article, [Fixing Pathfinding Once and For All](https://web.archive.org/web/20110807104022/http://www.ai-blog.net:80/archives/000152.html).
 
 ## Quickstart
 
