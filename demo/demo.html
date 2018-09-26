@@ -46,7 +46,7 @@
 		<script src="../dist/three-pathfinding.umd.js"></script>
 
 		<div class="info">
-			<p>Click anywhere on the level to calculate a path. Meta+Click to teleport.</p>
+			<p>Click anywhere on the level to calculate a path. Meta+Click or Right Click to teleport.</p>
 			<i class="swatch" style="background: #00ff00"></i> start/player
 			<i class="swatch" style="background: #ff0000"></i> target
 			<i class="swatch" style="background: #00ffff"></i> waypoint
@@ -213,17 +213,12 @@
 					const closestTargetNode = pathfinder.getClosestNode(target.position, 'level', targetGroup);
 					closestNodeMarker.position.copy(closestTargetNode.centroid);
 
-					const closestPlayerNode = pathfinder.getClosestNode(player.position, 'level', playerNavMeshGroup);
-					const clamped = new THREE.Vector3();
-					pathfinder.clampStep(
-						player.position, target.position.clone(), closestPlayerNode, 'level', playerNavMeshGroup, clamped);
-					clampedStepMarker.position.copy(clamped);
-					clampedStepMarker.visible = true;
-
 					// Calculate a path to the target and store it
 					calculatedPath = pathfinder.findPath(player.position, target.position, 'level', playerNavMeshGroup);
 
 					if (calculatedPath && calculatedPath.length) {
+
+						clampedStepMarker.visible = false;
 
 						if (pathLines) {
 							scene.remove(pathLines);
@@ -255,8 +250,17 @@
 							node.position.copy(debugPath[i]);
 							pathLines.add( node );
 						}
-					} else if (pathLines) {
-						scene.remove(pathLines);
+					} else {
+						const closestPlayerNode = pathfinder.getClosestNode(player.position, 'level', playerNavMeshGroup);
+						const clamped = new THREE.Vector3();
+						pathfinder.clampStep(
+							player.position, target.position.clone(), closestPlayerNode, 'level', playerNavMeshGroup, clamped);
+						clampedStepMarker.position.copy(clamped);
+						clampedStepMarker.visible = true;
+
+						if (pathLines) {
+							scene.remove(pathLines);
+						}
 					}
 				}
 			}
