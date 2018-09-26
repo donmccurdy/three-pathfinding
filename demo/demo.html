@@ -27,7 +27,10 @@
 		.info p {
 			padding: 0;
 			margin: 0;
+				margin-bottom: 0.1em;
 		}
+
+		.swatch { display: inline-block; width: 1em; height: 1em; vertical-align: top; margin: 0.1em; border: 1px solid white; }
 	</style>
 
 	<body>
@@ -38,10 +41,14 @@
 
 		<div class="info">
 			<p>Click anywhere on the level to calculate a path. Meta+Click to teleport.</p>
+			<i class="swatch" style="background: #00ff00"></i> start/player
+			<i class="swatch" style="background: #ff0000"></i> target
+			<i class="swatch" style="background: #00ffff"></i> waypoint
+			<i class="swatch" style="background: #ffff00"></i> clamped step
+			<i class="swatch" style="background: #ff00ff"></i> closest node
 		</div>
 
 		<script>
-
 			/* global threePathfinding */
 
 			THREE.Pathfinding = threePathfinding.Pathfinding;
@@ -58,6 +65,18 @@
 			var mouse = new THREE.Vector2();
 
 			var level;
+
+			var levelNav;
+
+			var closestNodeMarker = new THREE.Mesh(
+				new THREE.BoxGeometry(0.1, 0.8, 0.1),
+				new THREE.MeshBasicMaterial({color: 0xff00ff})
+			);
+
+			var clampedStepMarker = new THREE.Mesh(
+				new THREE.BoxGeometry(0.1, 1, 0.1),
+				new THREE.MeshBasicMaterial({color: 0xffff00})
+			);
 
 			init();
 			animate();
@@ -82,6 +101,9 @@
 
 				scene = new THREE.Scene();
 
+				scene.add(closestNodeMarker);
+				scene.add(clampedStepMarker);
+
 				var ambient = new THREE.AmbientLight( 0x101030 );
 				scene.add( ambient );
 
@@ -89,14 +111,14 @@
 				directionalLight.position.set( 0, 0.5, 0.5 );
 				scene.add( directionalLight );
 
-					var jsonLoader = new THREE.JSONLoader();
+				var jsonLoader = new THREE.JSONLoader();
 
-						jsonLoader.load( 'meshes/level.js', function( geometry, materials ) {
-							level = new THREE.Mesh(geometry, materials);
-							scene.add(level);
-						}, null);
+				jsonLoader.load( 'meshes/level.js', function( geometry, materials ) {
+					level = new THREE.Mesh(geometry, materials);
+					scene.add(level);
+				}, null);
 
-						jsonLoader.load( 'meshes/level.nav.js', function( geometry, materials ) {
+				jsonLoader.load( 'meshes/level.nav.js', function( geometry, materials ) {
 
 					console.time('createZone()');
 					var zoneNodes = THREE.Pathfinding.createZone(geometry);
@@ -104,30 +126,39 @@
 
 					pathfinder.setZoneData('level', zoneNodes);
 
-							var mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
-								color: 0xd79fd4,
-								opacity: 0.5,
-								transparent: true
-							}));
+					const navWireframe = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+						color: 'white',
+						wireframe: true
+					}));
+					navWireframe.position.y = 0.01;
+					scene.add(navWireframe);
 
-							scene.add(mesh);
+					levelNav = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+						color: 0xd79fd4,
+						transparent: true,
+						opacity: 0.2
+					}));
 
-							// Set the player's navigation mesh group
-							playerNavMeshGroup = pathfinder.getGroup('level', player.position);
+					scene.add(levelNav);
 
-						}, null);
+					// Set the player's navigation mesh group
+					playerNavMeshGroup = pathfinder.getGroup('level', player.position);
 
-						// Add test sphere
-				var geometry = new THREE.SphereGeometry( 0.25, 32, 32 );
+				}, null);
+
+				// Add test sphere
+				var geometry = new THREE.SphereGeometry( 0.15, 6, 2 );
 				var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
 				player = new THREE.Mesh( geometry, material );
+				player.scale.y = 4;
 				scene.add( player );
 
 				player.position.set(-3.5, 0.5, 5.5);
 
-				geometry = new THREE.BoxGeometry( 0.3, 0.3, 0.3 );
+				geometry = new THREE.SphereGeometry( 0.1, 6, 2 );
 				var material = new THREE.MeshBasicMaterial( {color: 0xff0000} );
 				target = new THREE.Mesh( geometry, material );
+				target.scale.y = 4;
 				scene.add( target );
 
 				target.position.copy(player.position);
@@ -140,7 +171,7 @@
 
 				raycaster = new THREE.Raycaster();
 
-				document.addEventListener( 'click', onDocumentMouseClick, false );
+				document.addEventListener( 'mouseup', onDocumentMouseUp, false );
 				window.addEventListener( 'resize', onWindowResize, false );
 
 				controls = new THREE.OrbitControls( camera );
@@ -148,7 +179,7 @@
 
 			}
 
-			function onDocumentMouseClick (event) {
+			function onDocumentMouseUp (event) {
 
 				mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
 				mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
@@ -163,14 +194,29 @@
 					var vec = intersects[0].point;
 					target.position.copy(vec);
 
-					// Teleport on ctrl/cmd click.
-					if (event.metaKey || event.ctrlKey) {
+					// Teleport on ctrl/cmd click or RMB.
+					if (event.metaKey || event.ctrlKey || event.button === 2) {
 						player.position.copy(target.position);
 						playerNavMeshGroup = pathfinder.getGroup('level', player.position);
+						const closestNode = pathfinder.getClosestNode(player.position, 'level', playerNavMeshGroup);
+						closestNodeMarker.position.copy(closestNode.centroid);
+						clampedStepMarker.visible = false;
 						if (pathLines) scene.remove(pathLines);
 						if (calculatedPath) calculatedPath.length = 0;
 						return;
 					}
+
+
+					const targetGroup = pathfinder.getGroup('level', target.position);
+					const closestTargetNode = pathfinder.getClosestNode(target.position, 'level', targetGroup);
+					closestNodeMarker.position.copy(closestTargetNode.centroid);
+
+					const closestPlayerNode = pathfinder.getClosestNode(player.position, 'level', playerNavMeshGroup);
+					const clamped = new THREE.Vector3();
+					pathfinder.clampStep(
+						player.position, target.position.clone(), closestPlayerNode, 'level', playerNavMeshGroup, clamped);
+					clampedStepMarker.position.copy(clamped);
+					clampedStepMarker.visible = true;
 
 					// Calculate a path to the target and store it
 					calculatedPath = pathfinder.findPath(player.position, target.position, 'level', playerNavMeshGroup);
@@ -201,12 +247,14 @@
 						var debugPath = [player.position].concat(calculatedPath);
 
 						for (var i = 0; i < debugPath.length - 1; i++) {
-							geometry = new THREE.BoxGeometry( 0.3, 0.3, 0.3 );
+							geometry = new THREE.BoxGeometry( 0.1, 0.6, 0.1 );
 							var material = new THREE.MeshBasicMaterial( {color: 0x00ffff} );
 							var node = new THREE.Mesh( geometry, material );
 							node.position.copy(debugPath[i]);
 							pathLines.add( node );
 						}
+					} else if (pathLines) {
+						scene.remove(pathLines);
 					}
 				}
 			}
@@ -227,7 +275,7 @@
 			}
 
 			function tick(dTime) {
-				if (!level) {
+				if (!levelNav) {
 					return;
 				}
 
@@ -253,8 +301,6 @@
 
 			function render() {
 
-				camera.lookAt( scene.position );
-				camera.updateMatrixWorld();
 				renderer.render( scene, camera );
 
 			}
