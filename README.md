@@ -120,6 +120,7 @@ Returns closest node group ID for given position.
 
 -   `zoneID` **[string][12]** 
 -   `position` **THREE.Vector3** 
+-   `checkPolygon`   (optional, default `false`)
 
 Returns **[number][14]** 
 
