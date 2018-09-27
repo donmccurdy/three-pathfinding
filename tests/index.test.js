@@ -32,3 +32,33 @@ test('simple path', (t) => {
   t.equal(path.length, 6, 'path contains 6 waypoints');
   t.end();
 });
+
+test('pathing near close nodes in a different group', (t) => {
+  const pathfinding = new Pathfinding();
+
+  const geometry = new THREE.Geometry();
+  // Make a geometry that looks something like ./diagrams/close-groups.png
+  geometry.vertices.push(
+    new THREE.Vector3(  0,  0,  0  ),
+    new THREE.Vector3(  1,  0,  0  ),
+    new THREE.Vector3(  1,  0, -1  ),
+    new THREE.Vector3(  0,  0, 0.1 ),
+    new THREE.Vector3(  1,  0, 0.1 ),
+    new THREE.Vector3(  1,  0,  2  )
+  );
+  geometry.faces.push( new THREE.Face3( 0, 1, 2 ) );
+  geometry.faces.push( new THREE.Face3( 3, 5, 4 ) );
+
+  const zone = Pathfinding.createZone(geometry);
+  pathfinding.setZoneData(ZONE, zone);
+
+  const a = new THREE.Vector3(0.1, 0, 0.2);
+  const b = new THREE.Vector3(0.9, 0, 0.2);
+  const groupID = pathfinding.getGroup(ZONE, a, true);
+  const path = pathfinding.findPath(a, b, ZONE, groupID);
+
+  t.ok(path, 'finds path');
+  t.equal(path.length, 1, 'path contains 1 waypoint');
+
+  t.end();
+});
