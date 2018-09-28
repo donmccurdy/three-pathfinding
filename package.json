@@ -17,8 +17,13 @@
 		"dist": "microbundle --target browser",
 		"version": "npm run dist && && npm test && git add -A dist",
 		"postversion": "git push && git push --tags && npm publish",
-		"test": "node tests/index.test.js"
+		"test": "node tests/index.test.js",
+		"deploy": "npm run dist && npm test && now --static && now alias"
 	},
+  "now": {
+    "alias": "three-pathfinding.donmccurdy.com",
+    "public": true
+  },
 	"keywords": [
 		"patrol",
 		"patroljs",
