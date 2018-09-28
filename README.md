@@ -53,7 +53,7 @@ Initializing the library, creating a level, and finding a path:
 // ES6
 import { Pathfinding } from 'three-pathfinding';
 // CommonJS
-const Pathfinding = require('three-pathfinding').Pathfinding;
+const { Pathfinding } = require('three-pathfinding');
 // UMD
 const Pathfinding = window.threePathfinding.Pathfinding;
 
