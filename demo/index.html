@@ -116,7 +116,7 @@
 
 			let camera, scene, renderer, controls, raycaster;
 
-			let player, target, level;
+			let player, target, level, levelNav;
 
 			let playerNavMeshGroup, pathLines, calculatedPath;
 
@@ -168,13 +168,13 @@
 					navWireframe.position.y = OFFSET / 2;
 					scene.add(navWireframe);
 
-					var mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+					levelNav = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
 						color: Color.NAVMESH,
 						opacity: 0.75,
 						transparent: true
 					}));
 
-					scene.add(mesh);
+					scene.add(levelNav);
 
 					// Set the player's navigation mesh group
 					playerNavMeshGroup = pathfinder.getGroup('level', player.position);
@@ -224,7 +224,7 @@
 
 				raycaster.setFromCamera( mouse, camera );
 
-				var intersects = raycaster.intersectObject( level );
+				var intersects = raycaster.intersectObject( levelNav );
 
 				if ( intersects.length > 0 ) {
 					var vec = intersects[0].point;
@@ -233,19 +233,29 @@
 					// Teleport on ctrl/cmd click or RMB.
 					if (event.metaKey || event.ctrlKey || event.button === 2) {
 						player.position.copy(target.position);
-						playerNavMeshGroup = pathfinder.getGroup('level', player.position);
-						const closestNode = pathfinder.getClosestNode(player.position, 'level', playerNavMeshGroup);
-						closestNodeMarker.position.copy(closestNode.centroid);
+						playerNavMeshGroup = pathfinder.getGroup('level', player.position, true);
 						clampedStepMarker.visible = false;
 						if (pathLines) scene.remove(pathLines);
 						if (calculatedPath) calculatedPath.length = 0;
+						const closestNode = pathfinder.getClosestNode(player.position, 'level', playerNavMeshGroup, true);
+						if (closestNode) {
+							closestNodeMarker.visible = true;
+							closestNodeMarker.position.copy(closestNode.centroid);
+						} else {
+							closestNodeMarker.visible = false;
+						}
 						return;
 					}
 
 
-					const targetGroup = pathfinder.getGroup('level', target.position);
-					const closestTargetNode = pathfinder.getClosestNode(target.position, 'level', targetGroup);
-					closestNodeMarker.position.copy(closestTargetNode.centroid);
+					const targetGroup = pathfinder.getGroup('level', target.position, true);
+					const closestTargetNode = pathfinder.getClosestNode(target.position, 'level', targetGroup, true);
+					if (closestTargetNode) {
+						closestNodeMarker.visible = true;
+						closestNodeMarker.position.copy(closestTargetNode.centroid);
+					} else {
+						closestNodeMarker.visible = false;
+					}
 
 					// Calculate a path to the target and store it
 					calculatedPath = pathfinder.findPath(player.position, target.position, 'level', playerNavMeshGroup);
