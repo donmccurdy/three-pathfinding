@@ -92,3 +92,29 @@ test('pathing near close nodes in a different group', (t) => {
 
   t.end();
 });
+
+test('vertically stacked groups', (t) => {
+  const pathfinding = new Pathfinding();
+
+  const geometry = new THREE.Geometry();
+  geometry.vertices.push(
+    new THREE.Vector3(  0,  0,  0  ),
+    new THREE.Vector3(  0,  0,  1  ),
+    new THREE.Vector3(  1,  0,  0  ),
+    new THREE.Vector3(  0,  1,  0  ),
+    new THREE.Vector3(  0,  1,  1  ),
+    new THREE.Vector3(  1,  1,  0  ),
+  );
+  geometry.faces.push( new THREE.Face3( 0, 1, 2 ) );
+  geometry.faces.push( new THREE.Face3( 3, 4, 5 ) );
+
+  const zone = Pathfinding.createZone(geometry);
+  pathfinding.setZoneData(ZONE, zone);
+  t.equal(zone.groups[1][0].centroid.y, 1, 'centroid of node in group 1 should be at y=1');
+
+  const a = new THREE.Vector3(0.2, 1, 0.2);
+  const groupID = pathfinding.getGroup(ZONE, a, true);
+  t.equal(groupID, 1, 'point on node at y=1 should be in group 1');
+
+  t.end();
+});
