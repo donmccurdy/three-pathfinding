@@ -159,36 +159,46 @@ class Pathfinding {
  * @param  {THREE.Vector3} position
  * @return {number}
  */
-Pathfinding.prototype.getGroup = function (zoneID, position, checkPolygon = false) {
-	if (!this.zones[zoneID]) return null;
+Pathfinding.prototype.getGroup = (function() {
+	const plane = new THREE.Plane();
+	return function (zoneID, position, checkPolygon = false) {
+		if (!this.zones[zoneID]) return null;
 
-	let closestNodeGroup = null;
-	let distance = Math.pow(50, 2);
-	const zone = this.zones[zoneID];
+		let closestNodeGroup = null;
+		let distance = Math.pow(50, 2);
+		const zone = this.zones[zoneID];
 
-	for (let i = 0; i < zone.groups.length; i++) {
-		const group = zone.groups[i];
-		for (const node of group) {
-			if (checkPolygon) {
-				const poly = [
-					zone.vertices[node.vertexIds[0]],
-					zone.vertices[node.vertexIds[1]],
-					zone.vertices[node.vertexIds[2]]
-				];
-				if(Utils.isPointInPoly(poly, position)) {
-					return i;
+		for (let i = 0; i < zone.groups.length; i++) {
+			const group = zone.groups[i];
+			for (const node of group) {
+				if (checkPolygon) {
+					plane.setFromCoplanarPoints(
+						zone.vertices[node.vertexIds[0]],
+						zone.vertices[node.vertexIds[1]],
+						zone.vertices[node.vertexIds[2]]
+					);
+					if (Math.abs(plane.distanceToPoint(position)) < 0.0001) {
+						const poly = [
+							zone.vertices[node.vertexIds[0]],
+							zone.vertices[node.vertexIds[1]],
+							zone.vertices[node.vertexIds[2]]
+						];
+						if(Utils.isPointInPoly(poly, position)) {
+							return i;
+						}
+					}
+				}
+				const measuredDistance = Utils.distanceToSquared(node.centroid, position);
+				if (measuredDistance < distance) {
+					closestNodeGroup = i;
+					distance = measuredDistance;
 				}
 			}
-			const measuredDistance = Utils.distanceToSquared(node.centroid, position);
-			if (measuredDistance < distance) {
-				closestNodeGroup = i;
-				distance = measuredDistance;
-			}
 		}
-	}
 
-	return closestNodeGroup;
-};
+		return closestNodeGroup;
+	};
+}());
 
 /**
  * Clamps a step along the navmesh, given start and desired endpoint. May be
