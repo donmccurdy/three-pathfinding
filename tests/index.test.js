@@ -93,7 +93,7 @@ test('pathing near close nodes in a different group', (t) => {
   t.end();
 });
 
-test('overlapping groups', (t) => {
+test('vertically stacked groups', (t) => {
   const pathfinding = new Pathfinding();
 
   const geometry = new THREE.Geometry();

@@ -177,7 +177,7 @@ Pathfinding.prototype.getGroup = (function() {
 						zone.vertices[node.vertexIds[1]],
 						zone.vertices[node.vertexIds[2]]
 					);
-					if (Math.abs(plane.distanceToPoint(position)) < 0.0001) {
+					if (Math.abs(plane.distanceToPoint(position)) < 0.01) {
 						const poly = [
 							zone.vertices[node.vertexIds[0]],
 							zone.vertices[node.vertexIds[1]],

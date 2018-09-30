@@ -116,7 +116,7 @@
 
 			let camera, scene, renderer, controls, raycaster;
 
-			let player, target, level, levelNav;
+			let player, target, level, navMesh;
 
 			let playerNavMeshGroup, pathLines, calculatedPath;
 
@@ -168,13 +168,13 @@
 					navWireframe.position.y = OFFSET / 2;
 					scene.add(navWireframe);
 
-					levelNav = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+					navMesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
 						color: Color.NAVMESH,
 						opacity: 0.75,
 						transparent: true
 					}));
 
-					scene.add(levelNav);
+					scene.add(navMesh);
 
 					// Set the player's navigation mesh group
 					playerNavMeshGroup = pathfinder.getGroup('level', player.position);
@@ -224,7 +224,7 @@
 
 				raycaster.setFromCamera( mouse, camera );
 
-				var intersects = raycaster.intersectObject( levelNav );
+				var intersects = raycaster.intersectObject( navMesh );
 
 				if ( intersects.length > 0 ) {
 					var vec = intersects[0].point;
