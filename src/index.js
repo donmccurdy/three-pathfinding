@@ -40,43 +40,6 @@ class Pathfinding {
 	}
 
 	/**
-	 * Returns closest node group ID for given position.
-	 * @param  {string} zoneID
-	 * @param  {THREE.Vector3} position
-	 * @return {number}
-	 */
-	getGroup (zoneID, position, checkPolygon = false) {
-		if (!this.zones[zoneID]) return null;
-
-		let closestNodeGroup = null;
-		let distance = Math.pow(50, 2);
-		const zone = this.zones[zoneID];
-
-		for (let i = 0; i < zone.groups.length; i++) {
-			const group = zone.groups[i];
-			for (const node of group) {
-				if (checkPolygon) {
-					const poly = [
-						zone.vertices[node.vertexIds[0]],
-						zone.vertices[node.vertexIds[1]],
-						zone.vertices[node.vertexIds[2]]
-					];
-					if(Utils.isPointInPoly(poly, position)) {
-						return i;
-					}
-				}
-				const measuredDistance = Utils.distanceToSquared(node.centroid, position);
-				if (measuredDistance < distance) {
-					closestNodeGroup = i;
-					distance = measuredDistance;
-				}
-			}
-		}
-
-		return closestNodeGroup;
-	}
-
-	/**
 	 * Returns a random node within a given range of a given position.
 	 * @param  {string} zoneID
 	 * @param  {number} groupID
@@ -189,6 +152,43 @@ class Pathfinding {
 		return path;
 	}
 }
+
+/**
+ * Returns closest node group ID for given position.
+ * @param  {string} zoneID
+ * @param  {THREE.Vector3} position
+ * @return {number}
+ */
+Pathfinding.prototype.getGroup = function (zoneID, position, checkPolygon = false) {
+	if (!this.zones[zoneID]) return null;
+
+	let closestNodeGroup = null;
+	let distance = Math.pow(50, 2);
+	const zone = this.zones[zoneID];
+
+	for (let i = 0; i < zone.groups.length; i++) {
+		const group = zone.groups[i];
+		for (const node of group) {
+			if (checkPolygon) {
+				const poly = [
+					zone.vertices[node.vertexIds[0]],
+					zone.vertices[node.vertexIds[1]],
+					zone.vertices[node.vertexIds[2]]
+				];
+				if(Utils.isPointInPoly(poly, position)) {
+					return i;
+				}
+			}
+			const measuredDistance = Utils.distanceToSquared(node.centroid, position);
+			if (measuredDistance < distance) {
+				closestNodeGroup = i;
+				distance = measuredDistance;
+			}
+		}
+	}
+
+	return closestNodeGroup;
+};
 
 /**
  * Clamps a step along the navmesh, given start and desired endpoint. May be
