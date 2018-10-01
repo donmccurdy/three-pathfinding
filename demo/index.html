@@ -1,362 +1,282 @@
 <!DOCTYPE html>
-<html lang="en">
-	<head>
-		<title>three-pathfinding demo</title>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-	</head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<title>three-pathfinding demo</title>
+<link href="style.css" rel="stylesheet">
+<script src="https://cdn.rawgit.com/mrdoob/three.js/r97/build/three.min.js"></script>
+<script src="https://cdn.rawgit.com/mrdoob/three.js/r97/examples/js/controls/OrbitControls.js"></script>
+<script src="../dist/three-pathfinding.umd.js"></script>
 
-	<style>
-		body {
-			font-family: Helvetica, sans-serify;
-			background-color: #000;
-			color: #fff;
-			margin: 0px;
-			overflow: hidden;
+<body>
+
+	<header>
+		<h1>three-pathfinding</h1>
+
+		<p>
+			<a href="https://github.com/donmccurdy/three-pathfinding">Source</a> •
+			<a href="https://github.com/donmccurdy/three-pathfinding#api">Documentation</a> •
+			Click anywhere on the level to calculate a path. Meta+Click or Right Click to teleport.
+		</p>
+		<div class="swatches">
+			<i class="swatch" style="background: #EE836F;"></i> start/player
+			<i class="swatch" style="background: #DCCB18;"></i> target
+			<i class="swatch" style="background: #00A3AF;"></i> waypoint
+			<i class="swatch" style="background: #DCD3B2;"></i> clamped step
+			<i class="swatch" style="background: #43676B;"></i> closest node
+		</div>
+	</header>
+
+	<script>
+		/* global threePathfinding */
+
+		const Color = {
+			PLAYER: new THREE.Color( 0xEE836F ).convertGammaToLinear( 2.2 ).getHex(),
+			TARGET: new THREE.Color( 0xDCCB18 ).convertGammaToLinear( 2.2 ).getHex(),
+			PATH: new THREE.Color( 0x00A3AF ).convertGammaToLinear( 2.2 ).getHex(),
+			WAYPOINT: new THREE.Color( 0x00A3AF ).convertGammaToLinear( 2.2 ).getHex(),
+			CLAMPED_STEP: new THREE.Color( 0xDCD3B2 ).convertGammaToLinear( 2.2 ).getHex(),
+			CLOSEST_NODE: new THREE.Color( 0x43676B ).convertGammaToLinear( 2.2 ).getHex(),
+			GROUND: new THREE.Color( 0x606060 ).convertGammaToLinear( 2.2 ).getHex(),
+			NAVMESH: new THREE.Color( 0xFFFFFF ).convertGammaToLinear( 2.2 ).getHex(),
+		};
+
+		const ZONE = 'level';
+		const SPEED = 5;
+		const OFFSET = 0.2;
+
+		THREE.Pathfinding = threePathfinding.Pathfinding;
+		
+
+		let playerMesh, targetMesh, level, navmesh;
+
+		let groupID, pathLines, calculatedPath;
+
+		const pathfinder = new THREE.Pathfinding();
+		const scene = new THREE.Scene();
+		const clock = new THREE.Clock();
+		const mouse = new THREE.Vector2();
+		const raycaster = new THREE.Raycaster();
+
+		const camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
+		camera.position.x = -10;
+		camera.position.y = 14;
+		camera.position.z = 10;
+
+		const controls = new THREE.OrbitControls( camera );
+		controls.damping = 0.2;
+
+		const renderer = new THREE.WebGLRenderer();
+		renderer.setPixelRatio( window.devicePixelRatio );
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		renderer.setClearColor(0xffffff);
+		renderer.gammaOutput = true;
+		renderer.gammaFactor = 2.2;
+		document.body.appendChild( renderer.domElement );
+
+		const ambient = new THREE.AmbientLight( 0x101030 );
+		scene.add( ambient );
+
+		const directionalLight = new THREE.DirectionalLight( 0xFFEEDD );
+		directionalLight.position.set( 0, 0.5, 0.5 );
+		scene.add( directionalLight );
+
+		const nodeMarker = new THREE.Mesh(
+			new THREE.BoxGeometry(0.1, 0.8, 0.1),
+			new THREE.MeshBasicMaterial({color: Color.CLOSEST_NODE})
+		);
+		scene.add(nodeMarker);
+
+		const stepMarker = new THREE.Mesh(
+			new THREE.BoxGeometry(0.1, 1, 0.1),
+			new THREE.MeshBasicMaterial({color: Color.CLAMPED_STEP})
+		);
+		scene.add(stepMarker);
+
+		init();
+		animate();
+
+		function init() {
+
+			const jsonLoader = new THREE.JSONLoader();
+
+			jsonLoader.load( 'meshes/level.js', function( geometry, materials ) {
+				const levelMat = new THREE.MeshStandardMaterial({color: Color.GROUND, roughness: 1, metalness: 0});
+				level = new THREE.Mesh(geometry, levelMat);
+				scene.add(level);
+			}, null);
+
+			jsonLoader.load( 'meshes/level.nav.js', function( geometry, materials ) {
+
+				console.time('createZone()');
+				const zone = THREE.Pathfinding.createZone(geometry);
+				console.timeEnd('createZone()');
+
+				pathfinder.setZoneData('level', zone);
+
+				const navWireframe = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+					color: 0x808080,
+					wireframe: true
+				}));
+				navWireframe.position.y = OFFSET / 2;
+				scene.add(navWireframe);
+
+				navmesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+					color: Color.NAVMESH,
+					opacity: 0.75,
+					transparent: true
+				}));
+
+				scene.add(navmesh);
+
+				// Set the player's navigation mesh group
+				groupID = pathfinder.getGroup('level', playerMesh.position);
+
+			}, null);
+
+			// Player
+			const playerGeometry = new THREE.SphereGeometry( 0.25, 32, 32 );
+			const playerMaterial = new THREE.MeshBasicMaterial( {color: Color.PLAYER} );
+			playerMesh = new THREE.Mesh( playerGeometry, playerMaterial );
+			scene.add( playerMesh );
+
+			playerMesh.position.set(-3.5, 0.5, 5.5);
+
+			// Target
+			const targetGeometry = new THREE.BoxGeometry( 0.3, 0.3, 0.3 );
+			const targetMaterial = new THREE.MeshBasicMaterial( {color: Color.TARGET} );
+			targetMesh = new THREE.Mesh( targetGeometry, targetMaterial );
+			scene.add( targetMesh );
+
+			targetMesh.position.copy(playerMesh.position);
+
+			document.addEventListener( 'mouseup', onDocumentMouseUp, false );
+			window.addEventListener( 'resize', onWindowResize, false );
+
 		}
 
-		header {
-			box-sizing: border-box;
-			padding: 1em;
-			width: 100%;
-			position: absolute;
-			background-color: rgba(0, 0, 0, 0.8);
-			font-size: 14px;
-		}
-
-		header h1 {
-			font-size: 1.5em;
-			margin-bottom: 0.5em;
-		}
-
-		header p {
-			padding: 0;
-			margin: 1em 0;
-			line-height: 1.4em;
-		}
-
-		header a,
-		header a:visited {
-			color: #FFFFFF;
-		}
-
-		.swatches {
-			line-height: 1.4em;
-		}
-
-		.swatch {
-			display: inline-block;
-			width: 1em;
-			height: 1em;
-			vertical-align: top;
-			margin: 0.1em;
-			border-radius: 2px;
-		}
-	</style>
-
-	<body>
-
-		<script src="https://cdn.rawgit.com/mrdoob/three.js/r97/build/three.min.js"></script>
-		<script src="https://cdn.rawgit.com/mrdoob/three.js/r97/examples/js/controls/OrbitControls.js"></script>
-		<script src="../dist/three-pathfinding.umd.js"></script>
-
-		<header>
-			<h1>three-pathfinding</h1>
-
-			<p>
-				<a href="https://github.com/donmccurdy/three-pathfinding">Source</a> •
-				<a href="https://github.com/donmccurdy/three-pathfinding#api">Documentation</a> •
-				Click anywhere on the level to calculate a path. Meta+Click or Right Click to teleport.
-			</p>
-			<div class="swatches">
-				<i class="swatch" style="background: #EE836F;"></i> start/player
-				<i class="swatch" style="background: #DCCB18;"></i> target
-				<i class="swatch" style="background: #00A3AF;"></i> waypoint
-				<i class="swatch" style="background: #DCD3B2;"></i> clamped step
-				<i class="swatch" style="background: #43676B;"></i> closest node
-			</div>
-		</header>
-
-		<script>
-			/* global threePathfinding */
-
-			const Color = {
-				PLAYER: new THREE.Color( 0xEE836F ).convertGammaToLinear( 2.2 ).getHex(),
-				TARGET: new THREE.Color( 0xDCCB18 ).convertGammaToLinear( 2.2 ).getHex(),
-				PATH: new THREE.Color( 0x00A3AF ).convertGammaToLinear( 2.2 ).getHex(),
-				WAYPOINT: new THREE.Color( 0x00A3AF ).convertGammaToLinear( 2.2 ).getHex(),
-				CLAMPED_STEP: new THREE.Color( 0xDCD3B2 ).convertGammaToLinear( 2.2 ).getHex(),
-				CLOSEST_NODE: new THREE.Color( 0x43676B ).convertGammaToLinear( 2.2 ).getHex(),
-
-				GROUND: new THREE.Color( 0x606060 ).convertGammaToLinear( 2.2 ).getHex(),
-				NAVMESH: new THREE.Color( 0xFFFFFF ).convertGammaToLinear( 2.2 ).getHex(),
-			};
-
-			const OFFSET = 0.2;
-
-			THREE.Pathfinding = threePathfinding.Pathfinding;
-			
-			const pathfinder = new THREE.Pathfinding();
-
-			const clock = new THREE.Clock();
-
-			const mouse = new THREE.Vector2();
-
-			const closestNodeMarker = new THREE.Mesh(
-				new THREE.BoxGeometry(0.1, 0.8, 0.1),
-				new THREE.MeshBasicMaterial({color: Color.CLOSEST_NODE})
-			);
-
-			const clampedStepMarker = new THREE.Mesh(
-				new THREE.BoxGeometry(0.1, 1, 0.1),
-				new THREE.MeshBasicMaterial({color: Color.CLAMPED_STEP})
-			);
-
-			let container;
-
-			let camera, scene, renderer, controls, raycaster;
-
-			let player, target, level, navMesh;
-
-			let playerNavMeshGroup, pathLines, calculatedPath;
-
-			init();
-			animate();
-
-			function init() {
-
-				container = document.createElement( 'div' );
-				document.body.appendChild( container );
-
-				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
-				camera.position.x = -10;
-				camera.position.y = 14;
-				camera.position.z = 10;
-
-				scene = new THREE.Scene();
-
-				scene.add(closestNodeMarker);
-				scene.add(clampedStepMarker);
-
-				var ambient = new THREE.AmbientLight( 0x101030 );
-				scene.add( ambient );
-
-				var directionalLight = new THREE.DirectionalLight( 0xffeedd );
-				directionalLight.position.set( 0, 0.5, 0.5 );
-				scene.add( directionalLight );
-
-				var jsonLoader = new THREE.JSONLoader();
-
-				jsonLoader.load( 'meshes/level.js', function( geometry, materials ) {
-					const levelMat = new THREE.MeshStandardMaterial({color: Color.GROUND, roughness: 1, metalness: 0});
-					level = new THREE.Mesh(geometry, levelMat);
-					scene.add(level);
-				}, null);
-
-				jsonLoader.load( 'meshes/level.nav.js', function( geometry, materials ) {
-
-					console.time('createZone()');
-					var zoneNodes = THREE.Pathfinding.createZone(geometry);
-					console.timeEnd('createZone()');
-
-					pathfinder.setZoneData('level', zoneNodes);
-
-					const navWireframe = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
-						color: 0x808080,
-						wireframe: true
-					}));
-					navWireframe.position.y = OFFSET / 2;
-					scene.add(navWireframe);
-
-					navMesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
-						color: Color.NAVMESH,
-						opacity: 0.75,
-						transparent: true
-					}));
-
-					scene.add(navMesh);
-
-					// Set the player's navigation mesh group
-					playerNavMeshGroup = pathfinder.getGroup('level', player.position);
-
-				}, null);
-
-				// Player
-				var geometry = new THREE.SphereGeometry( 0.25, 32, 32 );
-				var material = new THREE.MeshBasicMaterial( {color: Color.PLAYER} );
-				player = new THREE.Mesh( geometry, material );
-				scene.add( player );
-
-				player.position.set(-3.5, 0.5, 5.5);
-
-				// Target
-				geometry = new THREE.BoxGeometry( 0.3, 0.3, 0.3 );
-				var material = new THREE.MeshBasicMaterial( {color: Color.TARGET} );
-				target = new THREE.Mesh( geometry, material );
-				scene.add( target );
-
-				target.position.copy(player.position);
-
-				renderer = new THREE.WebGLRenderer();
-				renderer.setPixelRatio( window.devicePixelRatio );
-				renderer.setSize( window.innerWidth, window.innerHeight );
-				renderer.setClearColor(0xffffff);
-				renderer.gammaOutput = true;
-				renderer.gammaFactor = 2.2;
-				container.appendChild( renderer.domElement );
-
-				raycaster = new THREE.Raycaster();
-
-				document.addEventListener( 'mouseup', onDocumentMouseUp, false );
-				window.addEventListener( 'resize', onWindowResize, false );
-
-				controls = new THREE.OrbitControls( camera );
-				controls.damping = 0.2;
-
-			}
-
-			function onDocumentMouseUp (event) {
-
-				mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-				mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-
-				camera.updateMatrixWorld();
-
-				raycaster.setFromCamera( mouse, camera );
-
-				var intersects = raycaster.intersectObject( navMesh );
-
-				if ( intersects.length > 0 ) {
-					var vec = intersects[0].point;
-					target.position.copy(vec);
-
-					// Teleport on ctrl/cmd click or RMB.
-					if (event.metaKey || event.ctrlKey || event.button === 2) {
-						player.position.copy(target.position);
-						playerNavMeshGroup = pathfinder.getGroup('level', player.position, true);
-						clampedStepMarker.visible = false;
-						if (pathLines) scene.remove(pathLines);
-						if (calculatedPath) calculatedPath.length = 0;
-						const closestNode = pathfinder.getClosestNode(player.position, 'level', playerNavMeshGroup, true);
-						if (closestNode) {
-							closestNodeMarker.visible = true;
-							closestNodeMarker.position.copy(closestNode.centroid);
-						} else {
-							closestNodeMarker.visible = false;
-						}
-						return;
-					}
-
-
-					const targetGroup = pathfinder.getGroup('level', target.position, true);
-					const closestTargetNode = pathfinder.getClosestNode(target.position, 'level', targetGroup, true);
-					if (closestTargetNode) {
-						closestNodeMarker.visible = true;
-						closestNodeMarker.position.copy(closestTargetNode.centroid);
-					} else {
-						closestNodeMarker.visible = false;
-					}
-
-					// Calculate a path to the target and store it
-					calculatedPath = pathfinder.findPath(player.position, target.position, 'level', playerNavMeshGroup);
-
-					if (calculatedPath && calculatedPath.length) {
-
-						clampedStepMarker.visible = false;
-
-						if (pathLines) {
-							scene.remove(pathLines);
-						}
-
-						var material = new THREE.LineBasicMaterial({
-							color: Color.PATH,
-							linewidth: 2
-						});
-
-						var geometry = new THREE.Geometry();
-						geometry.vertices.push(player.position);
-
-						// Draw debug lines
-						for (var i = 0; i < calculatedPath.length; i++) {
-							geometry.vertices.push(calculatedPath[i].clone().add(new THREE.Vector3(0, OFFSET, 0)));
-						}
-
-						pathLines = new THREE.Line( geometry, material );
-						scene.add( pathLines );
-
-						// Draw debug cubes except the last one. Also, add the player position.
-						var debugPath = [player.position].concat(calculatedPath);
-
-						for (var i = 0; i < debugPath.length - 1; i++) {
-							geometry = new THREE.SphereBufferGeometry( 0.08 );
-							var material = new THREE.MeshBasicMaterial( {color: Color.WAYPOINT} );
-							var node = new THREE.Mesh( geometry, material );
-							node.position.copy(debugPath[i]);
-							node.position.y += OFFSET;
-							pathLines.add( node );
-						}
-					} else {
-						const closestPlayerNode = pathfinder.getClosestNode(player.position, 'level', playerNavMeshGroup);
-						const clamped = new THREE.Vector3();
-						pathfinder.clampStep(
-							player.position, target.position.clone(), closestPlayerNode, 'level', playerNavMeshGroup, clamped);
-						clampedStepMarker.position.copy(clamped);
-						clampedStepMarker.visible = true;
-
-						if (pathLines) {
-							scene.remove(pathLines);
-						}
-					}
+		function onDocumentMouseUp (event) {
+
+			mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+			mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+			camera.updateMatrixWorld();
+
+			raycaster.setFromCamera( mouse, camera );
+
+			const intersects = raycaster.intersectObject( navmesh );
+
+			if ( !intersects.length ) return;
+
+			const vec = intersects[0].point;
+			targetMesh.position.copy(vec);
+
+			// Teleport on ctrl/cmd click or RMB.
+			if (event.metaKey || event.ctrlKey || event.button === 2) {
+				playerMesh.position.copy(targetMesh.position);
+				groupID = pathfinder.getGroup('level', playerMesh.position, true);
+				stepMarker.visible = false;
+				if (pathLines) scene.remove(pathLines);
+				if (calculatedPath) calculatedPath.length = 0;
+				const closestNode = pathfinder.getClosestNode(playerMesh.position, 'level', groupID, true);
+				if (closestNode) {
+					nodeMarker.visible = true;
+					nodeMarker.position.copy(closestNode.centroid);
+				} else {
+					nodeMarker.visible = false;
 				}
+				return;
 			}
 
-			function onWindowResize() {
-
-				camera.aspect = window.innerWidth / window.innerHeight;
-				camera.updateProjectionMatrix();
-
-				renderer.setSize( window.innerWidth, window.innerHeight );
+			const targetGroupID = pathfinder.getGroup('level', targetMesh.position, true);
+			const closestTargetNode = pathfinder.getClosestNode(targetMesh.position, 'level', targetGroupID, true);
+			if (closestTargetNode) {
+				nodeMarker.visible = true;
+				nodeMarker.position.copy(closestTargetNode.centroid);
+			} else {
+				nodeMarker.visible = false;
 			}
 
-			function animate() {
+			// Calculate a path to the target and store it
+			calculatedPath = pathfinder.findPath(playerMesh.position, targetMesh.position, 'level', groupID);
 
-				tick(clock.getDelta());
-				requestAnimationFrame( animate );
-				render();
-			}
+			if (calculatedPath && calculatedPath.length) {
 
-			function tick(dTime) {
-				if (!level) {
-					return;
+				stepMarker.visible = false;
+
+				if (pathLines) scene.remove(pathLines);
+
+				const material = new THREE.LineBasicMaterial({
+					color: Color.PATH,
+					linewidth: 2
+				});
+
+				let geometry = new THREE.Geometry();
+				geometry.vertices.push(playerMesh.position);
+
+				// Draw debug lines
+				for (let i = 0; i < calculatedPath.length; i++) {
+					geometry.vertices.push(calculatedPath[i].clone().add(new THREE.Vector3(0, OFFSET, 0)));
 				}
 
-				var speed = 5;
+				pathLines = new THREE.Line( geometry, material );
+				scene.add( pathLines );
 
-				var targetPosition;
+				// Draw debug cubes except the last one. Also, add the player position.
+				const debugPath = [playerMesh.position].concat(calculatedPath);
 
-				if (calculatedPath && calculatedPath.length) {
-					targetPosition = calculatedPath[0];
-
-					var vel = targetPosition.clone().sub(player.position);
-
-					if (vel.lengthSq() > 0.05 * 0.05) {
-						vel.normalize();
-						// Mve player to target
-						player.position.add(vel.multiplyScalar(dTime * speed));
-					} else {
-						// Remove node from the path we calculated
-						calculatedPath.shift();
-					}
+				for (let i = 0; i < debugPath.length - 1; i++) {
+					geometry = new THREE.SphereBufferGeometry( 0.08 );
+					const material = new THREE.MeshBasicMaterial( {color: Color.WAYPOINT} );
+					const node = new THREE.Mesh( geometry, material );
+					node.position.copy(debugPath[i]);
+					node.position.y += OFFSET;
+					pathLines.add( node );
 				}
+			} else {
+				const closestPlayerNode = pathfinder.getClosestNode(playerMesh.position, 'level', groupID);
+				const clamped = new THREE.Vector3();
+				pathfinder.clampStep(
+					playerMesh.position, targetMesh.position.clone(), closestPlayerNode, 'level', groupID, clamped);
+				stepMarker.position.copy(clamped);
+				stepMarker.visible = true;
+
+				if (pathLines) scene.remove(pathLines);
 			}
+		}
 
-			function render() {
+		function onWindowResize() {
 
-				renderer.render( scene, camera );
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
 
+			renderer.setSize( window.innerWidth, window.innerHeight );
+
+		}
+
+		function animate() {
+
+			requestAnimationFrame( animate );
+			tick(clock.getDelta());
+			renderer.render( scene, camera );
+
+		}
+
+		function tick ( dt ) {
+			if (!level || !(calculatedPath||[]).length) return
+
+			let targetPosition = calculatedPath[0];
+			const velocity = targetPosition.clone().sub(playerMesh.position);
+
+			if (velocity.lengthSq() > 0.05 * 0.05) {
+				velocity.normalize();
+				// Move player to target
+				playerMesh.position.add(velocity.multiplyScalar(dt * SPEED));
+			} else {
+				// Remove node from the path we calculated
+				calculatedPath.shift();
 			}
+		}
 
-		</script>
+	</script>
 
-	</body>
-</html>
+</body>

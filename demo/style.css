@@ -1,0 +1,45 @@
+body {
+  font-family: Helvetica, sans-serify;
+  background-color: #000;
+  color: #fff;
+  margin: 0px;
+  overflow: hidden;
+}
+
+header {
+  box-sizing: border-box;
+  padding: 1em;
+  width: 100%;
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.8);
+  font-size: 14px;
+}
+
+header h1 {
+  font-size: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+header p {
+  padding: 0;
+  margin: 1em 0;
+  line-height: 1.4em;
+}
+
+header a,
+header a:visited {
+  color: #FFFFFF;
+}
+
+.swatches {
+  line-height: 1.4em;
+}
+
+.swatch {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: top;
+  margin: 0.1em;
+  border-radius: 2px;
+}
