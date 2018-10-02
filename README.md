@@ -89,15 +89,22 @@ The demo will start at http://localhost:9966/demo/.
 
 -   [Pathfinding][1]
     -   [setZoneData][2]
-    -   [getGroup][3]
-    -   [getRandomNode][4]
-    -   [getClosestNode][5]
-    -   [findPath][6]
+    -   [getRandomNode][3]
+    -   [getClosestNode][4]
+    -   [findPath][5]
+    -   [getGroup][6]
     -   [clampStep][7]
     -   [createZone][8]
--   [Zone][9]
--   [Group][10]
--   [Node][11]
+-   [PathfindingHelper][9]
+    -   [setPath][10]
+    -   [setPlayerPosition][11]
+    -   [setTargetPosition][12]
+    -   [setNodePosition][13]
+    -   [setStepPosition][14]
+    -   [reset][15]
+-   [Zone][16]
+-   [Group][17]
+-   [Node][18]
 
 ## Pathfinding
 
@@ -109,20 +116,8 @@ Sets data for the given zone.
 
 **Parameters**
 
--   `zoneID` **[string][12]** 
--   `zone` **[Zone][13]** 
-
-### getGroup
-
-Returns closest node group ID for given position.
-
-**Parameters**
-
--   `zoneID` **[string][12]** 
--   `position` **THREE.Vector3** 
--   `checkPolygon`   (optional, default `false`)
-
-Returns **[number][14]** 
+-   `zoneID` **[string][19]** 
+-   `zone` **[Zone][20]** 
 
 ### getRandomNode
 
@@ -130,12 +125,12 @@ Returns a random node within a given range of a given position.
 
 **Parameters**
 
--   `zoneID` **[string][12]** 
--   `groupID` **[number][14]** 
+-   `zoneID` **[string][19]** 
+-   `groupID` **[number][21]** 
 -   `nearPosition` **THREE.Vector3** 
--   `nearRange` **[number][14]** 
+-   `nearRange` **[number][21]** 
 
-Returns **[Node][15]** 
+Returns **[Node][22]** 
 
 ### getClosestNode
 
@@ -144,11 +139,11 @@ Returns the closest node to the target position.
 **Parameters**
 
 -   `position` **THREE.Vector3** 
--   `zoneID` **[string][12]** 
--   `groupID` **[number][14]** 
--   `checkPolygon` **[boolean][16]**  (optional, default `false`)
+-   `zoneID` **[string][19]** 
+-   `groupID` **[number][21]** 
+-   `checkPolygon` **[boolean][23]**  (optional, default `false`)
 
-Returns **[Node][15]** 
+Returns **[Node][22]** 
 
 ### findPath
 
@@ -159,10 +154,21 @@ cannot be found, will return the nearest endpoint available.
 
 -   `startPosition` **THREE.Vector3** Start position.
 -   `targetPosition` **THREE.Vector3** Destination.
--   `zoneID` **[string][12]** ID of current zone.
--   `groupID` **[number][14]** Current group ID.
+-   `zoneID` **[string][19]** ID of current zone.
+-   `groupID` **[number][21]** Current group ID.
 
-Returns **[Array][17]&lt;THREE.Vector3>** Array of points defining the path.
+Returns **[Array][24]&lt;THREE.Vector3>** Array of points defining the path.
+
+### getGroup
+
+Returns closest node group ID for given position.
+
+**Parameters**
+
+-   `zoneID` **[string][19]** 
+-   `position` **THREE.Vector3** 
+
+Returns **[number][21]** 
 
 ### clampStep
 
@@ -173,12 +179,12 @@ used to constrain first-person / WASD controls.
 
 -   `start` **THREE.Vector3** 
 -   `end` **THREE.Vector3** Desired endpoint.
--   `node` **[Node][15]** 
--   `zoneID` **[string][12]** 
--   `groupID` **[number][14]** 
+-   `node` **[Node][22]** 
+-   `zoneID` **[string][19]** 
+-   `groupID` **[number][21]** 
 -   `endTarget` **THREE.Vector3** Updated endpoint.
 
-Returns **[Node][15]** Updated node.
+Returns **[Node][22]** Updated node.
 
 ### createZone
 
@@ -188,7 +194,59 @@ Returns **[Node][15]** Updated node.
 
 -   `geometry` **THREE.BufferGeometry** 
 
-Returns **[Zone][13]** 
+Returns **[Zone][20]** 
+
+## PathfindingHelper
+
+**Extends THREE.Object3D**
+
+Helper for debugging pathfinding behavior.
+
+### setPath
+
+**Parameters**
+
+-   `path`  
+
+Returns **this** 
+
+### setPlayerPosition
+
+**Parameters**
+
+-   `position` **THREE.Vector3** 
+
+Returns **this** 
+
+### setTargetPosition
+
+**Parameters**
+
+-   `position` **THREE.Vector3** 
+
+Returns **this** 
+
+### setNodePosition
+
+**Parameters**
+
+-   `position` **THREE.Vector3** 
+
+Returns **this** 
+
+### setStepPosition
+
+**Parameters**
+
+-   `position` **THREE.Vector3** 
+
+Returns **this** 
+
+### reset
+
+Hides all markers.
+
+Returns **this** 
 
 ## Zone
 
@@ -196,7 +254,7 @@ Defines a zone of interconnected groups on a navigation mesh.
 
 **Properties**
 
--   `groups` **[Array][17]&lt;[Group][18]>** 
+-   `groups` **[Array][24]&lt;[Group][25]>** 
 
 ## Group
 
@@ -208,48 +266,62 @@ Defines a node (or polygon) within a group.
 
 **Properties**
 
--   `id` **[number][14]** 
--   `neighbours` **[Array][17]&lt;[number][14]>** IDs of neighboring nodes.
+-   `id` **[number][21]** 
+-   `neighbours` **[Array][24]&lt;[number][21]>** IDs of neighboring nodes.
 -   `centroid` **THREE.Vector3** 
--   `portals` **[Array][17]&lt;[Array][17]&lt;[number][14]>>** Array of portals, each defined by two vertex IDs.
--   `closed` **[boolean][16]** 
--   `cost` **[number][14]** 
+-   `portals` **[Array][24]&lt;[Array][24]&lt;[number][21]>>** Array of portals, each defined by two vertex IDs.
+-   `closed` **[boolean][23]** 
+-   `cost` **[number][21]** 
 
 [1]: #pathfinding
 
 [2]: #setzonedata
 
-[3]: #getgroup
+[3]: #getrandomnode
 
-[4]: #getrandomnode
+[4]: #getclosestnode
 
-[5]: #getclosestnode
+[5]: #findpath
 
-[6]: #findpath
+[6]: #getgroup
 
 [7]: #clampstep
 
 [8]: #createzone
 
-[9]: #zone
+[9]: #pathfindinghelper
 
-[10]: #group
+[10]: #setpath
 
-[11]: #node
+[11]: #setplayerposition
 
-[12]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
+[12]: #settargetposition
 
-[13]: #zone
+[13]: #setnodeposition
 
-[14]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
+[14]: #setstepposition
 
-[15]: #node
+[15]: #reset
 
-[16]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean
+[16]: #zone
 
-[17]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
+[17]: #group
 
-[18]: #group
+[18]: #node
+
+[19]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
+
+[20]: #zone
+
+[21]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
+
+[22]: #node
+
+[23]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean
+
+[24]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
+
+[25]: #group
 <!--- API END --->
 
 ## Thanks to

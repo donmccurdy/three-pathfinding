@@ -30,12 +30,6 @@
 		/* global threePathfinding */
 
 		const Color = {
-			PLAYER: new THREE.Color( 0xEE836F ).convertGammaToLinear( 2.2 ).getHex(),
-			TARGET: new THREE.Color( 0xDCCB18 ).convertGammaToLinear( 2.2 ).getHex(),
-			PATH: new THREE.Color( 0x00A3AF ).convertGammaToLinear( 2.2 ).getHex(),
-			WAYPOINT: new THREE.Color( 0x00A3AF ).convertGammaToLinear( 2.2 ).getHex(),
-			CLAMPED_STEP: new THREE.Color( 0xDCD3B2 ).convertGammaToLinear( 2.2 ).getHex(),
-			CLOSEST_NODE: new THREE.Color( 0x43676B ).convertGammaToLinear( 2.2 ).getHex(),
 			GROUND: new THREE.Color( 0x606060 ).convertGammaToLinear( 2.2 ).getHex(),
 			NAVMESH: new THREE.Color( 0xFFFFFF ).convertGammaToLinear( 2.2 ).getHex(),
 		};
@@ -45,17 +39,23 @@
 		const OFFSET = 0.2;
 
 		THREE.Pathfinding = threePathfinding.Pathfinding;
-		
+		THREE.PathfindingHelper = threePathfinding.PathfindingHelper;
 
-		let playerMesh, targetMesh, level, navmesh;
+		let level, navmesh;
 
-		let groupID, pathLines, calculatedPath;
+		let groupID, path;
+
+		const playerPosition = new THREE.Vector3( -3.5, 0.5, 5.5 );
+		const targetPosition = new THREE.Vector3();
 
 		const pathfinder = new THREE.Pathfinding();
-		const scene = new THREE.Scene();
+		const helper = new THREE.PathfindingHelper();
 		const clock = new THREE.Clock();
 		const mouse = new THREE.Vector2();
 		const raycaster = new THREE.Raycaster();
+
+		const scene = new THREE.Scene();
+		scene.add( helper );
 
 		const camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
 		camera.position.x = -10;
@@ -80,18 +80,6 @@
 		directionalLight.position.set( 0, 0.5, 0.5 );
 		scene.add( directionalLight );
 
-		const nodeMarker = new THREE.Mesh(
-			new THREE.BoxGeometry(0.1, 0.8, 0.1),
-			new THREE.MeshBasicMaterial({color: Color.CLOSEST_NODE})
-		);
-		scene.add(nodeMarker);
-
-		const stepMarker = new THREE.Mesh(
-			new THREE.BoxGeometry(0.1, 1, 0.1),
-			new THREE.MeshBasicMaterial({color: Color.CLAMPED_STEP})
-		);
-		scene.add(stepMarker);
-
 		init();
 		animate();
 
@@ -111,7 +99,7 @@
 				const zone = THREE.Pathfinding.createZone(geometry);
 				console.timeEnd('createZone()');
 
-				pathfinder.setZoneData('level', zone);
+				pathfinder.setZoneData( ZONE, zone );
 
 				const navWireframe = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
 					color: 0x808080,
@@ -129,25 +117,13 @@
 				scene.add(navmesh);
 
 				// Set the player's navigation mesh group
-				groupID = pathfinder.getGroup('level', playerMesh.position);
+				groupID = pathfinder.getGroup( ZONE, playerPosition );
 
 			}, null);
 
-			// Player
-			const playerGeometry = new THREE.SphereGeometry( 0.25, 32, 32 );
-			const playerMaterial = new THREE.MeshBasicMaterial( {color: Color.PLAYER} );
-			playerMesh = new THREE.Mesh( playerGeometry, playerMaterial );
-			scene.add( playerMesh );
-
-			playerMesh.position.set(-3.5, 0.5, 5.5);
-
-			// Target
-			const targetGeometry = new THREE.BoxGeometry( 0.3, 0.3, 0.3 );
-			const targetMaterial = new THREE.MeshBasicMaterial( {color: Color.TARGET} );
-			targetMesh = new THREE.Mesh( targetGeometry, targetMaterial );
-			scene.add( targetMesh );
-
-			targetMesh.position.copy(playerMesh.position);
+			helper
+				.setPlayerPosition( new THREE.Vector3( -3.5, 0.5, 5.5 ) )
+				.setTargetPosition( new THREE.Vector3( -3.5, 0.5, 5.5 ) );
 
 			document.addEventListener( 'mouseup', onDocumentMouseUp, false );
 			window.addEventListener( 'resize', onWindowResize, false );
@@ -167,80 +143,50 @@
 
 			if ( !intersects.length ) return;
 
-			const vec = intersects[0].point;
-			targetMesh.position.copy(vec);
+			targetPosition.copy( intersects[0].point );
+
+			helper
+				.reset()
+				.setPlayerPosition( playerPosition );
 
 			// Teleport on ctrl/cmd click or RMB.
 			if (event.metaKey || event.ctrlKey || event.button === 2) {
-				playerMesh.position.copy(targetMesh.position);
-				groupID = pathfinder.getGroup('level', playerMesh.position, true);
-				stepMarker.visible = false;
-				if (pathLines) scene.remove(pathLines);
-				if (calculatedPath) calculatedPath.length = 0;
-				const closestNode = pathfinder.getClosestNode(playerMesh.position, 'level', groupID, true);
-				if (closestNode) {
-					nodeMarker.visible = true;
-					nodeMarker.position.copy(closestNode.centroid);
-				} else {
-					nodeMarker.visible = false;
-				}
+
+				path.length = 0;
+				groupID = pathfinder.getGroup(ZONE, targetPosition, true);
+				const closestNode = pathfinder.getClosestNode( playerPosition, ZONE, groupID, true );
+				
+				helper.setPlayerPosition( playerPosition.copy( targetPosition ) )
+				if ( closestNode ) helper.setNodePosition( closestNode.centroid );
+
 				return;
+
 			}
 
-			const targetGroupID = pathfinder.getGroup('level', targetMesh.position, true);
-			const closestTargetNode = pathfinder.getClosestNode(targetMesh.position, 'level', targetGroupID, true);
-			if (closestTargetNode) {
-				nodeMarker.visible = true;
-				nodeMarker.position.copy(closestTargetNode.centroid);
-			} else {
-				nodeMarker.visible = false;
-			}
+			const targetGroupID = pathfinder.getGroup( ZONE, targetPosition, true );
+			const closestTargetNode = pathfinder.getClosestNode( targetPosition, ZONE, targetGroupID, true );
+
+			helper.setTargetPosition( targetPosition );
+			if (closestTargetNode) helper.setNodePosition( closestTargetNode.centroid );
 
 			// Calculate a path to the target and store it
-			calculatedPath = pathfinder.findPath(playerMesh.position, targetMesh.position, 'level', groupID);
+			path = pathfinder.findPath( playerPosition, targetPosition, ZONE, groupID );
 
-			if (calculatedPath && calculatedPath.length) {
+			if ( path && path.length ) {
 
-				stepMarker.visible = false;
+				helper.setPath( path );
 
-				if (pathLines) scene.remove(pathLines);
-
-				const material = new THREE.LineBasicMaterial({
-					color: Color.PATH,
-					linewidth: 2
-				});
-
-				let geometry = new THREE.Geometry();
-				geometry.vertices.push(playerMesh.position);
-
-				// Draw debug lines
-				for (let i = 0; i < calculatedPath.length; i++) {
-					geometry.vertices.push(calculatedPath[i].clone().add(new THREE.Vector3(0, OFFSET, 0)));
-				}
-
-				pathLines = new THREE.Line( geometry, material );
-				scene.add( pathLines );
-
-				// Draw debug cubes except the last one. Also, add the player position.
-				const debugPath = [playerMesh.position].concat(calculatedPath);
-
-				for (let i = 0; i < debugPath.length - 1; i++) {
-					geometry = new THREE.SphereBufferGeometry( 0.08 );
-					const material = new THREE.MeshBasicMaterial( {color: Color.WAYPOINT} );
-					const node = new THREE.Mesh( geometry, material );
-					node.position.copy(debugPath[i]);
-					node.position.y += OFFSET;
-					pathLines.add( node );
-				}
 			} else {
-				const closestPlayerNode = pathfinder.getClosestNode(playerMesh.position, 'level', groupID);
-				const clamped = new THREE.Vector3();
-				pathfinder.clampStep(
-					playerMesh.position, targetMesh.position.clone(), closestPlayerNode, 'level', groupID, clamped);
-				stepMarker.position.copy(clamped);
-				stepMarker.visible = true;
 
-				if (pathLines) scene.remove(pathLines);
+				const closestPlayerNode = pathfinder.getClosestNode( playerPosition, ZONE, groupID );
+				const clamped = new THREE.Vector3();
+
+				// TODO(donmccurdy): Don't clone targetPosition, fix the bug.
+				pathfinder.clampStep(
+					playerPosition, targetPosition.clone(), closestPlayerNode, ZONE, groupID, clamped );
+
+				helper.setStepPosition( clamped );
+
 			}
 		}
 
@@ -262,18 +208,19 @@
 		}
 
 		function tick ( dt ) {
-			if (!level || !(calculatedPath||[]).length) return
+			if ( !level || !(path||[]).length ) return
 
-			let targetPosition = calculatedPath[0];
-			const velocity = targetPosition.clone().sub(playerMesh.position);
+			let targetPosition = path[ 0 ];
+			const velocity = targetPosition.clone().sub( playerPosition );
 
 			if (velocity.lengthSq() > 0.05 * 0.05) {
 				velocity.normalize();
 				// Move player to target
-				playerMesh.position.add(velocity.multiplyScalar(dt * SPEED));
+				playerPosition.add( velocity.multiplyScalar( dt * SPEED ) );
+				helper.setPlayerPosition( playerPosition );
 			} else {
 				// Remove node from the path we calculated
-				calculatedPath.shift();
+				path.shift();
 			}
 		}
 
