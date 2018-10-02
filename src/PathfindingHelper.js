@@ -70,7 +70,12 @@ class PathfindingHelper extends THREE.Object3D {
    */
   setPath ( path ) {
 
-    this._pathMarker.children.forEach( ( child ) => this._pathMarker.remove( child ) );
+    while ( this._pathMarker.children.length ) {
+
+      this._pathMarker.children[ 0 ].visible = false;
+      this._pathMarker.remove( this._pathMarker.children[ 0 ] );
+
+    }
 
     path = [ this._playerMarker.position ].concat( path );
 
@@ -150,7 +155,12 @@ class PathfindingHelper extends THREE.Object3D {
    */
   reset () {
 
-    this._pathMarker.children.forEach( ( child ) => this._pathMarker.remove( child ) );
+    while ( this._pathMarker.children.length ) {
+
+      this._pathMarker.children[ 0 ].visible = false;
+      this._pathMarker.remove( this._pathMarker.children[ 0 ] );
+
+    }
 
     this._markers.forEach( ( marker ) => {
 

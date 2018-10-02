@@ -145,17 +145,19 @@
 
 			targetPosition.copy( intersects[0].point );
 
-			helper.reset();
+			helper
+				.reset()
+				.setPlayerPosition( playerPosition );
 
 			// Teleport on ctrl/cmd click or RMB.
 			if (event.metaKey || event.ctrlKey || event.button === 2) {
 
+				path.length = 0;
 				groupID = pathfinder.getGroup(ZONE, targetPosition, true);
 				const closestNode = pathfinder.getClosestNode( playerPosition, ZONE, groupID, true );
 				
-				helper
-					.setPlayerPosition( playerPosition.copy( targetPosition ) )
-					.setNodePosition( closestNode.centroid );
+				helper.setPlayerPosition( playerPosition.copy( targetPosition ) )
+				if ( closestNode ) helper.setNodePosition( closestNode.centroid );
 
 				return;
 
