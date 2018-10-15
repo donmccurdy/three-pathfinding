@@ -121,11 +121,13 @@ class Builder {
     // in group C cannot share a >1 vertex with this polygon.
     // IMPORTANT: Bublé cannot compile for-of loops.
     groupA.forEach((candidate) => {
+      if (navigationMesh.polygons[candidate] === polygon) return;
       if (groupB.has(candidate) || groupC.has(candidate)) {
         neighbors.add(navigationMesh.polygons[candidate]);
       }
     });
     groupB.forEach((candidate) => {
+      if (navigationMesh.polygons[candidate] === polygon) return;
       if (groupC.has(candidate)) {
         neighbors.add(navigationMesh.polygons[candidate]);
       }
