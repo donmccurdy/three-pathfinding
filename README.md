@@ -28,19 +28,26 @@ npm install --save three-pathfinding
 
 This library does not build navigation meshes for you — instead, create a navigation mesh using [Blender](https://youtu.be/v4d_6ZCGlAg?t=6m8s), [Recast](https://github.com/recastnavigation/recastnavigation) ([CLI](https://github.com/but0n/recastCLI.js)), or another tool.
 
-The library accepts a [THREE.Geometry](https://threejs.org/docs/#api/core/Geometry) instance, which can be loaded with any three.js loader and converted from BufferGeometry if necessary.
+Currently, this library does not accept the custom navigation mesh file formats created by tools like Recast.
+Instead, you will need to export the navigation mesh to a 3D model format (like OBJ or glTF) and then load it
+with one of the three.js loaders, like THREE.OBJLoader or THREE.GLTFLoader. The library accepts a [THREE.BufferGeometry](https://threejs.org/docs/#api/core/BufferGeometry) instance.
 
 ### Example
 
 Loading a mesh from a `.gltf` file:
 
 ```js
-let mesh;
+// For ES6, see: https://github.com/mrdoob/three.js/issues/9562
+// CommonJS
+const THREE = window.THREE = require('three');
+require('three/examples/js/loaders/GLTFLoader.js');
+
+let navmesh;
 
 const loader = new THREE.GLTFLoader();
 loader.load( 'navmesh.gltf', ({scene}) => {
     scene.traverse((node) => {
-        if (node.isMesh) mesh = node;
+        if (node.isMesh) navmesh = node;
     });
 }, undefined, (e) => {
     console.error(e);
@@ -60,7 +67,7 @@ const Pathfinding = window.threePathfinding.Pathfinding;
 // Create level.
 const pathfinding = new Pathfinding();
 const ZONE = 'level1';
-pathfinding.setZoneData(ZONE, Pathfinding.createZone(mesh.geometry));
+pathfinding.setZoneData(ZONE, Pathfinding.createZone(navmesh.geometry));
 
 // Find path from A to B.
 const groupID = pathfinding.getGroup(ZONE, a);
@@ -116,8 +123,8 @@ Sets data for the given zone.
 
 **Parameters**
 
--   `zoneID` **[string][19]** 
--   `zone` **[Zone][20]** 
+-   `zoneID` **[string][19]**
+-   `zone` **[Zone][20]**
 
 ### getRandomNode
 
@@ -125,12 +132,12 @@ Returns a random node within a given range of a given position.
 
 **Parameters**
 
--   `zoneID` **[string][19]** 
--   `groupID` **[number][21]** 
--   `nearPosition` **THREE.Vector3** 
--   `nearRange` **[number][21]** 
+-   `zoneID` **[string][19]**
+-   `groupID` **[number][21]**
+-   `nearPosition` **THREE.Vector3**
+-   `nearRange` **[number][21]**
 
-Returns **[Node][22]** 
+Returns **[Node][22]**
 
 ### getClosestNode
 
@@ -138,12 +145,12 @@ Returns the closest node to the target position.
 
 **Parameters**
 
--   `position` **THREE.Vector3** 
--   `zoneID` **[string][19]** 
--   `groupID` **[number][21]** 
+-   `position` **THREE.Vector3**
+-   `zoneID` **[string][19]**
+-   `groupID` **[number][21]**
 -   `checkPolygon` **[boolean][23]**  (optional, default `false`)
 
-Returns **[Node][22]** 
+Returns **[Node][22]**
 
 ### findPath
 
@@ -165,10 +172,10 @@ Returns closest node group ID for given position.
 
 **Parameters**
 
--   `zoneID` **[string][19]** 
--   `position` **THREE.Vector3** 
+-   `zoneID` **[string][19]**
+-   `position` **THREE.Vector3**
 
-Returns **[number][21]** 
+Returns **[number][21]**
 
 ### clampStep
 
@@ -177,11 +184,11 @@ used to constrain first-person / WASD controls.
 
 **Parameters**
 
--   `start` **THREE.Vector3** 
+-   `start` **THREE.Vector3**
 -   `end` **THREE.Vector3** Desired endpoint.
--   `node` **[Node][22]** 
--   `zoneID` **[string][19]** 
--   `groupID` **[number][21]** 
+-   `node` **[Node][22]**
+-   `zoneID` **[string][19]**
+-   `groupID` **[number][21]**
 -   `endTarget` **THREE.Vector3** Updated endpoint.
 
 Returns **[Node][22]** Updated node.
@@ -192,9 +199,9 @@ Returns **[Node][22]** Updated node.
 
 **Parameters**
 
--   `geometry` **THREE.BufferGeometry** 
+-   `geometry` **THREE.BufferGeometry**
 
-Returns **[Zone][20]** 
+Returns **[Zone][20]**
 
 ## PathfindingHelper
 
@@ -206,47 +213,47 @@ Helper for debugging pathfinding behavior.
 
 **Parameters**
 
--   `path`  
+-   `path`
 
-Returns **this** 
+Returns **this**
 
 ### setPlayerPosition
 
 **Parameters**
 
--   `position` **THREE.Vector3** 
+-   `position` **THREE.Vector3**
 
-Returns **this** 
+Returns **this**
 
 ### setTargetPosition
 
 **Parameters**
 
--   `position` **THREE.Vector3** 
+-   `position` **THREE.Vector3**
 
-Returns **this** 
+Returns **this**
 
 ### setNodePosition
 
 **Parameters**
 
--   `position` **THREE.Vector3** 
+-   `position` **THREE.Vector3**
 
-Returns **this** 
+Returns **this**
 
 ### setStepPosition
 
 **Parameters**
 
--   `position` **THREE.Vector3** 
+-   `position` **THREE.Vector3**
 
-Returns **this** 
+Returns **this**
 
 ### reset
 
 Hides all markers.
 
-Returns **this** 
+Returns **this**
 
 ## Zone
 
@@ -254,7 +261,7 @@ Defines a zone of interconnected groups on a navigation mesh.
 
 **Properties**
 
--   `groups` **[Array][24]&lt;[Group][25]>** 
+-   `groups` **[Array][24]&lt;[Group][25]>**
 
 ## Group
 
@@ -266,12 +273,12 @@ Defines a node (or polygon) within a group.
 
 **Properties**
 
--   `id` **[number][21]** 
+-   `id` **[number][21]**
 -   `neighbours` **[Array][24]&lt;[number][21]>** IDs of neighboring nodes.
--   `centroid` **THREE.Vector3** 
+-   `centroid` **THREE.Vector3**
 -   `portals` **[Array][24]&lt;[Array][24]&lt;[number][21]>>** Array of portals, each defined by two vertex IDs.
--   `closed` **[boolean][23]** 
--   `cost` **[number][21]** 
+-   `closed` **[boolean][23]**
+-   `cost` **[number][21]**
 
 [1]: #pathfinding
 
