@@ -2,9 +2,10 @@ const THREE = global.THREE = require('three');
 const { Pathfinding } = require('../');
 const test = require('tape');
 
+const EPS = 1e-5;
 const ZONE = 'level';
 const ROTATE = new THREE.Matrix4()
-  .makeRotationAxis(new THREE.Vector3(1, 0, 0), Math.PI / 4);
+  .makeRotationAxis(new THREE.Vector3(1, 0, 0), Math.PI / 2);
 
 test('initialize', (t) => {
   t.ok(Pathfinding, 'module loads');
@@ -118,3 +119,36 @@ test('vertically stacked groups', (t) => {
 
   t.end();
 });
+
+test('does not overwrite parameters', (t) => {
+  const pathfinding = new Pathfinding();
+  const geometry = new THREE.RingBufferGeometry(5, 10).applyMatrix(ROTATE);
+  const zone = Pathfinding.createZone(geometry);
+  pathfinding.setZoneData(ZONE, zone);
+  const a = new THREE.Vector3(7.5, 0.5, 0);
+  const b = new THREE.Vector3(7.8, 0.5, 0);
+  const groupID = pathfinding.getGroup(ZONE, a);
+  const node = pathfinding.getClosestNode(a, ZONE, groupID);
+
+  const endTarget = new THREE.Vector3();
+  pathfinding.clampStep(a, b, node, ZONE, groupID, endTarget);
+
+  roundVector(endTarget);
+
+  t.deepEqual(endTarget, {x: 7.8, y: 0, z: 0}, 'endTarget');
+  t.deepEqual(a, {x: 7.5, y: 0.5, z: 0}, 'a');
+  t.deepEqual(b, { x: 7.8, y: 0.5, z: 0 }, 'b');
+
+  t.end();
+});
+
+/**
+ * Limit vector precision so tape.deepEqual works reliably.
+ * @param {THREE.Vector3} v
+ */
+function roundVector (v) {
+  v.x = Math.round( v.x * 1e5 ) / 1e5;
+  v.y = Math.round(v.y * 1e5) / 1e5;
+  v.z = Math.round(v.z * 1e5) / 1e5;
+  return v;
+}

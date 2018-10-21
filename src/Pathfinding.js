@@ -217,11 +217,13 @@ Pathfinding.prototype.clampStep = (function () {
 	const plane = new THREE.Plane();
 	const triangle = new THREE.Triangle();
 
+	const endPoint = new THREE.Vector3();
+
 	let closestNode;
 	let closestPoint = new THREE.Vector3();
 	let closestDistance;
 
-	return function (start, end, node, zoneID, groupID, endTarget) {
+	return function (startRef, endRef, node, zoneID, groupID, endTarget) {
 		const vertices = this.zones[zoneID].vertices;
 		const nodes = this.zones[zoneID].groups[groupID];
 
@@ -239,8 +241,8 @@ Pathfinding.prototype.clampStep = (function () {
 			vertices[node.vertexIds[1]],
 			vertices[node.vertexIds[2]]
 		);
-		plane.projectPoint(end, point);
-		end.copy(point);
+		plane.projectPoint(endRef, point);
+		endPoint.copy(point);
 
 		for (let currentNode = nodeQueue.pop(); currentNode; currentNode = nodeQueue.pop()) {
 
@@ -250,12 +252,12 @@ Pathfinding.prototype.clampStep = (function () {
 				vertices[currentNode.vertexIds[2]]
 			);
 
-			triangle.closestPointToPoint(end, point);
+			triangle.closestPointToPoint(endPoint, point);
 
-			if (point.distanceToSquared(end) < closestDistance) {
+			if (point.distanceToSquared(endPoint) < closestDistance) {
 				closestNode = currentNode;
 				closestPoint.copy(point);
-				closestDistance = point.distanceToSquared(end);
+				closestDistance = point.distanceToSquared(endPoint);
 			}
 
 			const depth = nodeDepth[currentNode];
