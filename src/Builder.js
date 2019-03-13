@@ -113,22 +113,22 @@ class Builder {
   static _buildPolygonNeighbours (polygon, navigationMesh, vertexPolygonMap) {
     const neighbors = new Set();
 
-    const groupA = vertexPolygonMap.get(polygon.vertexIds[0]);
-    const groupB = vertexPolygonMap.get(polygon.vertexIds[1]);
-    const groupC = vertexPolygonMap.get(polygon.vertexIds[2]);
+    const groupA = vertexPolygonMap[polygon.vertexIds[0]];
+    const groupB = vertexPolygonMap[polygon.vertexIds[1]];
+    const groupC = vertexPolygonMap[polygon.vertexIds[2]];
 
     // It's only necessary to iterate groups A and B. Polygons contained only
     // in group C cannot share a >1 vertex with this polygon.
     // IMPORTANT: Bublé cannot compile for-of loops.
     groupA.forEach((candidate) => {
       if (navigationMesh.polygons[candidate] === polygon) return;
-      if (groupB.has(candidate) || groupC.has(candidate)) {
+      if (groupB.includes(candidate) || groupC.includes(candidate)) {
         neighbors.add(navigationMesh.polygons[candidate]);
       }
     });
     groupB.forEach((candidate) => {
       if (navigationMesh.polygons[candidate] === polygon) return;
-      if (groupC.has(candidate)) {
+      if (groupC.includes(candidate)) {
         neighbors.add(navigationMesh.polygons[candidate]);
       }
     });
@@ -146,9 +146,9 @@ class Builder {
     // create a map from vertices to the polygons that contain them, and use it
     // while connecting polygons. This reduces complexity to O(n*m), where 'm'
     // is related to connectivity of the mesh.
-    const vertexPolygonMap = new Map(); // Map<vertexID, Set<polygonIndex>>
+    const vertexPolygonMap = new Array(vertices.length); // array of polygon indices by vertex index
     for (let i = 0; i < vertices.length; i++) {
-      vertexPolygonMap.set(i, new Set());
+      vertexPolygonMap[i] = [];
     }
 
     // Convert the faces into a custom format that supports more than 3 vertices
@@ -160,9 +160,10 @@ class Builder {
         normal: face.normal,
         neighbours: []
       });
-      vertexPolygonMap.get(face.a).add(polygons.length - 1);
-      vertexPolygonMap.get(face.b).add(polygons.length - 1);
-      vertexPolygonMap.get(face.c).add(polygons.length - 1);
+
+      vertexPolygonMap[face.a].push(polygons.length - 1);
+      vertexPolygonMap[face.b].push(polygons.length - 1);
+      vertexPolygonMap[face.c].push(polygons.length - 1);
     });
 
     const navigationMesh = {
