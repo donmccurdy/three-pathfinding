@@ -24,25 +24,19 @@ class Builder {
 
     const groups = this._buildPolygonGroups(navMesh);
 
-    zone.groups = [];
-
-    const findPolygonIndex = function (group, p) {
-      for (let i = 0; i < group.length; i++) {
-        if (p === group[i]) return i;
-      }
-    };
-
     // TODO: This block represents 50-60% of navigation mesh construction time,
     // and could probably be optimized. For example, construct portals while
     // determining the neighbor graph.
-    groups.forEach((group) => {
+    zone.groups = new Array(groups.length);
+    groups.forEach((group, i) => {
 
-      const newGroup = [];
+      const indexByPolygonId = {};
+      group.forEach((p, j) => { indexByPolygonId[p.id] = j; });
 
-      group.forEach((p) => {
+      const newGroup = new Array(group.length);
+      group.forEach((p, j) => {
 
-        // TODO: Optimize.
-        const neighbours = p.neighbours.map((n) => findPolygonIndex(group, n));
+        const neighbourIndices = p.neighbours.map((n) => indexByPolygonId[n.id]);
 
         // Build a portal list to each neighbour
         const portals = p.neighbours.map((n) => this._getSharedVerticesInOrder(p, n));
@@ -51,17 +45,16 @@ class Builder {
         p.centroid.y = Utils.roundNumber(p.centroid.y, 2);
         p.centroid.z = Utils.roundNumber(p.centroid.z, 2);
 
-        newGroup.push({
-          id: findPolygonIndex(group, p),
-          neighbours: neighbours,
+        newGroup[j] = {
+          id: j,
+          neighbours: neighbourIndices,
           vertexIds: p.vertexIds,
           centroid: p.centroid,
           portals: portals
-        });
-
+        };
       });
 
-      zone.groups.push(newGroup);
+      zone.groups[i] = newGroup;
     });
 
     return zone;
