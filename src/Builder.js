@@ -78,7 +78,6 @@ class Builder {
     const polygons = navigationMesh.polygons;
 
     const polygonGroups = [];
-    let groupCount = 0;
 
     const spreadGroupId = function (polygon) {
       polygon.neighbours.forEach((neighbour) => {
@@ -90,16 +89,15 @@ class Builder {
     };
 
     polygons.forEach((polygon) => {
-
-      if (polygon.group === undefined) {
-        polygon.group = groupCount++;
-        // Spread it
+      if (polygon.group !== undefined) {
+        // this polygon is already part of a group
+        polygonGroups[polygon.group].push(polygon);
+      } else {
+        // we need to make a new group and spread its ID to neighbors
+        polygon.group = polygonGroups.length;
         spreadGroupId(polygon);
+        polygonGroups.push([polygon]);
       }
-
-      if (!polygonGroups[polygon.group]) polygonGroups[polygon.group] = [];
-
-      polygonGroups[polygon.group].push(polygon);
     });
 
     return polygonGroups;
