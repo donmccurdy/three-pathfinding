@@ -24,7 +24,7 @@ class Builder {
 
     const groups = this._buildPolygonGroups(navMesh);
 
-    // TODO: This block represents 50-60% of navigation mesh construction time,
+    // TODO: This block represents a large portion of navigation mesh construction time
     // and could probably be optimized. For example, construct portals while
     // determining the neighbor graph.
     zone.groups = new Array(groups.length);
@@ -36,10 +36,12 @@ class Builder {
       const newGroup = new Array(group.length);
       group.forEach((p, j) => {
 
-        const neighbourIndices = p.neighbours.map((n) => indexByPolygonId[n.id]);
+        const neighbourIndices = [];
+        p.neighbours.forEach((n) => neighbourIndices.push(indexByPolygonId[n.id]));
 
         // Build a portal list to each neighbour
-        const portals = p.neighbours.map((n) => this._getSharedVerticesInOrder(p, n));
+        const portals = [];
+        p.neighbours.forEach((n) => portals.push(this._getSharedVerticesInOrder(p, n)));
 
         p.centroid.x = Utils.roundNumber(p.centroid.x, 2);
         p.centroid.y = Utils.roundNumber(p.centroid.y, 2);
@@ -126,7 +128,7 @@ class Builder {
       }
     });
 
-    return Array.from(neighbours);
+    return neighbours;
   }
 
   static _buildPolygonsFromGeometry (geometry) {
