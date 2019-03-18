@@ -28,35 +28,35 @@ class Builder {
     // and could probably be optimized. For example, construct portals while
     // determining the neighbor graph.
     zone.groups = new Array(groups.length);
-    groups.forEach((group, i) => {
+    groups.forEach((group, groupIndex) => {
 
       const indexByPolygonId = {};
-      group.forEach((p, j) => { indexByPolygonId[p.id] = j; });
+      group.forEach((poly, polyIndex) => { indexByPolygonId[poly.id] = polyIndex; });
 
       const newGroup = new Array(group.length);
-      group.forEach((p, j) => {
+      group.forEach((poly, polyIndex) => {
 
         const neighbourIndices = [];
-        p.neighbours.forEach((n) => neighbourIndices.push(indexByPolygonId[n.id]));
+        poly.neighbours.forEach((n) => neighbourIndices.push(indexByPolygonId[n.id]));
 
         // Build a portal list to each neighbour
         const portals = [];
-        p.neighbours.forEach((n) => portals.push(this._getSharedVerticesInOrder(p, n)));
+        poly.neighbours.forEach((n) => portals.push(this._getSharedVerticesInOrder(poly, n)));
 
-        p.centroid.x = Utils.roundNumber(p.centroid.x, 2);
-        p.centroid.y = Utils.roundNumber(p.centroid.y, 2);
-        p.centroid.z = Utils.roundNumber(p.centroid.z, 2);
+        poly.centroid.x = Utils.roundNumber(poly.centroid.x, 2);
+        poly.centroid.y = Utils.roundNumber(poly.centroid.y, 2);
+        poly.centroid.z = Utils.roundNumber(poly.centroid.z, 2);
 
-        newGroup[j] = {
-          id: j,
+        newGroup[polyIndex] = {
+          id: polyIndex,
           neighbours: neighbourIndices,
-          vertexIds: p.vertexIds,
-          centroid: p.centroid,
+          vertexIds: poly.vertexIds,
+          centroid: poly.centroid,
           portals: portals
         };
       });
 
-      zone.groups[i] = newGroup;
+      zone.groups[groupIndex] = newGroup;
     });
 
     return zone;
