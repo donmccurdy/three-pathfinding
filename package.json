@@ -18,6 +18,7 @@
 		"version": "npm run dist && npm test && git add -A dist",
 		"postversion": "git push && git push --tags && npm publish",
 		"test": "node tests/index.test.js",
+		"benchmark": "node benchmark/index.benchmark.js",
 		"deploy": "npm run dist && npm test && now --static && now alias"
 	},
 	"now": {
