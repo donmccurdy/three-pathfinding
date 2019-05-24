@@ -132,7 +132,6 @@ class Builder {
 
     const polygons = [];
     const vertices = geometry.vertices;
-    const faceVertexUvs = geometry.faceVertexUvs;
 
     // Constructing the neighbor graph brute force is O(n²). To avoid that,
     // create a map from vertices to the polygons that contain them, and use it
@@ -170,8 +169,7 @@ class Builder {
 
     return {
       polygons: polygons,
-      vertices: vertices,
-      faceVertexUvs: faceVertexUvs
+      vertices: vertices
     };
   }
 
