@@ -1,21 +1,5 @@
 class Utils {
 
-  static computeCentroids (geometry) {
-    var f, fl, face;
-
-    for ( f = 0, fl = geometry.faces.length; f < fl; f ++ ) {
-
-      face = geometry.faces[ f ];
-      face.centroid = new THREE.Vector3( 0, 0, 0 );
-
-      face.centroid.add( geometry.vertices[ face.a ] );
-      face.centroid.add( geometry.vertices[ face.b ] );
-      face.centroid.add( geometry.vertices[ face.c ] );
-      face.centroid.divideScalar( 3 );
-
-    }
-  }
-
   static roundNumber (value, decimals) {
     return Number(value.toFixed(decimals));
   }
