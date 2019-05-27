@@ -68,7 +68,6 @@ class Builder {
    * @return {Object}
    */
   static _buildNavigationMesh (geometry) {
-    Utils.computeCentroids(geometry);
     geometry.mergeVertices();
     return this._buildPolygonsFromGeometry(geometry);
   }
@@ -133,7 +132,6 @@ class Builder {
 
     const polygons = [];
     const vertices = geometry.vertices;
-    const faceVertexUvs = geometry.faceVertexUvs;
 
     // Constructing the neighbor graph brute force is O(n²). To avoid that,
     // create a map from vertices to the polygons that contain them, and use it
@@ -146,10 +144,15 @@ class Builder {
 
     // Convert the faces into a custom format that supports more than 3 vertices
     geometry.faces.forEach((face) => {
+      const centroid = new THREE.Vector3( 0, 0, 0 );
+      centroid.add( vertices[ face.a ] );
+      centroid.add( vertices[ face.b ] );
+      centroid.add( vertices[ face.c ] );
+      centroid.divideScalar( 3 );
       const poly = {
         id: polygonId++,
         vertexIds: [face.a, face.b, face.c],
-        centroid: face.centroid,
+        centroid: centroid,
         normal: face.normal,
         neighbours: null
       };
@@ -166,8 +169,7 @@ class Builder {
 
     return {
       polygons: polygons,
-      vertices: vertices,
-      faceVertexUvs: faceVertexUvs
+      vertices: vertices
     };
   }
 
