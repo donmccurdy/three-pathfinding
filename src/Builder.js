@@ -1,7 +1,5 @@
 import { Utils } from './Utils';
 
-let polygonId = 1;
-
 class Builder {
   /**
    * Constructs groups from the given navigation mesh.
@@ -143,14 +141,14 @@ class Builder {
     }
 
     // Convert the faces into a custom format that supports more than 3 vertices
-    geometry.faces.forEach((face) => {
+    geometry.faces.forEach((face, faceIndex) => {
       const centroid = new THREE.Vector3( 0, 0, 0 );
       centroid.add( vertices[ face.a ] );
       centroid.add( vertices[ face.b ] );
       centroid.add( vertices[ face.c ] );
       centroid.divideScalar( 3 );
       const poly = {
-        id: polygonId++,
+        id: faceIndex,
         vertexIds: [face.a, face.b, face.c],
         centroid: centroid,
         neighbours: null
