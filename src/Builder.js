@@ -153,7 +153,6 @@ class Builder {
         id: polygonId++,
         vertexIds: [face.a, face.b, face.c],
         centroid: centroid,
-        normal: face.normal,
         neighbours: null
       };
       polygons.push(poly);
