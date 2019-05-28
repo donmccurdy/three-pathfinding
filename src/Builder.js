@@ -28,14 +28,14 @@ class Builder {
     zone.groups = new Array(groups.length);
     groups.forEach((group, groupIndex) => {
 
-      const indexByPolygonId = {};
-      group.forEach((poly, polyIndex) => { indexByPolygonId[poly.id] = polyIndex; });
+      const indexByPolygon = new Map(); // { polygon: index in group }
+      group.forEach((poly, polyIndex) => { indexByPolygon.set(poly, polyIndex); });
 
       const newGroup = new Array(group.length);
       group.forEach((poly, polyIndex) => {
 
         const neighbourIndices = [];
-        poly.neighbours.forEach((n) => neighbourIndices.push(indexByPolygonId[n.id]));
+        poly.neighbours.forEach((n) => neighbourIndices.push(indexByPolygon.get(n)));
 
         // Build a portal list to each neighbour
         const portals = [];
@@ -146,12 +146,8 @@ class Builder {
     }
 
     // Convert the faces into a custom format that supports more than 3 vertices
-    geometry.faces.forEach((face, faceIndex) => {
-      const poly = {
-        id: faceIndex,
-        vertexIds: [face.a, face.b, face.c],
-        neighbours: null
-      };
+    geometry.faces.forEach((face) => {
+      const poly = { vertexIds: [face.a, face.b, face.c], neighbours: null };
       polygons.push(poly);
       vertexPolygonMap[face.a].push(poly);
       vertexPolygonMap[face.b].push(poly);
