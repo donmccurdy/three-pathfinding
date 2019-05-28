@@ -41,15 +41,20 @@ class Builder {
         const portals = [];
         poly.neighbours.forEach((n) => portals.push(this._getSharedVerticesInOrder(poly, n)));
 
-        poly.centroid.x = Utils.roundNumber(poly.centroid.x, 2);
-        poly.centroid.y = Utils.roundNumber(poly.centroid.y, 2);
-        poly.centroid.z = Utils.roundNumber(poly.centroid.z, 2);
+        const centroid = new THREE.Vector3( 0, 0, 0 );
+        centroid.add( zone.vertices[ poly.vertexIds[0] ] );
+        centroid.add( zone.vertices[ poly.vertexIds[1] ] );
+        centroid.add( zone.vertices[ poly.vertexIds[2] ] );
+        centroid.divideScalar( 3 );
+        centroid.x = Utils.roundNumber(centroid.x, 2);
+        centroid.y = Utils.roundNumber(centroid.y, 2);
+        centroid.z = Utils.roundNumber(centroid.z, 2);
 
         newGroup[polyIndex] = {
           id: polyIndex,
           neighbours: neighbourIndices,
           vertexIds: poly.vertexIds,
-          centroid: poly.centroid,
+          centroid: centroid,
           portals: portals
         };
       });
@@ -142,15 +147,9 @@ class Builder {
 
     // Convert the faces into a custom format that supports more than 3 vertices
     geometry.faces.forEach((face, faceIndex) => {
-      const centroid = new THREE.Vector3( 0, 0, 0 );
-      centroid.add( vertices[ face.a ] );
-      centroid.add( vertices[ face.b ] );
-      centroid.add( vertices[ face.c ] );
-      centroid.divideScalar( 3 );
       const poly = {
         id: faceIndex,
         vertexIds: [face.a, face.b, face.c],
-        centroid: centroid,
         neighbours: null
       };
       polygons.push(poly);
