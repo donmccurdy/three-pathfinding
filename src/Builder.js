@@ -1,7 +1,5 @@
 import { Utils } from './Utils';
 
-let polygonId = 1;
-
 class Builder {
   /**
    * Constructs groups from the given navigation mesh.
@@ -30,28 +28,33 @@ class Builder {
     zone.groups = new Array(groups.length);
     groups.forEach((group, groupIndex) => {
 
-      const indexByPolygonId = {};
-      group.forEach((poly, polyIndex) => { indexByPolygonId[poly.id] = polyIndex; });
+      const indexByPolygon = new Map(); // { polygon: index in group }
+      group.forEach((poly, polyIndex) => { indexByPolygon.set(poly, polyIndex); });
 
       const newGroup = new Array(group.length);
       group.forEach((poly, polyIndex) => {
 
         const neighbourIndices = [];
-        poly.neighbours.forEach((n) => neighbourIndices.push(indexByPolygonId[n.id]));
+        poly.neighbours.forEach((n) => neighbourIndices.push(indexByPolygon.get(n)));
 
         // Build a portal list to each neighbour
         const portals = [];
         poly.neighbours.forEach((n) => portals.push(this._getSharedVerticesInOrder(poly, n)));
 
-        poly.centroid.x = Utils.roundNumber(poly.centroid.x, 2);
-        poly.centroid.y = Utils.roundNumber(poly.centroid.y, 2);
-        poly.centroid.z = Utils.roundNumber(poly.centroid.z, 2);
+        const centroid = new THREE.Vector3( 0, 0, 0 );
+        centroid.add( zone.vertices[ poly.vertexIds[0] ] );
+        centroid.add( zone.vertices[ poly.vertexIds[1] ] );
+        centroid.add( zone.vertices[ poly.vertexIds[2] ] );
+        centroid.divideScalar( 3 );
+        centroid.x = Utils.roundNumber(centroid.x, 2);
+        centroid.y = Utils.roundNumber(centroid.y, 2);
+        centroid.z = Utils.roundNumber(centroid.z, 2);
 
         newGroup[polyIndex] = {
           id: polyIndex,
           neighbours: neighbourIndices,
           vertexIds: poly.vertexIds,
-          centroid: poly.centroid,
+          centroid: centroid,
           portals: portals
         };
       });
@@ -144,18 +147,7 @@ class Builder {
 
     // Convert the faces into a custom format that supports more than 3 vertices
     geometry.faces.forEach((face) => {
-      const centroid = new THREE.Vector3( 0, 0, 0 );
-      centroid.add( vertices[ face.a ] );
-      centroid.add( vertices[ face.b ] );
-      centroid.add( vertices[ face.c ] );
-      centroid.divideScalar( 3 );
-      const poly = {
-        id: polygonId++,
-        vertexIds: [face.a, face.b, face.c],
-        centroid: centroid,
-        normal: face.normal,
-        neighbours: null
-      };
+      const poly = { vertexIds: [face.a, face.b, face.c], neighbours: null };
       polygons.push(poly);
       vertexPolygonMap[face.a].push(poly);
       vertexPolygonMap[face.b].push(poly);
