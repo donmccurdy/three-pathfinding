@@ -1,7 +1,8 @@
 class Utils {
 
   static roundNumber (value, decimals) {
-    return Number(value.toFixed(decimals));
+    const factor = Math.pow(10, decimals);
+    return Math.round(value * factor) / factor;
   }
 
   static sample (list) {
