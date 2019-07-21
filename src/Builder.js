@@ -168,38 +168,28 @@ class Builder {
   static _getSharedVerticesInOrder (a, b) {
 
     const aList = a.vertexIds;
+    const a0 = aList[0], a1 = aList[1], a2 = aList[2];
+
     const bList = b.vertexIds;
+    const shared0 = bList.includes(a0);
+    const shared1 = bList.includes(a1);
+    const shared2 = bList.includes(a2);
 
-    const sharedVertices = new Set();
-
-    aList.forEach((vId) => {
-      if (bList.includes(vId)) {
-        sharedVertices.add(vId);
-      }
-    });
-
-    if (sharedVertices.size < 2) return [];
-
-    if (sharedVertices.has(aList[0]) && sharedVertices.has(aList[aList.length - 1])) {
-      // Vertices on both edges are bad, so shift them once to the left
-      aList.push(aList.shift());
+    // it seems that we shouldn't have an a and b with <2 shared vertices here unless there's a bug
+    // in the neighbor identification code, or perhaps a malformed input geometry; 3 shared vertices
+    // is a kind of embarrassing but possible geometry we should handle
+    if (shared0 && shared1 && shared2) {
+      return Array.from(aList);
+    } else if (shared0 && shared1) {
+      return [a0, a1];
+    } else if (shared1 && shared2) {
+      return [a1, a2];
+    } else if (shared0 && shared2) {
+      return [a2, a0]; // this ordering will affect the string pull algorithm later, not clear if significant
+    } else {
+      console.warn("Error processing navigation mesh neighbors; neighbors with <2 shared vertices found.");
+      return [];
     }
-
-    if (sharedVertices.has(bList[0]) && sharedVertices.has(bList[bList.length - 1])) {
-      // Vertices on both edges are bad, so shift them once to the left
-      bList.push(bList.shift());
-    }
-
-    // Again!
-    const sharedVerticesOrdered = [];
-
-    aList.forEach((vId) => {
-      if (bList.includes(vId)) {
-        sharedVerticesOrdered.push(vId);
-      }
-    });
-
-    return sharedVerticesOrdered;
   }
 }
 
