@@ -1,4 +1,4 @@
-/* global THREE */
+import * as THREE from "three";
 
 const Color = {
   PLAYER: new THREE.Color( 0xEE836F ).convertGammaToLinear( 2.2 ).getHex(),

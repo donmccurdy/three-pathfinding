@@ -1,5 +1,4 @@
-/* global THREE */
-
+import * as THREE from "three";
 import { Utils } from './Utils';
 import { AStar } from './AStar';
 import { Builder } from './Builder';
