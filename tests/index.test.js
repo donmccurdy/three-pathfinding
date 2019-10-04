@@ -1,4 +1,4 @@
-const THREE = global.THREE = require('three');
+const THREE = require('three');
 const { Pathfinding } = require('../');
 const test = require('tape');
 
