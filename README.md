@@ -85,7 +85,7 @@ npm install
 npm run dev
 ```
 
-The demo will start at http://localhost:9966/demo/.
+The demo will start at http://localhost:5000/demo/.
 
 ## API
 
