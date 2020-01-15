@@ -260,7 +260,7 @@ Pathfinding.prototype.clampStep = (function () {
 				closestDistance = point.distanceToSquared(endPoint);
 			}
 
-			const depth = nodeDepth[currentNode];
+			const depth = nodeDepth[currentNode.id];
 			if (depth > 2) continue;
 
 			for (let i = 0; i < currentNode.neighbours.length; i++) {
