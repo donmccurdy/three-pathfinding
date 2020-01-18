@@ -42,7 +42,7 @@
 	"devDependencies": {
 		"concurrently": "^3.6.0",
 		"documentation": "^5.3.3",
-		"microbundle": "^0.5.1",
+		"microbundle": "^0.11.0",
 		"replace-between": "0.0.8",
 		"serve": "^9.2.0",
 		"tape": "^4.9.1",
