@@ -1,4 +1,8 @@
-import { Vector3, Geometry, Plane, Triangle, Color, Object3D, Mesh, SphereGeometry, MeshBasicMaterial, BoxGeometry, LineBasicMaterial, SphereBufferGeometry, Line } from 'three';
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+var three = require('three');
 
 class Utils {
 
@@ -358,7 +362,7 @@ class Builder {
         const portals = [];
         poly.neighbours.forEach((n) => portals.push(this._getSharedVerticesInOrder(poly, n)));
 
-        const centroid = new Vector3( 0, 0, 0 );
+        const centroid = new three.Vector3( 0, 0, 0 );
         centroid.add( zone.vertices[ poly.vertexIds[0] ] );
         centroid.add( zone.vertices[ poly.vertexIds[1] ] );
         centroid.add( zone.vertices[ poly.vertexIds[2] ] );
@@ -619,7 +623,7 @@ class Pathfinding {
 			// not-recommended these days, so go ahead and start warning.
 			console.warn('[three-pathfinding]: Use BufferGeometry, not Geometry, to create zone.');
 		} else {
-			geometry = new Geometry().fromBufferGeometry(geometry);
+			geometry = new three.Geometry().fromBufferGeometry(geometry);
 		}
 
 		return Builder.buildZone(geometry);
@@ -644,7 +648,7 @@ class Pathfinding {
 	 */
 	getRandomNode (zoneID, groupID, nearPosition, nearRange) {
 
-		if (!this.zones[zoneID]) return new Vector3();
+		if (!this.zones[zoneID]) return new three.Vector3();
 
 		nearPosition = nearPosition || null;
 		nearRange = nearRange || 0;
@@ -662,7 +666,7 @@ class Pathfinding {
 			}
 		});
 
-		return Utils.sample(candidates) || new Vector3();
+		return Utils.sample(candidates) || new three.Vector3();
 	}
 
 	/**
@@ -742,7 +746,7 @@ class Pathfinding {
 		channel.stringPull();
 
 		// Return the path, omitting first position (which is already known).
-		const path = channel.path.map((c) => new Vector3(c.x, c.y, c.z));
+		const path = channel.path.map((c) => new three.Vector3(c.x, c.y, c.z));
 		path.shift();
 		return path;
 	}
@@ -755,7 +759,7 @@ class Pathfinding {
  * @return {number}
  */
 Pathfinding.prototype.getGroup = (function() {
-	const plane = new Plane();
+	const plane = new three.Plane();
 	return function (zoneID, position, checkPolygon = false) {
 		if (!this.zones[zoneID]) return null;
 
@@ -808,14 +812,14 @@ Pathfinding.prototype.getGroup = (function() {
  * @return {Node} Updated node.
  */
 Pathfinding.prototype.clampStep = (function () {
-	const point = new Vector3();
-	const plane = new Plane();
-	const triangle = new Triangle();
+	const point = new three.Vector3();
+	const plane = new three.Plane();
+	const triangle = new three.Triangle();
 
-	const endPoint = new Vector3();
+	const endPoint = new three.Vector3();
 
 	let closestNode;
-	let closestPoint = new Vector3();
+	let closestPoint = new three.Vector3();
 	let closestDistance;
 
 	return function (startRef, endRef, node, zoneID, groupID, endTarget) {
@@ -873,12 +877,12 @@ Pathfinding.prototype.clampStep = (function () {
 }());
 
 const colors = {
-  PLAYER: new Color( 0xee836f ).convertGammaToLinear( 2.2 ).getHex(),
-  TARGET: new Color( 0xdccb18 ).convertGammaToLinear( 2.2 ).getHex(),
-  PATH: new Color( 0x00a3af ).convertGammaToLinear( 2.2 ).getHex(),
-  WAYPOINT: new Color( 0x00a3af ).convertGammaToLinear( 2.2 ).getHex(),
-  CLAMPED_STEP: new Color( 0xdcd3b2 ).convertGammaToLinear( 2.2 ).getHex(),
-  CLOSEST_NODE: new Color( 0x43676b ).convertGammaToLinear( 2.2 ).getHex(),
+  PLAYER: new three.Color( 0xee836f ).convertGammaToLinear( 2.2 ).getHex(),
+  TARGET: new three.Color( 0xdccb18 ).convertGammaToLinear( 2.2 ).getHex(),
+  PATH: new three.Color( 0x00a3af ).convertGammaToLinear( 2.2 ).getHex(),
+  WAYPOINT: new three.Color( 0x00a3af ).convertGammaToLinear( 2.2 ).getHex(),
+  CLAMPED_STEP: new three.Color( 0xdcd3b2 ).convertGammaToLinear( 2.2 ).getHex(),
+  CLOSEST_NODE: new three.Color( 0x43676b ).convertGammaToLinear( 2.2 ).getHex(),
 };
 
 const OFFSET = 0.2;
@@ -886,37 +890,37 @@ const OFFSET = 0.2;
 /**
  * Helper for debugging pathfinding behavior.
  */
-class PathfindingHelper extends Object3D {
+class PathfindingHelper extends three.Object3D {
   constructor () {
     super();
 
-    this._playerMarker = new Mesh(
-      new SphereGeometry( 0.25, 32, 32 ),
-      new MeshBasicMaterial( { color: colors.PLAYER } )
+    this._playerMarker = new three.Mesh(
+      new three.SphereGeometry( 0.25, 32, 32 ),
+      new three.MeshBasicMaterial( { color: colors.PLAYER } )
     );
 
-    this._targetMarker = new Mesh(
-      new BoxGeometry( 0.3, 0.3, 0.3 ),
-      new MeshBasicMaterial( { color: colors.TARGET } )
-    );
-    
-
-    this._nodeMarker = new Mesh(
-      new BoxGeometry( 0.1, 0.8, 0.1 ),
-      new MeshBasicMaterial( { color: colors.CLOSEST_NODE } )
+    this._targetMarker = new three.Mesh(
+      new three.BoxGeometry( 0.3, 0.3, 0.3 ),
+      new three.MeshBasicMaterial( { color: colors.TARGET } )
     );
     
 
-    this._stepMarker = new Mesh(
-      new BoxGeometry( 0.1, 1, 0.1 ),
-      new MeshBasicMaterial( { color: colors.CLAMPED_STEP } )
+    this._nodeMarker = new three.Mesh(
+      new three.BoxGeometry( 0.1, 0.8, 0.1 ),
+      new three.MeshBasicMaterial( { color: colors.CLOSEST_NODE } )
+    );
+    
+
+    this._stepMarker = new three.Mesh(
+      new three.BoxGeometry( 0.1, 1, 0.1 ),
+      new three.MeshBasicMaterial( { color: colors.CLAMPED_STEP } )
     );
 
-    this._pathMarker = new Object3D();
+    this._pathMarker = new three.Object3D();
 
-    this._pathLineMaterial = new LineBasicMaterial( { color: colors.PATH, linewidth: 2 } ) ;
-    this._pathPointMaterial = new MeshBasicMaterial( { color: colors.WAYPOINT } );
-    this._pathPointGeometry = new SphereBufferGeometry( 0.08 );
+    this._pathLineMaterial = new three.LineBasicMaterial( { color: colors.PATH, linewidth: 2 } ) ;
+    this._pathPointMaterial = new three.MeshBasicMaterial( { color: colors.WAYPOINT } );
+    this._pathPointGeometry = new three.SphereBufferGeometry( 0.08 );
 
     this._markers = [
       this._playerMarker,
@@ -952,15 +956,15 @@ class PathfindingHelper extends Object3D {
     path = [ this._playerMarker.position ].concat( path );
 
     // Draw debug lines
-    const geometry = new Geometry();
+    const geometry = new three.Geometry();
     for (let i = 0; i < path.length; i++) {
-      geometry.vertices.push( path[ i ].clone().add( new Vector3( 0, OFFSET, 0 ) ) );
+      geometry.vertices.push( path[ i ].clone().add( new three.Vector3( 0, OFFSET, 0 ) ) );
     }
-    this._pathMarker.add( new Line( geometry, this._pathLineMaterial ) );
+    this._pathMarker.add( new three.Line( geometry, this._pathLineMaterial ) );
 
     for ( let i = 0; i < path.length - 1; i++ ) {
 
-      const node = new Mesh( this._pathPointGeometry, this._pathPointMaterial );
+      const node = new three.Mesh( this._pathPointGeometry, this._pathPointMaterial );
       node.position.copy( path[ i ] );
       node.position.y += OFFSET;
       this._pathMarker.add( node );
@@ -1046,5 +1050,6 @@ class PathfindingHelper extends Object3D {
 
 }
 
-export { Pathfinding, PathfindingHelper };
-//# sourceMappingURL=three-pathfinding.module.js.map
+exports.Pathfinding = Pathfinding;
+exports.PathfindingHelper = PathfindingHelper;
+//# sourceMappingURL=three-pathfinding.cjs.js.map
