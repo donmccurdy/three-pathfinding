@@ -1,12 +1,24 @@
-/* global THREE */
+import {
+  Color,
+  Object3D,
+  LineBasicMaterial,
+  MeshBasicMaterial,
+  SphereBufferGeometry,
+  BoxGeometry,
+  Mesh,
+  SphereGeometry,
+  Geometry,
+  Vector3,
+  Line,
+} from 'three';
 
-const Color = {
-  PLAYER: new THREE.Color( 0xEE836F ).convertGammaToLinear( 2.2 ).getHex(),
-  TARGET: new THREE.Color( 0xDCCB18 ).convertGammaToLinear( 2.2 ).getHex(),
-  PATH: new THREE.Color( 0x00A3AF ).convertGammaToLinear( 2.2 ).getHex(),
-  WAYPOINT: new THREE.Color( 0x00A3AF ).convertGammaToLinear( 2.2 ).getHex(),
-  CLAMPED_STEP: new THREE.Color( 0xDCD3B2 ).convertGammaToLinear( 2.2 ).getHex(),
-  CLOSEST_NODE: new THREE.Color( 0x43676B ).convertGammaToLinear( 2.2 ).getHex(),
+const colors = {
+  PLAYER: new Color( 0xee836f ).convertGammaToLinear( 2.2 ).getHex(),
+  TARGET: new Color( 0xdccb18 ).convertGammaToLinear( 2.2 ).getHex(),
+  PATH: new Color( 0x00a3af ).convertGammaToLinear( 2.2 ).getHex(),
+  WAYPOINT: new Color( 0x00a3af ).convertGammaToLinear( 2.2 ).getHex(),
+  CLAMPED_STEP: new Color( 0xdcd3b2 ).convertGammaToLinear( 2.2 ).getHex(),
+  CLOSEST_NODE: new Color( 0x43676b ).convertGammaToLinear( 2.2 ).getHex(),
 };
 
 const OFFSET = 0.2;
@@ -14,37 +26,37 @@ const OFFSET = 0.2;
 /**
  * Helper for debugging pathfinding behavior.
  */
-class PathfindingHelper extends THREE.Object3D {
+class PathfindingHelper extends Object3D {
   constructor () {
     super();
 
-    this._playerMarker = new THREE.Mesh(
-      new THREE.SphereGeometry( 0.25, 32, 32 ),
-      new THREE.MeshBasicMaterial( {color: Color.PLAYER} )
+    this._playerMarker = new Mesh(
+      new SphereGeometry( 0.25, 32, 32 ),
+      new MeshBasicMaterial( { color: colors.PLAYER } )
     );
 
-    this._targetMarker = new THREE.Mesh(
-      new THREE.BoxGeometry( 0.3, 0.3, 0.3 ),
-      new THREE.MeshBasicMaterial( {color: Color.TARGET} )
-    );
-    
-
-    this._nodeMarker = new THREE.Mesh(
-      new THREE.BoxGeometry( 0.1, 0.8, 0.1 ),
-      new THREE.MeshBasicMaterial( { color: Color.CLOSEST_NODE } )
+    this._targetMarker = new Mesh(
+      new BoxGeometry( 0.3, 0.3, 0.3 ),
+      new MeshBasicMaterial( { color: colors.TARGET } )
     );
     
 
-    this._stepMarker = new THREE.Mesh(
-      new THREE.BoxGeometry( 0.1, 1, 0.1 ),
-      new THREE.MeshBasicMaterial( { color: Color.CLAMPED_STEP } )
+    this._nodeMarker = new Mesh(
+      new BoxGeometry( 0.1, 0.8, 0.1 ),
+      new MeshBasicMaterial( { color: colors.CLOSEST_NODE } )
+    );
+    
+
+    this._stepMarker = new Mesh(
+      new BoxGeometry( 0.1, 1, 0.1 ),
+      new MeshBasicMaterial( { color: colors.CLAMPED_STEP } )
     );
 
-    this._pathMarker = new THREE.Object3D();
+    this._pathMarker = new Object3D();
 
-    this._pathLineMaterial = new THREE.LineBasicMaterial( { color: Color.PATH, linewidth: 2 } ) ;
-    this._pathPointMaterial = new THREE.MeshBasicMaterial( { color: Color.WAYPOINT } );
-    this._pathPointGeometry = new THREE.SphereBufferGeometry( 0.08 );
+    this._pathLineMaterial = new LineBasicMaterial( { color: colors.PATH, linewidth: 2 } ) ;
+    this._pathPointMaterial = new MeshBasicMaterial( { color: colors.WAYPOINT } );
+    this._pathPointGeometry = new SphereBufferGeometry( 0.08 );
 
     this._markers = [
       this._playerMarker,
@@ -65,7 +77,7 @@ class PathfindingHelper extends THREE.Object3D {
   }
 
   /**
-   * @param {Array<THREE.Vector3} path
+   * @param {Array<Vector3>} path
    * @return {this}
    */
   setPath ( path ) {
@@ -80,15 +92,15 @@ class PathfindingHelper extends THREE.Object3D {
     path = [ this._playerMarker.position ].concat( path );
 
     // Draw debug lines
-    const geometry = new THREE.Geometry();
+    const geometry = new Geometry();
     for (let i = 0; i < path.length; i++) {
-      geometry.vertices.push( path[ i ].clone().add( new THREE.Vector3( 0, OFFSET, 0 ) ) );
+      geometry.vertices.push( path[ i ].clone().add( new Vector3( 0, OFFSET, 0 ) ) );
     }
-    this._pathMarker.add( new THREE.Line( geometry, this._pathLineMaterial ) );
+    this._pathMarker.add( new Line( geometry, this._pathLineMaterial ) );
 
     for ( let i = 0; i < path.length - 1; i++ ) {
 
-      const node = new THREE.Mesh( this._pathPointGeometry, this._pathPointMaterial );
+      const node = new Mesh( this._pathPointGeometry, this._pathPointMaterial );
       node.position.copy( path[ i ] );
       node.position.y += OFFSET;
       this._pathMarker.add( node );
@@ -102,7 +114,7 @@ class PathfindingHelper extends THREE.Object3D {
   }
 
   /**
-   * @param {THREE.Vector3} position
+   * @param {Vector3} position
    * @return {this}
    */
   setPlayerPosition( position ) {
@@ -114,7 +126,7 @@ class PathfindingHelper extends THREE.Object3D {
   }
 
   /**
-   * @param {THREE.Vector3} position
+   * @param {Vector3} position
    * @return {this}
    */
   setTargetPosition( position ) {
@@ -126,7 +138,7 @@ class PathfindingHelper extends THREE.Object3D {
   }
 
   /**
-   * @param {THREE.Vector3} position
+   * @param {Vector3} position
    * @return {this}
    */
   setNodePosition( position ) {
@@ -138,7 +150,7 @@ class PathfindingHelper extends THREE.Object3D {
   }
 
   /**
-   * @param {THREE.Vector3} position
+   * @param {Vector3} position
    * @return {this}
    */
   setStepPosition( position ) {
