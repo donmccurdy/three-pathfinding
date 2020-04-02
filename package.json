@@ -17,7 +17,7 @@
 	"scripts": {
 		"dev": "concurrently \"microbundle watch --target browser\" \"serve --listen 5000\"",
 		"docs": "documentation build src/Pathfinding.js src/PathfindingHelper.js --shallow -f md | replace-between --target README.md --token API",
-		"dist": "microbundle build --target web --globals three=THREE",
+		"dist": "microbundle --target web --globals three=THREE",
 		"version": "npm run dist && npm test && git add -A dist",
 		"postversion": "git push && git push --tags && npm publish",
 		"test": "node tests/index.test.js",
