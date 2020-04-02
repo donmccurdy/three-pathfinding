@@ -1,7 +1,6 @@
 import {
 	Vector3,
 	Plane,
-	BufferGeometry,
 	Geometry,
 	Triangle,
 } from 'three';
