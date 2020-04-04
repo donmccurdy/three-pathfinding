@@ -43,14 +43,17 @@
 		"navmesh",
 		"navigation"
 	],
+	"peerDependencies": {
+		"three": "0.x.x"
+	},
 	"devDependencies": {
 		"concurrently": "^3.6.0",
-		"documentation": "^5.3.3",
+		"documentation": "^12.2.0",
 		"microbundle": "^0.11.0",
 		"replace-between": "0.0.8",
-		"serve": "^9.2.0",
+		"serve": "^11.3.0",
 		"tape": "^4.9.1",
-		"three": "^0.96.0",
+		"three": "^0.115.0",
 		"uglify-js": "^3.3.3"
 	}
 }
