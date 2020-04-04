@@ -1,9 +1,13 @@
+import {
+  Vector3,
+} from 'three';
+
 import { Utils } from './Utils';
 
 class Builder {
   /**
    * Constructs groups from the given navigation mesh.
-   * @param  {THREE.Geometry} geometry
+   * @param  {Geometry} geometry
    * @return {Zone}
    */
   static buildZone (geometry) {
@@ -41,7 +45,7 @@ class Builder {
         const portals = [];
         poly.neighbours.forEach((n) => portals.push(this._getSharedVerticesInOrder(poly, n)));
 
-        const centroid = new THREE.Vector3( 0, 0, 0 );
+        const centroid = new Vector3( 0, 0, 0 );
         centroid.add( zone.vertices[ poly.vertexIds[0] ] );
         centroid.add( zone.vertices[ poly.vertexIds[1] ] );
         centroid.add( zone.vertices[ poly.vertexIds[2] ] );
@@ -67,7 +71,7 @@ class Builder {
 
   /**
    * Constructs a navigation mesh from the given geometry.
-   * @param {THREE.Geometry} geometry
+   * @param {Geometry} geometry
    * @return {Object}
    */
   static _buildNavigationMesh (geometry) {
