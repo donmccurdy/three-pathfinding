@@ -4,6 +4,7 @@
 	"description": "Navigation mesh toolkit for three.js, based on PatrolJS",
 	"author": "Don McCurdy <dm@donmccurdy.com>",
 	"contributors": [
+		"Don McCurdy <dm@donmccurdy.com>",
 		"Uwe Sölen Flaig <uwe.soelen.flaig@gmail.com>"
 	],
 	"license": "MIT",
