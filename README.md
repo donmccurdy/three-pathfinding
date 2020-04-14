@@ -2,7 +2,6 @@
 
 [![Latest NPM release](https://img.shields.io/npm/v/three-pathfinding.svg)](https://www.npmjs.com/package/three-pathfinding)
 [![Minzipped size](https://badgen.net/bundlephobia/minzip/three-pathfinding)](https://bundlephobia.com/result?p=three-pathfinding)
-[![License](https://img.shields.io/npm/l/three-pathfinding.svg)](https://github.com/donmccurdy/three-pathfinding/blob/master/LICENSE)
 [![License](https://img.shields.io/badge/license-MIT-007ec6.svg)](https://github.com/donmccurdy/three-pathfinding/blob/master/LICENSE)
 [![Build Status](https://travis-ci.com/donmccurdy/three-pathfinding.svg?branch=master)](https://travis-ci.com/donmccurdy/three-pathfinding)
 
