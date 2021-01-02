@@ -31,7 +31,7 @@ This library does not build navigation meshes for you — instead, create a navi
 
 Currently, this library does not accept the custom navigation mesh file formats created by tools like Recast.
 Instead, you will need to export the navigation mesh to a 3D model format (like OBJ or glTF) and then load it
-with one of the three.js loaders, like THREE.OBJLoader or THREE.GLTFLoader. The library accepts a [THREE.BufferGeometry](https://threejs.org/docs/#api/core/BufferGeometry) instance.
+with one of the three.js loaders, like THREE.OBJLoader or THREE.GLTFLoader. The library accepts a [THREE.BufferGeometry](https://threejs.org/docs/#api/core/BufferGeometry) instance, and follows the +Y=Up convention of three.js and glTF.
 
 ### Example
 
