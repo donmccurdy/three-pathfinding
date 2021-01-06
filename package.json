@@ -19,7 +19,7 @@
 		"dev": "concurrently \"microbundle watch --target web --globals three=THREE --external three\" \"serve --listen 5000\"",
 		"docs": "documentation build src/Pathfinding.js src/PathfindingHelper.js --shallow -f md | replace-between --target README.md --token API",
 		"dist": "microbundle --target web --globals three=THREE --external three",
-		"version": "npm run dist && npm test && git add -A dist",
+		"version": "npm run dist && npm test",
 		"postversion": "git push && git push --tags && npm publish",
 		"test": "node tests/index.test.js",
 		"benchmark": "node benchmark/index.benchmark.js",
@@ -55,5 +55,13 @@
 		"tape": "^4.9.1",
 		"three": "^0.115.0",
 		"uglify-js": "^3.3.3"
-	}
+	},
+	"files": [
+		"dist/",
+		"src/",
+		"README.md",
+		"LICENSE",
+		"package.json",
+		"package-lock.json"
+	]
 }
