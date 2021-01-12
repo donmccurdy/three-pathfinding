@@ -3,7 +3,7 @@
 [![Latest NPM release](https://img.shields.io/npm/v/three-pathfinding.svg)](https://www.npmjs.com/package/three-pathfinding)
 [![Minzipped size](https://badgen.net/bundlephobia/minzip/three-pathfinding)](https://bundlephobia.com/result?p=three-pathfinding)
 [![License](https://img.shields.io/badge/license-MIT-007ec6.svg)](https://github.com/donmccurdy/three-pathfinding/blob/master/LICENSE)
-[![Build Status](https://travis-ci.com/donmccurdy/three-pathfinding.svg?branch=master)](https://travis-ci.com/donmccurdy/three-pathfinding)
+[![Build Status](https://github.com/donmccurdy/three-pathfinding/workflows/build/badge.svg?branch=master&event=push)](https://github.com/donmccurdy/three-pathfinding/actions?query=workflow%3Abuild)
 
 Navigation mesh toolkit for ThreeJS, based on [PatrolJS](https://github.com/nickjanssen/PatrolJS). Computes paths between points on a 3D nav mesh, supports multiple zones, and clamps movement vectors for FPS controls. To learn how to create a navigation mesh using Blender, see [Creating a Nav Mesh](https://www.donmccurdy.com/2017/08/20/creating-a-nav-mesh-for-a-webvr-scene/).
 
