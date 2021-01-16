@@ -75,6 +75,8 @@ const groupID = pathfinding.getGroup(ZONE, a);
 const path = pathfinding.findPath(a, b, ZONE, groupID);
 ```
 
+The origin of an agent should initially be placed on the surface of the nav mesh. If needed, a dummy object can be used for pathfinding logic, and the rendered model for that agent may be placed at on offset as needed.
+
 ### Running the demo locally
 
 ```
