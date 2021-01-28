@@ -37,18 +37,22 @@ test('simple path', (t) => {
 test('pathing near close, adjacent nodes', (t) => {
   const pathfinding = new Pathfinding();
 
-  const geometry = new THREE.Geometry();
   // Make a geometry that looks something like ./diagrams/close-adjacent-nodes.png
-  geometry.vertices.push(
-    new THREE.Vector3(  0,  0,  0  ),
-    new THREE.Vector3(  1,  0,  0  ),
-    new THREE.Vector3(  1,  0, -1  ),
-    new THREE.Vector3(  0,  0, 0.1 ),
-    new THREE.Vector3(  1,  0, 0.1 )
-  );
-  geometry.faces.push( new THREE.Face3( 0, 1, 2 ) );
-  geometry.faces.push( new THREE.Face3( 0, 3, 4 ) );
-  geometry.faces.push( new THREE.Face3( 0, 4, 1 ) );
+  const geometry = new THREE.BufferGeometry();
+  const position = new THREE.BufferAttribute(new Float32Array([
+    0,  0,  0,
+    1,  0,  0,
+    1,  0, -1,
+    0,  0, 0.1,
+    1,  0, 0.1,
+  ]), 3);
+  const index = new THREE.BufferAttribute(new Uint16Array([
+    0, 1, 2,
+    0, 3, 4,
+    0, 4, 1,
+  ]), 1);
+  geometry.setAttribute('position', position);
+  geometry.setIndex(index);
 
   const zone = Pathfinding.createZone(geometry);
   pathfinding.setZoneData(ZONE, zone);
@@ -67,18 +71,22 @@ test('pathing near close, adjacent nodes', (t) => {
 test('pathing near close nodes in a different group', (t) => {
   const pathfinding = new Pathfinding();
 
-  const geometry = new THREE.Geometry();
   // Make a geometry that looks something like ./diagrams/close-groups.png
-  geometry.vertices.push(
-    new THREE.Vector3(  0,  0,  0  ),
-    new THREE.Vector3(  1,  0,  0  ),
-    new THREE.Vector3(  1,  0, -1  ),
-    new THREE.Vector3(  0,  0, 0.1 ),
-    new THREE.Vector3(  1,  0, 0.1 ),
-    new THREE.Vector3(  1,  0,  2  )
-  );
-  geometry.faces.push( new THREE.Face3( 0, 1, 2 ) );
-  geometry.faces.push( new THREE.Face3( 3, 5, 4 ) );
+  const geometry = new THREE.BufferGeometry();
+  const position = new THREE.BufferAttribute(new Float32Array([
+    0,  0,  0,
+    1,  0,  0,
+    1,  0, -1,
+    0,  0, 0.1,
+    1,  0, 0.1,
+    1,  0,  2,
+  ]), 3);
+  const index = new THREE.BufferAttribute(new Uint16Array([
+    0, 1, 2,
+    3, 5, 4,
+  ]), 1);
+  geometry.setAttribute('position', position);
+  geometry.setIndex(index);
 
   const zone = Pathfinding.createZone(geometry);
   pathfinding.setZoneData(ZONE, zone);
@@ -97,17 +105,21 @@ test('pathing near close nodes in a different group', (t) => {
 test('vertically stacked groups', (t) => {
   const pathfinding = new Pathfinding();
 
-  const geometry = new THREE.Geometry();
-  geometry.vertices.push(
-    new THREE.Vector3(  0,  0,  0  ),
-    new THREE.Vector3(  0,  0,  1  ),
-    new THREE.Vector3(  1,  0,  0  ),
-    new THREE.Vector3(  0,  1,  0  ),
-    new THREE.Vector3(  0,  1,  1  ),
-    new THREE.Vector3(  1,  1,  0  ),
-  );
-  geometry.faces.push( new THREE.Face3( 0, 1, 2 ) );
-  geometry.faces.push( new THREE.Face3( 3, 4, 5 ) );
+  const geometry = new THREE.BufferGeometry();
+  const position = new THREE.BufferAttribute(new Float32Array([
+    0,  0,  0,
+    0,  0,  1,
+    1,  0,  0,
+    0,  1,  0,
+    0,  1,  1,
+    1,  1,  0,
+  ]), 3);
+  const index = new THREE.BufferAttribute(new Uint16Array([
+    0, 1, 2,
+    3, 4, 5,
+  ]), 1);
+  geometry.setAttribute('position', position);
+  geometry.setIndex(index);
 
   const zone = Pathfinding.createZone(geometry);
   pathfinding.setZoneData(ZONE, zone);
