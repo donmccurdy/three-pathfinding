@@ -21,7 +21,7 @@
 		"dist": "microbundle --target web --globals three=THREE --external three",
 		"version": "npm run dist && npm test",
 		"postversion": "git push && git push --tags && npm publish",
-		"test": "node tests/index.test.js",
+		"test": "node tests/index.test.js | tap-spec",
 		"benchmark": "node benchmark/index.benchmark.js",
 		"deploy": "npm run dist && npm test && now --static && now alias"
 	},
@@ -52,6 +52,7 @@
 		"microbundle": "^0.11.0",
 		"replace-between": "0.0.8",
 		"serve": "^11.3.0",
+		"tap-spec": "^5.0.0",
 		"tape": "^4.9.1",
 		"three": "^0.115.0",
 		"uglify-js": "^3.3.3"
