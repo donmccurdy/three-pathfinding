@@ -49,9 +49,9 @@
 	"devDependencies": {
 		"concurrently": "^3.6.0",
 		"documentation": "^12.2.0",
-		"microbundle": "^0.11.0",
+		"microbundle": "^0.13.0",
 		"replace-between": "0.0.8",
-		"serve": "^11.3.0",
+		"serve": "^11.3.2",
 		"tap-spec": "^5.0.0",
 		"tape": "^4.9.1",
 		"three": "^0.115.0",
