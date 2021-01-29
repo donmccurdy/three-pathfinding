@@ -1,6 +1,5 @@
 # Blender v2.72 (sub 0) OBJ File: ''
 # www.blender.org
-mtllib navmesh.mtl
 o Navmesh_Mesh
 v -4.817864 0.366454 2.580628
 v -4.667864 0.366454 2.520628

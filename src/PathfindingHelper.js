@@ -1,15 +1,15 @@
 import {
+  BoxBufferGeometry,
+  BufferAttribute,
+  BufferGeometry,
   Color,
-  Object3D,
-  LineBasicMaterial,
-  MeshBasicMaterial,
-  SphereBufferGeometry,
-  BoxGeometry,
-  Mesh,
-  SphereGeometry,
-  Geometry,
-  Vector3,
   Line,
+  LineBasicMaterial,
+  Mesh,
+  MeshBasicMaterial,
+  Object3D,
+  SphereBufferGeometry,
+  Vector3,
 } from 'three';
 
 const colors = {
@@ -31,24 +31,24 @@ class PathfindingHelper extends Object3D {
     super();
 
     this._playerMarker = new Mesh(
-      new SphereGeometry( 0.25, 32, 32 ),
+      new SphereBufferGeometry( 0.25, 32, 32 ),
       new MeshBasicMaterial( { color: colors.PLAYER } )
     );
 
     this._targetMarker = new Mesh(
-      new BoxGeometry( 0.3, 0.3, 0.3 ),
+      new BoxBufferGeometry( 0.3, 0.3, 0.3 ),
       new MeshBasicMaterial( { color: colors.TARGET } )
     );
-    
+
 
     this._nodeMarker = new Mesh(
-      new BoxGeometry( 0.1, 0.8, 0.1 ),
+      new BoxBufferGeometry( 0.1, 0.8, 0.1 ),
       new MeshBasicMaterial( { color: colors.CLOSEST_NODE } )
     );
-    
+
 
     this._stepMarker = new Mesh(
-      new BoxGeometry( 0.1, 1, 0.1 ),
+      new BoxBufferGeometry( 0.1, 1, 0.1 ),
       new MeshBasicMaterial( { color: colors.CLAMPED_STEP } )
     );
 
@@ -92,9 +92,10 @@ class PathfindingHelper extends Object3D {
     path = [ this._playerMarker.position ].concat( path );
 
     // Draw debug lines
-    const geometry = new Geometry();
+    const geometry = new BufferGeometry();
+    geometry.setAttribute('position', new BufferAttribute(new Float32Array(path.length * 3), 3));
     for (let i = 0; i < path.length; i++) {
-      geometry.vertices.push( path[ i ].clone().add( new Vector3( 0, OFFSET, 0 ) ) );
+      geometry.attributes.position.setXYZ(i, path[ i ].x, path[ i ].y + OFFSET, path[ i ].z);
     }
     this._pathMarker.add( new Line( geometry, this._pathLineMaterial ) );
 

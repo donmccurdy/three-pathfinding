@@ -3,8 +3,9 @@
 <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 <title>three-pathfinding demo</title>
 <link href="style.css" rel="stylesheet">
-<script src="https://cdn.rawgit.com/mrdoob/three.js/r97/build/three.min.js"></script>
-<script src="https://cdn.rawgit.com/mrdoob/three.js/r97/examples/js/controls/OrbitControls.js"></script>
+<script src="https://unpkg.com/three@0.124.0/build/three.min.js"></script>
+<script src="https://unpkg.com/three@0.124.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://unpkg.com/three@0.124.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="../dist/three-pathfinding.umd.js"></script>
 
 <body>
@@ -62,16 +63,15 @@
 		camera.position.y = 14;
 		camera.position.z = 10;
 
-		const controls = new THREE.OrbitControls( camera );
-		controls.damping = 0.2;
-
 		const renderer = new THREE.WebGLRenderer();
 		renderer.setPixelRatio( window.devicePixelRatio );
 		renderer.setSize( window.innerWidth, window.innerHeight );
 		renderer.setClearColor(0xffffff);
-		renderer.gammaOutput = true;
-		renderer.gammaFactor = 2.2;
+		renderer.outputEncoding = THREE.sRGBEncoding;
 		document.body.appendChild( renderer.domElement );
+
+		const controls = new THREE.OrbitControls( camera, renderer.domElement );
+		controls.damping = 0.2;
 
 		const ambient = new THREE.AmbientLight( 0x101030 );
 		scene.add( ambient );
@@ -85,30 +85,40 @@
 
 		function init() {
 
-			const jsonLoader = new THREE.JSONLoader();
+			const gltfLoader = new THREE.GLTFLoader();
 
-			jsonLoader.load( 'meshes/level.js', function( geometry, materials ) {
-				const levelMat = new THREE.MeshStandardMaterial({color: Color.GROUND, roughness: 1, metalness: 0});
-				level = new THREE.Mesh(geometry, levelMat);
+			gltfLoader.load( 'meshes/level.glb', function( gltf ) {
+
+				const levelMesh = gltf.scene.getObjectByName('Cube');
+				const levelMat = new THREE.MeshStandardMaterial({
+					color: Color.GROUND,
+					flatShading: true,
+					roughness: 1,
+					metalness: 0
+				});
+				level = new THREE.Mesh(levelMesh.geometry, levelMat);
+				window.level = level;
 				scene.add(level);
 			}, null);
 
-			jsonLoader.load( 'meshes/level.nav.js', function( geometry, materials ) {
+			gltfLoader.load( 'meshes/level.nav.glb', function( gltf ) {
+
+				const _navmesh = gltf.scene.getObjectByName('Navmesh_Mesh');
 
 				console.time('createZone()');
-				const zone = THREE.Pathfinding.createZone(geometry);
+				const zone = THREE.Pathfinding.createZone(_navmesh.geometry);
 				console.timeEnd('createZone()');
 
 				pathfinder.setZoneData( ZONE, zone );
 
-				const navWireframe = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+				const navWireframe = new THREE.Mesh(_navmesh.geometry, new THREE.MeshBasicMaterial({
 					color: 0x808080,
 					wireframe: true
 				}));
 				navWireframe.position.y = OFFSET / 2;
 				scene.add(navWireframe);
 
-				navmesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+				navmesh = new THREE.Mesh(_navmesh.geometry, new THREE.MeshBasicMaterial({
 					color: Color.NAVMESH,
 					opacity: 0.75,
 					transparent: true
@@ -125,7 +135,7 @@
 				.setPlayerPosition( new THREE.Vector3( -3.5, 0.5, 5.5 ) )
 				.setTargetPosition( new THREE.Vector3( -3.5, 0.5, 5.5 ) );
 
-			document.addEventListener( 'mouseup', onDocumentMouseUp, false );
+			document.addEventListener( 'click', onDocumentMouseUp, false );
 			window.addEventListener( 'resize', onWindowResize, false );
 
 		}
