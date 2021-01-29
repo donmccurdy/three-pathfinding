@@ -1,13 +1,11 @@
-import {
-  Vector3,
-} from 'three';
+import { Vector3 } from 'three';
 
 import { Utils } from './Utils';
 
 class Builder {
   /**
    * Constructs groups from the given navigation mesh.
-   * @param  {Geometry} geometry
+   * @param  {BufferGeometry} geometry
    * @return {Zone}
    */
   static buildZone (geometry) {
@@ -71,11 +69,11 @@ class Builder {
 
   /**
    * Constructs a navigation mesh from the given geometry.
-   * @param {Geometry} geometry
+   * @param {BufferGeometry} geometry
    * @return {Object}
    */
   static _buildNavigationMesh (geometry) {
-    geometry.mergeVertices();
+    geometry = Utils.mergeVertices(geometry);
     return this._buildPolygonsFromGeometry(geometry);
   }
 
@@ -138,25 +136,35 @@ class Builder {
   static _buildPolygonsFromGeometry (geometry) {
 
     const polygons = [];
-    const vertices = geometry.vertices;
+    const vertices = [];
+
+    const position = geometry.attributes.position;
+    const index = geometry.index;
 
     // Constructing the neighbor graph brute force is O(n²). To avoid that,
     // create a map from vertices to the polygons that contain them, and use it
     // while connecting polygons. This reduces complexity to O(n*m), where 'm'
     // is related to connectivity of the mesh.
-    const vertexPolygonMap = new Array(vertices.length); // array of polygon objects by vertex index
-    for (let i = 0; i < vertices.length; i++) {
+
+    /** Array of polygon objects by vertex index. */
+    const vertexPolygonMap = [];
+
+    for (let i = 0; i < position.count; i++) {
+      vertices.push(new Vector3().fromBufferAttribute(position, i));
       vertexPolygonMap[i] = [];
     }
 
     // Convert the faces into a custom format that supports more than 3 vertices
-    geometry.faces.forEach((face) => {
-      const poly = { vertexIds: [face.a, face.b, face.c], neighbours: null };
+    for (let i = 0; i < geometry.index.count; i += 3) {
+      const a = index.getX(i);
+      const b = index.getX(i + 1);
+      const c = index.getX(i + 2);
+      const poly = {vertexIds: [a, b, c], neighbours: null};
       polygons.push(poly);
-      vertexPolygonMap[face.a].push(poly);
-      vertexPolygonMap[face.b].push(poly);
-      vertexPolygonMap[face.c].push(poly);
-    });
+      vertexPolygonMap[a].push(poly);
+      vertexPolygonMap[b].push(poly);
+      vertexPolygonMap[c].push(poly);
+    }
 
     // Build a list of adjacent polygons
     polygons.forEach((polygon) => {

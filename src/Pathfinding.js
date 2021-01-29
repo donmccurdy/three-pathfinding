@@ -1,7 +1,6 @@
 import {
 	Vector3,
 	Plane,
-	Geometry,
 	Triangle,
 } from 'three';
 
@@ -24,14 +23,6 @@ class Pathfinding {
 	 * @return {Zone}
 	 */
 	static createZone (geometry) {
-		if ( geometry.isGeometry ) {
-			// Haven't actually implemented support for BufferGeometry yet, but Geometry is somewhat
-			// not-recommended these days, so go ahead and start warning.
-			console.warn('[three-pathfinding]: Use BufferGeometry, not Geometry, to create zone.');
-		} else {
-			geometry = new Geometry().fromBufferGeometry(geometry);
-		}
-
 		return Builder.buildZone(geometry);
 	}
 
