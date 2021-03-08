@@ -147,9 +147,9 @@ test('does not overwrite parameters', (t) => {
 
   roundVector(endTarget);
 
-  t.deepEqual(endTarget, {x: 7.8, y: 0, z: 0}, 'endTarget');
-  t.deepEqual(a, {x: 7.5, y: 0.5, z: 0}, 'a');
-  t.deepEqual(b, { x: 7.8, y: 0.5, z: 0 }, 'b');
+  t.deepEqual(endTarget.toArray(), [7.8, 0, 0], 'endTarget');
+  t.deepEqual(a.toArray(), [7.5, 0.5, 0], 'a');
+  t.deepEqual(b.toArray(), [7.8, 0.5, 0], 'b');
 
   t.end();
 });
