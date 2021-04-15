@@ -99,22 +99,22 @@ The demo will start at http://localhost:5000/demo/.
 
 -   [Pathfinding][1]
     -   [setZoneData][2]
-    -   [getRandomNode][3]
-    -   [getClosestNode][4]
-    -   [findPath][5]
-    -   [getGroup][6]
-    -   [clampStep][7]
-    -   [createZone][8]
--   [PathfindingHelper][9]
-    -   [setPath][10]
-    -   [setPlayerPosition][11]
-    -   [setTargetPosition][12]
-    -   [setNodePosition][13]
-    -   [setStepPosition][14]
-    -   [reset][15]
--   [Zone][16]
--   [Group][17]
--   [Node][18]
+    -   [getRandomNode][4]
+    -   [getClosestNode][6]
+    -   [findPath][8]
+    -   [getGroup][10]
+    -   [clampStep][12]
+    -   [createZone][14]
+-   [PathfindingHelper][16]
+    -   [setPath][17]
+    -   [setPlayerPosition][19]
+    -   [setTargetPosition][21]
+    -   [setNodePosition][23]
+    -   [setStepPosition][25]
+    -   [reset][27]
+-   [Zone][28]
+-   [Group][30]
+-   [Node][31]
 
 ## Pathfinding
 
@@ -124,131 +124,132 @@ Defines an instance of the pathfinding module, with one or more zones.
 
 Sets data for the given zone.
 
-**Parameters**
+#### Parameters
 
--   `zoneID` **[string][19]**
--   `zone` **[Zone][20]**
+-   `zoneID` **[string][33]**
+-   `zone` **[Zone][34]**
 
 ### getRandomNode
 
 Returns a random node within a given range of a given position.
 
-**Parameters**
+#### Parameters
 
--   `zoneID` **[string][19]**
--   `groupID` **[number][21]**
--   `nearPosition` **THREE.Vector3**
--   `nearRange` **[number][21]**
+-   `zoneID` **[string][33]**
+-   `groupID` **[number][35]**
+-   `nearPosition` **Vector3**
+-   `nearRange` **[number][35]**
 
-Returns **[Node][22]**
+Returns **[Node][36]**
 
 ### getClosestNode
 
 Returns the closest node to the target position.
 
-**Parameters**
+#### Parameters
 
--   `position` **THREE.Vector3**
--   `zoneID` **[string][19]**
--   `groupID` **[number][21]**
--   `checkPolygon` **[boolean][23]**  (optional, default `false`)
+-   `position` **Vector3**
+-   `zoneID` **[string][33]**
+-   `groupID` **[number][35]**
+-   `checkPolygon` **[boolean][37]**  (optional, default `false`)
 
-Returns **[Node][22]**
+Returns **[Node][36]**
 
 ### findPath
 
 Returns a path between given start and end points. If a complete path
 cannot be found, will return the nearest endpoint available.
 
-**Parameters**
+#### Parameters
 
--   `startPosition` **THREE.Vector3** Start position.
--   `targetPosition` **THREE.Vector3** Destination.
--   `zoneID` **[string][19]** ID of current zone.
--   `groupID` **[number][21]** Current group ID.
+-   `startPosition` **Vector3** Start position.
+-   `targetPosition` **Vector3** Destination.
+-   `zoneID` **[string][33]** ID of current zone.
+-   `groupID` **[number][35]** Current group ID.
 
-Returns **[Array][24]&lt;THREE.Vector3>** Array of points defining the path.
+Returns **[Array][38]&lt;Vector3>** Array of points defining the path.
 
 ### getGroup
 
 Returns closest node group ID for given position.
 
-**Parameters**
+#### Parameters
 
--   `zoneID` **[string][19]**
--   `position` **THREE.Vector3**
+-   `zoneID` **[string][33]**
+-   `position` **Vector3**
 
-Returns **[number][21]**
+Returns **[number][35]**
 
 ### clampStep
 
 Clamps a step along the navmesh, given start and desired endpoint. May be
 used to constrain first-person / WASD controls.
 
-**Parameters**
+#### Parameters
 
--   `start` **THREE.Vector3**
--   `end` **THREE.Vector3** Desired endpoint.
--   `node` **[Node][22]**
--   `zoneID` **[string][19]**
--   `groupID` **[number][21]**
--   `endTarget` **THREE.Vector3** Updated endpoint.
+-   `start` **Vector3**
+-   `end` **Vector3** Desired endpoint.
+-   `node` **[Node][36]**
+-   `zoneID` **[string][33]**
+-   `groupID` **[number][35]**
+-   `endTarget` **Vector3** Updated endpoint.
 
-Returns **[Node][22]** Updated node.
+Returns **[Node][36]** Updated node.
 
 ### createZone
 
 (Static) Builds a zone/node set from navigation mesh geometry.
 
-**Parameters**
+#### Parameters
 
--   `geometry` **THREE.BufferGeometry**
+-   `geometry` **BufferGeometry**
+-   `tolerance` **[number][35]** Vertex welding tolerance. (optional, default `1e-4`)
 
-Returns **[Zone][20]**
+Returns **[Zone][34]**
 
 ## PathfindingHelper
 
-**Extends THREE.Object3D**
+**Extends Object3D**
 
 Helper for debugging pathfinding behavior.
 
 ### setPath
 
-**Parameters**
+#### Parameters
 
--   `path`
+-   `path` **[Array][38]&lt;Vector3>**
 
 Returns **this**
 
 ### setPlayerPosition
 
-**Parameters**
+#### Parameters
 
--   `position` **THREE.Vector3**
+-   `position` **Vector3**
 
 Returns **this**
 
 ### setTargetPosition
 
-**Parameters**
+#### Parameters
 
--   `position` **THREE.Vector3**
+-   `position` **Vector3**
 
 Returns **this**
 
 ### setNodePosition
 
-**Parameters**
+#### Parameters
 
--   `position` **THREE.Vector3**
+-   `position` **Vector3**
 
 Returns **this**
 
 ### setStepPosition
 
-**Parameters**
+#### Parameters
 
--   `position` **THREE.Vector3**
+-   `position` **Vector3**
 
 Returns **this**
 
@@ -262,76 +263,114 @@ Returns **this**
 
 Defines a zone of interconnected groups on a navigation mesh.
 
-**Properties**
+Type: [Object][39]
 
--   `groups` **[Array][24]&lt;[Group][25]>**
+### Properties
+
+-   `groups` **[Array][38]&lt;[Group][40]>**
+-   `vertices` **[Array][38]&lt;Vector3>**
 
 ## Group
 
 Defines a group within a navigation mesh.
 
+Type: [Object][39]
+
 ## Node
 
 Defines a node (or polygon) within a group.
 
-**Properties**
+Type: [Object][39]
 
--   `id` **[number][21]**
--   `neighbours` **[Array][24]&lt;[number][21]>** IDs of neighboring nodes.
--   `centroid` **THREE.Vector3**
--   `portals` **[Array][24]&lt;[Array][24]&lt;[number][21]>>** Array of portals, each defined by two vertex IDs.
--   `closed` **[boolean][23]**
--   `cost` **[number][21]**
+### Properties
+
+-   `id` **[number][35]**
+-   `neighbours` **[Array][38]&lt;[number][35]>** IDs of neighboring nodes.
+-   `vertexIds` **[Array][38]&lt;[number][35]>**
+-   `centroid` **Vector3**
+-   `portals` **[Array][38]&lt;[Array][38]&lt;[number][35]>>** Array of portals, each defined by two vertex IDs.
+-   `closed` **[boolean][37]**
+-   `cost` **[number][35]**
 
 [1]: #pathfinding
 
 [2]: #setzonedata
 
-[3]: #getrandomnode
+[3]: #parameters
 
-[4]: #getclosestnode
+[4]: #getrandomnode
 
-[5]: #findpath
+[5]: #parameters-1
 
-[6]: #getgroup
+[6]: #getclosestnode
 
-[7]: #clampstep
+[7]: #parameters-2
 
-[8]: #createzone
+[8]: #findpath
 
-[9]: #pathfindinghelper
+[9]: #parameters-3
 
-[10]: #setpath
+[10]: #getgroup
 
-[11]: #setplayerposition
+[11]: #parameters-4
 
-[12]: #settargetposition
+[12]: #clampstep
 
-[13]: #setnodeposition
+[13]: #parameters-5
 
-[14]: #setstepposition
+[14]: #createzone
 
-[15]: #reset
+[15]: #parameters-6
 
-[16]: #zone
+[16]: #pathfindinghelper
 
-[17]: #group
+[17]: #setpath
 
-[18]: #node
+[18]: #parameters-7
 
-[19]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
+[19]: #setplayerposition
 
-[20]: #zone
+[20]: #parameters-8
 
-[21]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
+[21]: #settargetposition
 
-[22]: #node
+[22]: #parameters-9
 
-[23]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean
+[23]: #setnodeposition
 
-[24]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
+[24]: #parameters-10
 
-[25]: #group
+[25]: #setstepposition
+
+[26]: #parameters-11
+
+[27]: #reset
+
+[28]: #zone
+
+[29]: #properties
+
+[30]: #group
+
+[31]: #node
+
+[32]: #properties-1
+
+[33]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
+
+[34]: #zone
+
+[35]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
+
+[36]: #node
+
+[37]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean
+
+[38]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
+
+[39]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
+
+[40]: #group
 <!--- API END --->
 
 ## Thanks to
