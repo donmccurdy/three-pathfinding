@@ -20,10 +20,11 @@ class Pathfinding {
 	/**
 	 * (Static) Builds a zone/node set from navigation mesh geometry.
 	 * @param  {BufferGeometry} geometry
+	 * @param  {number} tolerance Vertex welding tolerance.
 	 * @return {Zone}
 	 */
-	static createZone (geometry) {
-		return Builder.buildZone(geometry);
+	static createZone (geometry, tolerance = 1e-4) {
+		return Builder.buildZone(geometry, tolerance);
 	}
 
 	/**
