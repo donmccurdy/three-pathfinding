@@ -6,11 +6,12 @@ class Builder {
   /**
    * Constructs groups from the given navigation mesh.
    * @param  {BufferGeometry} geometry
+   * @param  {number} tolerance
    * @return {Zone}
    */
-  static buildZone (geometry) {
+  static buildZone (geometry, tolerance) {
 
-    const navMesh = this._buildNavigationMesh(geometry);
+    const navMesh = this._buildNavigationMesh(geometry, tolerance);
 
     const zone = {};
 
@@ -72,8 +73,8 @@ class Builder {
    * @param {BufferGeometry} geometry
    * @return {Object}
    */
-  static _buildNavigationMesh (geometry) {
-    geometry = Utils.mergeVertices(geometry);
+  static _buildNavigationMesh (geometry, tolerance) {
+    geometry = Utils.mergeVertices(geometry, tolerance);
     return this._buildPolygonsFromGeometry(geometry);
   }
 
