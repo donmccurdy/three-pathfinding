@@ -47,15 +47,15 @@
 		"three": "0.x.x"
 	},
 	"devDependencies": {
-		"concurrently": "6.0.2",
-		"documentation": "13.2.1",
-		"microbundle": "0.13.0",
+		"concurrently": "6.2.0",
+		"documentation": "13.2.5",
+		"microbundle": "0.13.3",
 		"replace-between": "0.0.8",
 		"serve": "11.3.2",
 		"tap-spec": "5.0.0",
 		"tape": "5.2.2",
-		"three": "0.127.0",
-		"uglify-js": "3.13.4"
+		"three": "0.130.1",
+		"uglify-js": "3.13.10"
 	},
 	"files": [
 		"dist/",
