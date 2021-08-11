@@ -78,20 +78,36 @@ class Builder {
     return this._buildPolygonsFromGeometry(geometry);
   }
 
+  /**
+   * Spreads the group ID of the given polygon to all connected polygons
+   * @param {Object} polygon 
+   */
+  static _spreadGroupId (polygon) {
+    // Initialize the list of polygons to process with the seed polygon
+    var polygonsToProcess = new Set();
+    polygonsToProcess.add(polygon);
+    while(polygonsToProcess.size > 0) {
+      // Copy the nodes that will be processed in this iteration
+      const connectedPolygons = polygonsToProcess
+      polygonsToProcess = new Set();
+      connectedPolygons.forEach(connectedPolygon => {
+        // Add the polygon to the group
+        connectedPolygon.group = polygon.group;
+        // Add any unset neighbours to the list for processing in the next iteration
+        connectedPolygon.neighbours.forEach(neighbour => { 
+          if(neighbour.group == undefined) {
+            polygonsToProcess.add(neighbour);
+          }
+        });
+      });
+    }
+  }
+  
   static _buildPolygonGroups (navigationMesh) {
 
     const polygons = navigationMesh.polygons;
 
     const polygonGroups = [];
-
-    const spreadGroupId = function (polygon) {
-      polygon.neighbours.forEach((neighbour) => {
-        if (neighbour.group === undefined) {
-          neighbour.group = polygon.group;
-          spreadGroupId(neighbour);
-        }
-      });
-    };
 
     polygons.forEach((polygon) => {
       if (polygon.group !== undefined) {
@@ -100,7 +116,7 @@ class Builder {
       } else {
         // we need to make a new group and spread its ID to neighbors
         polygon.group = polygonGroups.length;
-        spreadGroupId(polygon);
+        this._spreadGroupId(polygon);
         polygonGroups.push([polygon]);
       }
     });
