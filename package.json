@@ -23,11 +23,7 @@
 		"postversion": "git push && git push --tags && npm publish",
 		"test": "node tests/index.test.js | tap-spec",
 		"benchmark": "node benchmark/index.benchmark.js",
-		"deploy": "npm run dist && npm test && now --static && now alias"
-	},
-	"now": {
-		"alias": "three-pathfinding.donmccurdy.com",
-		"public": true
+		"deploy": "npm run dist && npm test && vercel --prod"
 	},
 	"keywords": [
 		"patrol",
