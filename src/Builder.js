@@ -80,29 +80,26 @@ class Builder {
 
   /**
    * Spreads the group ID of the given polygon to all connected polygons
-   * @param {Object} polygon 
+   * @param {Object} seed
    */
-  static _spreadGroupId (polygon) {
-    // Initialize the list of polygons to process with the seed polygon
-    var polygonsToProcess = new Set();
-    polygonsToProcess.add(polygon);
-    while(polygonsToProcess.size > 0) {
-      // Copy the nodes that will be processed in this iteration
-      const connectedPolygons = polygonsToProcess
-      polygonsToProcess = new Set();
-      connectedPolygons.forEach(connectedPolygon => {
-        // Add the polygon to the group
-        connectedPolygon.group = polygon.group;
-        // Add any unset neighbours to the list for processing in the next iteration
-        connectedPolygon.neighbours.forEach(neighbour => { 
-          if(neighbour.group == undefined) {
-            polygonsToProcess.add(neighbour);
+  static _spreadGroupId (seed) {
+    let nextBatch = new Set([seed]);
+
+    while(nextBatch.size > 0) {
+      const batch = nextBatch;
+      nextBatch = new Set();
+
+      batch.forEach((polygon) => {
+        polygon.group = seed.group;
+        polygon.neighbours.forEach((neighbour) => {
+          if(neighbour.group === undefined) {
+            nextBatch.add(neighbour);
           }
         });
       });
     }
   }
-  
+
   static _buildPolygonGroups (navigationMesh) {
 
     const polygons = navigationMesh.polygons;
