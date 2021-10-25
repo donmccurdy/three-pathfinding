@@ -45,7 +45,7 @@
 	"devDependencies": {
 		"concurrently": "6.3.0",
 		"documentation": "13.2.5",
-		"microbundle": "0.14.0",
+		"microbundle": "0.14.1",
 		"replace-between": "0.0.8",
 		"serve": "12.0.1",
 		"tap-spec": "5.0.0",
