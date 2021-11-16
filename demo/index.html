@@ -154,7 +154,7 @@
 			mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
 			mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
-			if ( mouseDown.x - mouse.x > 0 || mouseDown.y - mouse.y > 0 ) return; // Prevent unwanted click when rotate camera.
+			if ( Math.abs( mouseDown.x - mouse.x ) > 0 || Math.abs( mouseDown.y - mouse.y ) > 0 ) return; // Prevent unwanted click when rotate camera.
 
 			camera.updateMatrixWorld();
 
