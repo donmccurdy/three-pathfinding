@@ -45,11 +45,11 @@
 	"devDependencies": {
 		"concurrently": "6.4.0",
 		"documentation": "13.2.5",
-		"microbundle": "0.14.1",
+		"microbundle": "0.14.2",
 		"replace-between": "0.0.8",
 		"serve": "13.0.2",
 		"tap-spec": "5.0.0",
-		"tape": "5.3.1",
+		"tape": "5.3.2",
 		"three": "0.134.0",
 		"uglify-js": "3.14.3"
 	},
