@@ -53,6 +53,7 @@
 		const helper = new THREE.PathfindingHelper();
 		const clock = new THREE.Clock();
 		const mouse = new THREE.Vector2();
+		const mouseDown = new THREE.Vector2();
 		const raycaster = new THREE.Raycaster();
 
 		const scene = new THREE.Scene();
@@ -135,15 +136,25 @@
 				.setPlayerPosition( new THREE.Vector3( -3.5, 0.5, 5.5 ) )
 				.setTargetPosition( new THREE.Vector3( -3.5, 0.5, 5.5 ) );
 
-			document.addEventListener( 'click', onDocumentMouseUp, false );
+			document.addEventListener( 'pointerdown', onDocumentPointerDown, false );
+			document.addEventListener( 'pointerup', onDocumentPointerUp, false );
 			window.addEventListener( 'resize', onWindowResize, false );
 
 		}
 
-		function onDocumentMouseUp (event) {
+		function onDocumentPointerDown (event) {
+
+			mouseDown.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+			mouseDown.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+		}
+
+		function onDocumentPointerUp (event) {
 
 			mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
 			mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+			if ( Math.abs( mouseDown.x - mouse.x ) > 0 || Math.abs( mouseDown.y - mouse.y ) > 0 ) return; // Prevent unwanted click when rotate camera.
 
 			camera.updateMatrixWorld();
 
