@@ -15,6 +15,10 @@
 	"main": "dist/three-pathfinding.js",
 	"module": "dist/three-pathfinding.module.js",
 	"source": "src/index.js",
+	"browserslist": [
+		"last 2 versions and > 1%",
+		"maintained node versions"
+	],
 	"scripts": {
 		"dev": "concurrently \"microbundle watch --target web --globals three=THREE --external three\" \"serve --listen 5000\"",
 		"docs": "documentation build src/Pathfinding.js src/PathfindingHelper.js --shallow -f md | replace-between --target README.md --token API",
