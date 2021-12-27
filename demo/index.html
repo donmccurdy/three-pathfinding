@@ -31,8 +31,8 @@
 		/* global threePathfinding */
 
 		const Color = {
-			GROUND: new THREE.Color( 0x606060 ).convertGammaToLinear( 2.2 ).getHex(),
-			NAVMESH: new THREE.Color( 0xFFFFFF ).convertGammaToLinear( 2.2 ).getHex(),
+			GROUND: new THREE.Color( 0x606060 ).convertSRGBToLinear().getHex(),
+			NAVMESH: new THREE.Color( 0xFFFFFF ).convertSRGBToLinear().getHex(),
 		};
 
 		const ZONE = 'level';
