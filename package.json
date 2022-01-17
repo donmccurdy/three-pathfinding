@@ -53,7 +53,7 @@
 		"replace-between": "0.0.8",
 		"serve": "13.0.2",
 		"tap-spec": "5.0.0",
-		"tape": "5.4.0",
+		"tape": "5.4.1",
 		"three": "0.136.0",
 		"uglify-js": "3.14.5"
 	},
