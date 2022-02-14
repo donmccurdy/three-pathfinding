@@ -7131,10 +7131,10 @@ tap-spec@5.0.0:
     tap-out "^2.1.0"
     through2 "^2.0.0"
 
-tape@5.5.0:
-  version "5.5.0"
-  resolved "https://registry.yarnpkg.com/tape/-/tape-5.5.0.tgz#5ad3f2a78aeb91ff90f853692b4ff33ba585db70"
-  integrity sha512-hmsc9J+07tM+evk2Rkv7pkbj70Uoy9k0w1yhnN8Sza8kmjhtUTVNltsjywQjC+4grB+EBMKXiJPTkftX8IrbSA==
+tape@5.5.2:
+  version "5.5.2"
+  resolved "https://registry.yarnpkg.com/tape/-/tape-5.5.2.tgz#3750c415e6ddfbcd425945f02f1a907d2ea8171f"
+  integrity sha512-N9Ss672dFE3QlppiXGh2ieux8Ophau/HSAQguW5cXQworKxV0QvnZCYI35W1OYySTJk0OC9OPuS+0xNO6lhiTQ==
   dependencies:
     array.prototype.every "^1.1.3"
     call-bind "^1.0.2"
