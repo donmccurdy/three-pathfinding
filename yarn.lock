@@ -4853,7 +4853,7 @@ minimist-options@4.1.0:
     is-plain-obj "^1.1.0"
     kind-of "^6.0.3"
 
-minimist@^1.1.0, minimist@^1.1.1, minimist@^1.1.3, minimist@^1.2.0, minimist@^1.2.5:
+minimist@^1.1.0, minimist@^1.1.1, minimist@^1.1.3, minimist@^1.2.0, minimist@^1.2.5, minimist@^1.2.6:
   version "1.2.6"
   resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.6.tgz#8637a5b759ea0d6e98702cfb3a9283323c93af44"
   integrity sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==
@@ -7131,10 +7131,10 @@ tap-spec@5.0.0:
     tap-out "^2.1.0"
     through2 "^2.0.0"
 
-tape@5.5.2:
-  version "5.5.2"
-  resolved "https://registry.yarnpkg.com/tape/-/tape-5.5.2.tgz#3750c415e6ddfbcd425945f02f1a907d2ea8171f"
-  integrity sha512-N9Ss672dFE3QlppiXGh2ieux8Ophau/HSAQguW5cXQworKxV0QvnZCYI35W1OYySTJk0OC9OPuS+0xNO6lhiTQ==
+tape@5.5.3:
+  version "5.5.3"
+  resolved "https://registry.yarnpkg.com/tape/-/tape-5.5.3.tgz#b6d6f3c99a7bade12b9dcf6ee2234b1dd35e5003"
+  integrity sha512-hPBJZBL9S7bH9vECg/KSM24slGYV589jJr4dmtiJrLD71AL66+8o4b9HdZazXZyvnilqA7eE8z5/flKiy0KsBg==
   dependencies:
     array.prototype.every "^1.1.3"
     call-bind "^1.0.2"
@@ -7148,7 +7148,7 @@ tape@5.5.2:
     has-dynamic-import "^2.0.1"
     inherits "^2.0.4"
     is-regex "^1.1.4"
-    minimist "^1.2.5"
+    minimist "^1.2.6"
     object-inspect "^1.12.0"
     object-is "^1.1.5"
     object-keys "^1.1.1"
@@ -7366,10 +7366,10 @@ typescript@^4.1.3:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.2.3.tgz#39062d8019912d43726298f09493d598048c1ce3"
   integrity sha512-qOcYwxaByStAWrBf4x0fibwZvMRG+r4cQoTjbPtUlrWjBHbmCAww1i448U0GJ+3cNNEtebDteo/cHOR3xJ4wEw==
 
-uglify-js@3.15.3:
-  version "3.15.3"
-  resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.15.3.tgz#9aa82ca22419ba4c0137642ba0df800cb06e0471"
-  integrity sha512-6iCVm2omGJbsu3JWac+p6kUiOpg3wFO2f8lIXjfEb8RrmLjzog1wTPMmwKB7swfzzqxj9YM+sGUM++u1qN4qJg==
+uglify-js@3.15.4:
+  version "3.15.4"
+  resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.15.4.tgz#fa95c257e88f85614915b906204b9623d4fa340d"
+  integrity sha512-vMOPGDuvXecPs34V74qDKk4iJ/SN4vL3Ow/23ixafENYvtrNvtbcgUeugTcUGRGsOF/5fU8/NYSL5Hyb3l1OJA==
 
 uglify-js@^3.1.4:
   version "3.13.0"
