@@ -7211,10 +7211,10 @@ text-extensions@^1.0.0:
   resolved "https://registry.yarnpkg.com/text-extensions/-/text-extensions-1.9.0.tgz#1853e45fee39c945ce6f6c36b2d659b5aabc2a26"
   integrity sha512-wiBrwC1EhBelW12Zy26JeOUkQ5mRu+5o8rpsJk5+2t+Y5vE7e842qtZDQ2g1NpX/29HdyFeJ4nSIhI47ENSxlQ==
 
-three@0.140.0:
-  version "0.140.0"
-  resolved "https://registry.yarnpkg.com/three/-/three-0.140.0.tgz#5ad85df954c63015337a846134e0daa6c7c0dead"
-  integrity sha512-jcHjbnYspPLDdsDQChmzyAoZ5KhJbgFk6pNGlAIc9fQMvsfPGjF5H9glrngqvb2CR/qXcClMyp5PYdF996lldA==
+three@0.140.1:
+  version "0.140.1"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.140.1.tgz#7d752c10f683b4dc2a96b155b51d6ec5a59909dc"
+  integrity sha512-gjTMCfmbXtjD/U1Thw2Lbq4FR6H2kcy7+bd09OSqiPwU5X49va87QC2Kbrdzg8MQvkCbKAagaIbf3m3rCqmcYg==
 
 through2-filter@^3.0.0:
   version "3.0.0"
