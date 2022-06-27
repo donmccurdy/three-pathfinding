@@ -47,7 +47,7 @@
 		"three": "0.x.x"
 	},
 	"devDependencies": {
-		"concurrently": "7.2.1",
+		"concurrently": "7.2.2",
 		"documentation": "13.2.5",
 		"microbundle": "0.15.0",
 		"replace-between": "0.0.8",
@@ -55,7 +55,7 @@
 		"tap-spec": "5.0.0",
 		"tape": "5.5.3",
 		"three": "0.141.0",
-		"uglify-js": "3.16.0"
+		"uglify-js": "3.16.1"
 	},
 	"files": [
 		"dist/",
