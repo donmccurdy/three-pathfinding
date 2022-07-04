@@ -54,8 +54,8 @@
 		"serve": "13.0.2",
 		"tap-spec": "5.0.0",
 		"tape": "5.5.3",
-		"three": "0.141.0",
-		"uglify-js": "3.16.1"
+		"three": "0.142.0",
+		"uglify-js": "3.16.2"
 	},
 	"files": [
 		"dist/",
