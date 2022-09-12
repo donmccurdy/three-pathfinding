@@ -47,14 +47,14 @@
 		"three": "0.x.x"
 	},
 	"devDependencies": {
-		"concurrently": "7.3.0",
+		"concurrently": "7.4.0",
 		"documentation": "13.2.5",
 		"microbundle": "0.15.1",
 		"replace-between": "0.0.8",
 		"serve": "13.0.4",
 		"tap-spec": "5.0.0",
 		"tape": "5.6.0",
-		"three": "0.143.0",
+		"three": "0.144.0",
 		"uglify-js": "3.17.0"
 	},
 	"files": [
