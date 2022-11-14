@@ -51,7 +51,7 @@
 		"documentation": "13.2.5",
 		"microbundle": "0.15.1",
 		"replace-between": "0.0.8",
-		"serve": "14.0.1",
+		"serve": "14.1.1",
 		"tap-spec": "5.0.0",
 		"tape": "5.6.1",
 		"three": "0.146.0",
