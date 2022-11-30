@@ -48,7 +48,7 @@
 	},
 	"devDependencies": {
 		"concurrently": "7.6.0",
-		"documentation": "13.2.5",
+		"documentation": "14.0.0",
 		"microbundle": "0.15.1",
 		"replace-between": "0.0.8",
 		"serve": "14.1.2",
