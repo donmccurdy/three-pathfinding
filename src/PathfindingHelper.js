@@ -1,5 +1,6 @@
 import {
-  BoxBufferGeometry,
+  BoxGeometry,
+  SphereGeometry,
   BufferAttribute,
   BufferGeometry,
   Color,
@@ -8,7 +9,6 @@ import {
   Mesh,
   MeshBasicMaterial,
   Object3D,
-  SphereBufferGeometry,
   Vector3,
 } from 'three';
 
@@ -31,24 +31,24 @@ class PathfindingHelper extends Object3D {
     super();
 
     this._playerMarker = new Mesh(
-      new SphereBufferGeometry( 0.25, 32, 32 ),
+      new SphereGeometry( 0.25, 32, 32 ),
       new MeshBasicMaterial( { color: colors.PLAYER } )
     );
 
     this._targetMarker = new Mesh(
-      new BoxBufferGeometry( 0.3, 0.3, 0.3 ),
+      new BoxGeometry( 0.3, 0.3, 0.3 ),
       new MeshBasicMaterial( { color: colors.TARGET } )
     );
 
 
     this._nodeMarker = new Mesh(
-      new BoxBufferGeometry( 0.1, 0.8, 0.1 ),
+      new BoxGeometry( 0.1, 0.8, 0.1 ),
       new MeshBasicMaterial( { color: colors.CLOSEST_NODE } )
     );
 
 
     this._stepMarker = new Mesh(
-      new BoxBufferGeometry( 0.1, 1, 0.1 ),
+      new BoxGeometry( 0.1, 1, 0.1 ),
       new MeshBasicMaterial( { color: colors.CLAMPED_STEP } )
     );
 
@@ -56,7 +56,7 @@ class PathfindingHelper extends Object3D {
 
     this._pathLineMaterial = new LineBasicMaterial( { color: colors.PATH, linewidth: 2 } ) ;
     this._pathPointMaterial = new MeshBasicMaterial( { color: colors.WAYPOINT } );
-    this._pathPointGeometry = new SphereBufferGeometry( 0.08 );
+    this._pathPointGeometry = new SphereGeometry( 0.08 );
 
     this._markers = [
       this._playerMarker,
