@@ -3,10 +3,16 @@
 <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 <title>three-pathfinding demo</title>
 <link href="style.css" rel="stylesheet">
-<script src="https://unpkg.com/three@0.135.0/build/three.min.js"></script>
-<script src="https://unpkg.com/three@0.135.0/examples/js/controls/OrbitControls.js"></script>
-<script src="https://unpkg.com/three@0.135.0/examples/js/loaders/GLTFLoader.js"></script>
-<script src="../dist/three-pathfinding.umd.js"></script>
+ <script type="importmap">
+	{
+		"imports": {
+			"three": "https://unpkg.com/three@0.149.0/build/three.module.js",
+			"orbitcontrols": "https://unpkg.com/three@0.149.0/examples/jsm/controls/OrbitControls.js",
+			"gltf-loader": "https://unpkg.com/three@0.149.0/examples/jsm/loaders/GLTFLoader.js",
+			"three-pathfinding": "../dist/three-pathfinding.module.js"
+		}
+	}
+</script>
 
 <body>
 
@@ -27,8 +33,11 @@
 		</div>
 	</header>
 
-	<script>
-		/* global threePathfinding */
+	<script type="module">
+		import * as THREE from 'three';
+		import { OrbitControls } from 'orbitcontrols';
+		import { Pathfinding, PathfindingHelper, } from 'three-pathfinding';
+		import { GLTFLoader } from 'gltf-loader';
 
 		const Color = {
 			GROUND: new THREE.Color( 0x606060 ).convertSRGBToLinear().getHex(),
@@ -39,9 +48,6 @@
 		const SPEED = 5;
 		const OFFSET = 0.2;
 
-		THREE.Pathfinding = threePathfinding.Pathfinding;
-		THREE.PathfindingHelper = threePathfinding.PathfindingHelper;
-
 		let level, navmesh;
 
 		let groupID, path;
@@ -49,8 +55,8 @@
 		const playerPosition = new THREE.Vector3( -3.5, 0.5, 5.5 );
 		const targetPosition = new THREE.Vector3();
 
-		const pathfinder = new THREE.Pathfinding();
-		const helper = new THREE.PathfindingHelper();
+		const pathfinder = new Pathfinding();
+		const helper = new PathfindingHelper();
 		const clock = new THREE.Clock();
 		const mouse = new THREE.Vector2();
 		const mouseDown = new THREE.Vector2();
@@ -71,7 +77,7 @@
 		renderer.outputEncoding = THREE.sRGBEncoding;
 		document.body.appendChild( renderer.domElement );
 
-		const controls = new THREE.OrbitControls( camera, renderer.domElement );
+		const controls = new OrbitControls( camera, renderer.domElement );
 		controls.damping = 0.2;
 
 		const ambient = new THREE.AmbientLight( 0x101030 );
@@ -86,7 +92,7 @@
 
 		function init() {
 
-			const gltfLoader = new THREE.GLTFLoader();
+			const gltfLoader = new GLTFLoader();
 
 			gltfLoader.load( 'meshes/level.glb', function( gltf ) {
 
@@ -107,7 +113,7 @@
 				const _navmesh = gltf.scene.getObjectByName('Navmesh_Mesh');
 
 				console.time('createZone()');
-				const zone = THREE.Pathfinding.createZone(_navmesh.geometry);
+				const zone = Pathfinding.createZone(_navmesh.geometry);
 				console.timeEnd('createZone()');
 
 				pathfinder.setZoneData( ZONE, zone );
