@@ -3,17 +3,6 @@
 <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 <title>three-pathfinding demo</title>
 <link href="style.css" rel="stylesheet">
- <script type="importmap">
-	{
-		"imports": {
-			"three": "https://unpkg.com/three@0.149.0/build/three.module.js",
-			"orbitcontrols": "https://unpkg.com/three@0.149.0/examples/jsm/controls/OrbitControls.js",
-			"gltf-loader": "https://unpkg.com/three@0.149.0/examples/jsm/loaders/GLTFLoader.js",
-			"three-pathfinding": "../dist/three-pathfinding.module.js"
-		}
-	}
-</script>
-
 <body>
 
 	<header>
@@ -35,9 +24,10 @@
 
 	<script type="module">
 		import * as THREE from 'three';
-		import { OrbitControls } from 'orbitcontrols';
+		import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+		import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 		import { Pathfinding, PathfindingHelper, } from 'three-pathfinding';
-		import { GLTFLoader } from 'gltf-loader';
+
 
 		const Color = {
 			GROUND: new THREE.Color( 0x606060 ).convertSRGBToLinear().getHex(),
@@ -94,7 +84,7 @@
 
 			const gltfLoader = new GLTFLoader();
 
-			gltfLoader.load( 'meshes/level.glb', function( gltf ) {
+			gltfLoader.load( '/level.glb', function( gltf ) {
 
 				const levelMesh = gltf.scene.getObjectByName('Cube');
 				const levelMat = new THREE.MeshStandardMaterial({
@@ -108,7 +98,7 @@
 				scene.add(level);
 			}, null);
 
-			gltfLoader.load( 'meshes/level.nav.glb', function( gltf ) {
+			gltfLoader.load( '/level.nav.glb', function( gltf ) {
 
 				const _navmesh = gltf.scene.getObjectByName('Navmesh_Mesh');
 

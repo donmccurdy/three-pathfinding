@@ -20,11 +20,12 @@
 		"maintained node versions"
 	],
 	"scripts": {
-		"dev": "concurrently \"microbundle watch --target web --globals three=THREE --external three\" \"serve --listen 5000\"",
-		"docs": "documentation build src/Pathfinding.js src/PathfindingHelper.js --shallow -f md | replace-between --target README.md --token API",
+		"dev": "concurrently \"yarn watch\" \"vite --config demo/vite.config.js --port 5000\"",
+		"watch": "microbundle watch --target web --globals three=THREE --external three",
 		"dist": "microbundle --target web --globals three=THREE --external three",
 		"version": "npm run dist && npm test",
 		"postversion": "git push && git push --tags && npm publish",
+		"docs": "documentation build src/Pathfinding.js src/PathfindingHelper.js --shallow -f md | replace-between --target README.md --token API",
 		"test": "node tests/index.test.js | tap-spec",
 		"benchmark": "node benchmark/index.benchmark.js",
 		"deploy": "npm run dist && npm test && vercel --prod"
@@ -51,11 +52,10 @@
 		"documentation": "14.0.1",
 		"microbundle": "0.15.1",
 		"replace-between": "0.0.8",
-		"serve": "14.1.2",
 		"tap-spec": "5.0.0",
 		"tape": "5.6.1",
 		"three": "0.147.0",
-		"uglify-js": "3.17.4"
+		"vite": "^4.1.1"
 	},
 	"files": [
 		"dist/",
@@ -64,5 +64,6 @@
 		"LICENSE",
 		"package.json",
 		"package-lock.json"
-	]
+	],
+	"dependencies": {}
 }
