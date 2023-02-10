@@ -20,15 +20,16 @@
 		"maintained node versions"
 	],
 	"scripts": {
+		"build": "yarn dist && vite build --config demo/vite.config.js",
 		"dev": "concurrently \"yarn watch\" \"vite --config demo/vite.config.js --port 5000\"",
 		"watch": "microbundle watch --target web --globals three=THREE --external three",
 		"dist": "microbundle --target web --globals three=THREE --external three",
-		"version": "npm run dist && npm test",
+		"version": "npm run dist && yarn test",
 		"postversion": "git push && git push --tags && npm publish",
 		"docs": "documentation build src/Pathfinding.js src/PathfindingHelper.js --shallow -f md | replace-between --target README.md --token API",
 		"test": "node tests/index.test.js | tap-spec",
 		"benchmark": "node benchmark/index.benchmark.js",
-		"deploy": "npm run dist && npm test && vercel --prod"
+		"deploy": "yarn build && yarn test && vercel --prod"
 	},
 	"keywords": [
 		"patrol",

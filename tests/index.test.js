@@ -13,7 +13,7 @@ test('initialize', (t) => {
 });
 
 test('create zone', (t) => {
-  const geometry = new THREE.RingBufferGeometry(5, 10);
+  const geometry = new THREE.RingGeometry(5, 10);
   const zone = Pathfinding.createZone(geometry);
   t.ok(zone, 'creates zone');
   t.equal(zone.groups.length, 1, 'zone contains one group');
@@ -22,7 +22,7 @@ test('create zone', (t) => {
 
 test('simple path', (t) => {
   const pathfinding = new Pathfinding();
-  const geometry = new THREE.RingBufferGeometry(5, 10).applyMatrix4(ROTATE);
+  const geometry = new THREE.RingGeometry(5, 10).applyMatrix4(ROTATE);
   const zone = Pathfinding.createZone(geometry);
   pathfinding.setZoneData(ZONE, zone);
   const a = new THREE.Vector3(7.5, 0, 0);
@@ -134,7 +134,7 @@ test('vertically stacked groups', (t) => {
 
 test('does not overwrite parameters', (t) => {
   const pathfinding = new Pathfinding();
-  const geometry = new THREE.RingBufferGeometry(5, 10).applyMatrix4(ROTATE);
+  const geometry = new THREE.RingGeometry(5, 10).applyMatrix4(ROTATE);
   const zone = Pathfinding.createZone(geometry);
   pathfinding.setZoneData(ZONE, zone);
   const a = new THREE.Vector3(7.5, 0.5, 0);
