@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<title>three-pathfinding demo</title>
+<link href="style.css" rel="stylesheet">
+<body>
+
+	<demo-sidebar>
+		<p>
+			Drag and drop gltf/glb files or choose a file here:
+		</p>
+		<input type="file" id="load-file"/>
+		<p>
+			If you need example glb files you can find some here:
+		</p>
+		<ul>
+			<li><a href="/drag-and-drop/tower-small.glb">tower-small.glb</a></li>
+			<li><a href="/drag-and-drop/tower-middle.glb">tower-middle.glb</a></li>
+			<li><a href="/drag-and-drop/tower-big.glb">tower-big.glb</a></li>
+		</ul>
+		These examples has been created with <a href="https://www.blender.org/">Blender.</a>
+		If you need an example how a navmesh should look like in a blender file
+		you can check out these files:
+		<ul>
+			<li><a href="/drag-and-drop/tower-small.blend">tower-small.blend</a></li>
+			<li><a href="/drag-and-drop/tower-middle.blend">tower-middle.blend</a></li>
+			<li><a href="/drag-and-drop/tower-big.blend">tower-big.blend</a></li>
+		</ul>
+	</demo-sidebar>
+
+	<demo-selectnavmesh id="selectnavmesh"></demo-selectnavmesh>
+
+	<script type="module">
+		import * as THREE from 'three';
+		import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+		import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+		import { Pathfinding, PathfindingHelper, } from 'three-pathfinding';
+
+		// Select navmesh dialog component
+		import './components/demo-selectnavmesh';
+
+		import './components/demo-sidebar';
+
+		const selectnavmesh = document.getElementById( 'selectnavmesh' );
+
+		// Flag to check if player has been positioned already
+		let playerPositioned = false;
+
+		// Allowed filetypes
+		const fileTypes = [ 'glb', 'gltf', ];
+
+		const gltfLoader = new GLTFLoader();
+
+
+		const SPEED = 5;
+		const OFFSET = 0.2;
+
+		let level, navmesh, navWireframe;
+		const ZONE = 'level';
+
+		let groupID, path;
+
+		let playerPosition = new THREE.Vector3();
+		const targetPosition = new THREE.Vector3();
+
+		const pathfinder = new Pathfinding();
+		const helper = new PathfindingHelper();
+		const clock = new THREE.Clock();
+		const mouse = new THREE.Vector2();
+		const mouseDown = new THREE.Vector2();
+		const raycaster = new THREE.Raycaster();
+		const scene = new THREE.Scene();
+
+		scene.add( helper );
+
+		const Color = {
+			GROUND: new THREE.Color( 0x606060 ).convertSRGBToLinear().getHex(),
+			NAVMESH: new THREE.Color( 0xFFFFFF ).convertSRGBToLinear().getHex(),
+		};
+
+		const camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
+		camera.position.x = -10;
+		camera.position.y = 14;
+		camera.position.z = 10;
+
+		const renderer = new THREE.WebGLRenderer();
+		renderer.setPixelRatio( window.devicePixelRatio );
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		renderer.setClearColor(0xffffff);
+		renderer.outputEncoding = THREE.sRGBEncoding;
+		document.body.appendChild( renderer.domElement );
+
+		const controls = new OrbitControls( camera, renderer.domElement );
+		controls.damping = 0.2;
+
+		const ambient = new THREE.AmbientLight( 0x101030 );
+		scene.add( ambient );
+
+		const directionalLight = new THREE.DirectionalLight( 0xFFEEDD );
+		directionalLight.position.set( 0, 0.5, 0.5 );
+		scene.add( directionalLight );
+
+		let oldChildren;
+
+		const preventDefault = ( event => {
+			event.preventDefault();
+			event.stopPropagation();
+		})
+
+		// Disable default behavior of the browser how to react when files are drag and dropped
+
+		document.addEventListener( 'drag', preventDefault );
+		document.addEventListener( 'dragstart', preventDefault );
+		document.addEventListener( 'dragover', preventDefault );
+		document.addEventListener( 'dragend', preventDefault );
+		document.addEventListener( 'dragenter', preventDefault );
+		document.addEventListener( 'dragleave', preventDefault );
+		document.addEventListener( 'drop', preventDefault );
+
+		// Get file when file has been selected
+
+		document.getElementById( 'load-file' ).addEventListener( 'change', event => {
+			readFile( event.target.files[0] );
+		})
+
+		// Get file when file has been dropped on browser
+
+		document.addEventListener( 'drop', event => {
+			readFile( event.dataTransfer.files[0] );
+		});
+
+		const readFile = file => {
+
+			const fileType = file.name.split('.').slice(-1)[0]
+			if( !fileTypes.includes( fileType ) ) throw Error ( 'Wrong filetype' );
+
+			const reader = new FileReader();
+			reader.onload = event => {
+				if( event.target.readyState != 2) return;
+				if( event.target.error) {
+					alert('Error while reading file');
+					return;
+				}
+
+				gltfLoader.parse( event.target.result, './', gltf => {
+					let list = [];
+					gltf.scene.children.forEach( child => {
+						if( child.name && child.isMesh ) list = [ ...list, child ];
+					})
+
+					selectnavmesh.meshes = list;
+					const onNavmesh = event => {
+						selectnavmesh.removeEventListener( 'navmesh', onNavmesh );
+						selectnavmesh.close();
+						init( gltf, list[ event.detail ] );
+					}
+					selectnavmesh.addEventListener( 'navmesh', onNavmesh );
+				} )
+			};
+			reader.readAsArrayBuffer( file );
+		}
+
+		const init = ( gltf, _navmesh ) => {
+
+			// Clear scene
+
+			if( oldChildren ) {
+				oldChildren.forEach( child => scene.remove( child )) 
+			}
+
+			oldChildren = [...gltf.scene.children];
+			helper.reset()
+			playerPositioned = false;
+
+			// Add objects to scene
+
+			gltf.scene.children.forEach( child => {
+				if( child !== _navmesh ) scene.add( child );
+			})
+
+			// Clear navmesh
+
+			if( navWireframe && navmesh ) {
+
+				scene.remove( navWireframe );
+				scene.remove( navmesh );
+			} 
+
+			// Add navmesh
+
+			console.time('createZone()');
+			const zone = Pathfinding.createZone(_navmesh.geometry);
+			console.timeEnd('createZone()');
+
+			pathfinder.setZoneData( ZONE, zone );
+
+			navWireframe = new THREE.Mesh(_navmesh.geometry, new THREE.MeshBasicMaterial({
+				color: 0x808080,
+				wireframe: true
+			}));
+			scene.add(navWireframe);
+
+			navmesh = new THREE.Mesh(_navmesh.geometry, new THREE.MeshBasicMaterial({
+				color: Color.NAVMESH,
+				opacity: 0.75,
+				transparent: true
+			}));
+
+			scene.add(navmesh);
+
+			groupID = pathfinder.getGroup( ZONE, playerPosition );
+
+		}
+
+		animate();
+
+		document.addEventListener( 'pointerdown', onDocumentPointerDown, false );
+		document.addEventListener( 'pointerup', onDocumentPointerUp, false );
+		window.addEventListener( 'resize', onWindowResize, false );
+
+		function onDocumentPointerDown (event) {
+
+			mouseDown.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+			mouseDown.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+		}
+
+		function onDocumentPointerUp (event) {
+			
+			if ( !navmesh ) return;
+
+			mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+			mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+			if ( Math.abs( mouseDown.x - mouse.x ) > 0 || Math.abs( mouseDown.y - mouse.y ) > 0 ) return; // Prevent unwanted click when rotate camera.
+
+			camera.updateMatrixWorld();
+
+			raycaster.setFromCamera( mouse, camera );
+
+			const intersects = raycaster.intersectObject( navmesh );
+
+			if ( !intersects.length ) return;
+
+			if( !playerPositioned ) {
+				
+				playerPosition.copy( intersects[0].point );
+				targetPosition.copy( intersects[0].point );
+				helper
+					.reset()
+					.setPlayerPosition( playerPosition )
+					.setTargetPosition( playerPosition )
+				playerPositioned = true;
+				return;
+
+			}
+
+			targetPosition.copy( intersects[0].point );
+
+			helper
+				.reset()
+				.setPlayerPosition( playerPosition );
+
+			// Teleport on ctrl/cmd click or RMB.
+			if (event.metaKey || event.ctrlKey || event.button === 2) {
+
+				path = null;
+				groupID = pathfinder.getGroup(ZONE, targetPosition, true);
+				const closestNode = pathfinder.getClosestNode( playerPosition, ZONE, groupID, true );
+
+				helper.setPlayerPosition( playerPosition.copy( targetPosition ) )
+				if ( closestNode ) helper.setNodePosition( closestNode.centroid );
+
+				return;
+
+			}
+
+			const targetGroupID = pathfinder.getGroup( ZONE, targetPosition, true );
+			const closestTargetNode = pathfinder.getClosestNode( targetPosition, ZONE, targetGroupID, true );
+
+			helper.setTargetPosition( targetPosition );
+			if (closestTargetNode) helper.setNodePosition( closestTargetNode.centroid );
+
+			// Calculate a path to the target and store it
+			path = pathfinder.findPath( playerPosition, targetPosition, ZONE, groupID );
+
+			if ( path && path.length ) {
+
+				helper.setPath( path );
+
+			} else {
+
+				const closestPlayerNode = pathfinder.getClosestNode( playerPosition, ZONE, groupID );
+				const clamped = new THREE.Vector3();
+
+				// TODO(donmccurdy): Don't clone targetPosition, fix the bug.
+				pathfinder.clampStep(
+					playerPosition, targetPosition.clone(), closestPlayerNode, ZONE, groupID, clamped );
+
+				helper.setStepPosition( clamped );
+
+			}
+		}
+
+		function onWindowResize() {
+
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+
+			renderer.setSize( window.innerWidth, window.innerHeight );
+
+		}
+
+		function animate() {
+
+			requestAnimationFrame( animate );
+			tick(clock.getDelta());
+			renderer.render( scene, camera );
+
+		}
+
+		function tick ( dt ) {
+			if ( !playerPositioned || !(path||[]).length ) return
+
+			let targetPosition = path[ 0 ];
+			const velocity = targetPosition.clone().sub( playerPosition );
+
+			if (velocity.lengthSq() > 0.05 * 0.05) {
+				velocity.normalize();
+				// Move player to target
+				playerPosition.add( velocity.multiplyScalar( dt * SPEED ) );
+				helper.setPlayerPosition( playerPosition );
+			} else {
+				// Remove node from the path we calculated
+				path.shift();
+			}
+		}
+
+	</script>
+
+</body>

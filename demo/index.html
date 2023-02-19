@@ -4,30 +4,16 @@
 <title>three-pathfinding demo</title>
 <link href="style.css" rel="stylesheet">
 <body>
-
-	<header>
-		<h1>three-pathfinding</h1>
-
-		<p>
-			<a href="https://github.com/donmccurdy/three-pathfinding">Source</a> •
-			<a href="https://github.com/donmccurdy/three-pathfinding#api">Documentation</a> •
-			Click anywhere on the level to calculate a path. Meta+Click or Right Click to teleport.
-		</p>
-		<div class="swatches">
-			<i class="swatch" style="background: #EE836F;"></i> start/player
-			<i class="swatch" style="background: #DCCB18;"></i> target
-			<i class="swatch" style="background: #00A3AF;"></i> waypoint
-			<i class="swatch" style="background: #DCD3B2;"></i> clamped step
-			<i class="swatch" style="background: #43676B;"></i> closest node
-		</div>
-	</header>
+	<demo-sidebar>
+		Meta+Click or Right Click to teleport.
+	</demo-sidebar>
 
 	<script type="module">
 		import * as THREE from 'three';
 		import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 		import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 		import { Pathfinding, PathfindingHelper, } from 'three-pathfinding';
-
+		import './components/demo-sidebar';
 
 		const Color = {
 			GROUND: new THREE.Color( 0x606060 ).convertSRGBToLinear().getHex(),

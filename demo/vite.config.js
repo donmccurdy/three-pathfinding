@@ -8,6 +8,7 @@ export default {
 		rollupOptions: {
 			input: {
 				index: resolve(__dirname, 'index.html'),
+				index: resolve(__dirname, 'drag-and-drop.html'),
 			},
 		},
 	},
