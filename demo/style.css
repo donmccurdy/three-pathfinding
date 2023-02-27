@@ -1,8 +1,14 @@
+:root {
+  --swatch-background: rgba( 0, 0, 0, .8 );
+  --swatch-start: #ee836f;
+  --swatch-target: #dccb18;
+  --swatch-waypoint: #00a3af;
+  --swatch-clamped-step: #dcd3b2;
+  --swatch-closest-node: #43676b;
+}
 body {
-  font-family: Helvetica, sans-serify;
-  background-color: #000;
-  color: #fff;
-  margin: 0px;
+  font-family: Helvetica, sans-serif;
+  margin: 0;
   overflow: hidden;
 }
 a {
