@@ -22,7 +22,7 @@ test('create zone', (t) => {
 
 test('simple path', (t) => {
   const pathfinding = new Pathfinding();
-  const geometry = new THREE.RingGeometry(5, 10).applyMatrix4(ROTATE);
+  const geometry = new THREE.RingGeometry(5, 10, 8).applyMatrix4(ROTATE);
   const zone = Pathfinding.createZone(geometry);
   pathfinding.setZoneData(ZONE, zone);
   const a = new THREE.Vector3(7.5, 0, 0);
