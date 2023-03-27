@@ -21,7 +21,7 @@
 	],
 	"scripts": {
 		"build": "yarn dist && vite build --config demo/vite.config.js",
-		"dev": "concurrently \"yarn watch\" \"vite --config demo/vite.config.js --port 5000\"",
+		"dev": "concurrently \"yarn watch\" \"vite --config demo/vite.config.js --port 3000\"",
 		"watch": "microbundle watch --target web --globals three=THREE --external three",
 		"dist": "microbundle --target web --globals three=THREE --external three",
 		"version": "npm run dist && yarn test",
@@ -54,8 +54,8 @@
 		"microbundle": "0.15.1",
 		"replace-between": "0.0.8",
 		"tap-spec": "5.0.0",
-		"tape": "5.6.1",
-		"three": "0.147.0",
+		"tape": "5.6.3",
+		"three": "0.150.1",
 		"vite": "^4.1.1"
 	},
 	"files": [
