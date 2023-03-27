@@ -5,44 +5,66 @@
 <link href="style.css" rel="stylesheet">
 <body>
 
-	<header>
-		<h1>three-pathfinding</h1>
+	<demo-selectnavmesh id="selectnavmesh"></demo-selectnavmesh>
+	<demo-file></demo-file>
 
+	<demo-sidebar>
 		<p>
-			<a href="https://github.com/donmccurdy/three-pathfinding">Source</a> •
-			<a href="https://github.com/donmccurdy/three-pathfinding#api">Documentation</a> •
-			Click anywhere on the level to calculate a path. Meta+Click or Right Click to teleport.
+			If you need example glb files you can find some here:
 		</p>
-		<div class="swatches">
-			<i class="swatch" style="background: #EE836F;"></i> start/player
-			<i class="swatch" style="background: #DCCB18;"></i> target
-			<i class="swatch" style="background: #00A3AF;"></i> waypoint
-			<i class="swatch" style="background: #DCD3B2;"></i> clamped step
-			<i class="swatch" style="background: #43676B;"></i> closest node
-		</div>
-	</header>
+		<input
+			type="file"
+			id="load-file"
+		/>
+		<ul>
+			<li><a download href="/assets/tower-small.glb">tower-small.glb</a></li>
+			<li><a download href="/assets/tower-middle.glb">tower-middle.glb</a></li>
+			<li><a download href="/assets/tower-big.glb">tower-big.glb</a></li>
+		</ul>
+		These examples were created with <a href="https://www.blender.org/" target="_blank">Blender</a>.
+		To see how a navmesh should look in Blender, inspect the source files:
+		<ul>
+			<li><a download href="/assets/tower-small.blend">tower-small.blend</a></li>
+			<li><a download href="/assets/tower-middle.blend">tower-middle.blend</a></li>
+			<li><a download href="/assets/tower-big.blend">tower-big.blend</a></li>
+		</ul>
+	</demo-sidebar>
+
+
 
 	<script type="module">
 		import * as THREE from 'three';
 		import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 		import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+		import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 		import { Pathfinding, PathfindingHelper, } from 'three-pathfinding';
 
+		// Select navmesh dialog component
+		import './components/demo-selectnavmesh';
+		import './components/demo-sidebar';
+		import './components/demo-file';
 
-		const Color = {
-			GROUND: new THREE.Color( 0x606060 ).convertSRGBToLinear().getHex(),
-			NAVMESH: new THREE.Color( 0xFFFFFF ).convertSRGBToLinear().getHex(),
-		};
+		const selectnavmesh = document.getElementById( 'selectnavmesh' );
 
-		const ZONE = 'level';
+		// Flag to check if player has been positioned already
+		let playerPositioned = false;
+
+		// Allowed filetypes
+		const fileTypes = [ 'glb', 'gltf', ];
+
+		const gltfLoader = new GLTFLoader()
+			.setMeshoptDecoder(MeshoptDecoder);
+
+
 		const SPEED = 5;
 		const OFFSET = 0.2;
 
-		let level, navmesh;
+		let level, navmesh, navWireframe;
+		const ZONE = 'level';
 
 		let groupID, path;
 
-		const playerPosition = new THREE.Vector3( -3.5, 0.5, 5.5 );
+		let playerPosition = new THREE.Vector3();
 		const targetPosition = new THREE.Vector3();
 
 		const pathfinder = new Pathfinding();
@@ -51,9 +73,14 @@
 		const mouse = new THREE.Vector2();
 		const mouseDown = new THREE.Vector2();
 		const raycaster = new THREE.Raycaster();
-
 		const scene = new THREE.Scene();
+
 		scene.add( helper );
+
+		const Color = {
+			GROUND: new THREE.Color( 0x606060 ).convertSRGBToLinear().getHex(),
+			NAVMESH: new THREE.Color( 0xFFFFFF ).convertSRGBToLinear().getHex(),
+		};
 
 		const camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
 		camera.position.x = -10;
@@ -77,66 +104,140 @@
 		directionalLight.position.set( 0, 0.5, 0.5 );
 		scene.add( directionalLight );
 
-		init();
-		animate();
+		let oldChildren;
 
-		function init() {
+		const preventDefault = ( event => {
+			event.preventDefault();
+			event.stopPropagation();
+		})
 
-			const gltfLoader = new GLTFLoader();
+		// Disable default behavior of the browser how to react when files are drag and dropped
 
-			gltfLoader.load( '/level.glb', function( gltf ) {
+		document.addEventListener( 'drag', preventDefault );
+		document.addEventListener( 'dragstart', preventDefault );
+		document.addEventListener( 'dragover', preventDefault );
+		document.addEventListener( 'dragend', preventDefault );
+		document.addEventListener( 'dragenter', preventDefault );
+		document.addEventListener( 'dragleave', preventDefault );
+		document.addEventListener( 'drop', preventDefault );
 
-				const levelMesh = gltf.scene.getObjectByName('Cube');
-				const levelMat = new THREE.MeshStandardMaterial({
-					color: Color.GROUND,
-					flatShading: true,
-					roughness: 1,
-					metalness: 0
-				});
-				level = new THREE.Mesh(levelMesh.geometry, levelMat);
-				window.level = level;
-				scene.add(level);
-			}, null);
+		// Get file when file has been selected
 
-			gltfLoader.load( '/level.nav.glb', function( gltf ) {
+		const demoFile = document.querySelector( 'demo-file' );
 
-				const _navmesh = gltf.scene.getObjectByName('Navmesh_Mesh');
+		document.getElementById('load-file').addEventListener( 'change', event => {
+			readFile( event.target.files[0] );
+		});
+		demoFile.addEventListener( 'file', event => {
+			readFile( event.detail );
+		});
 
-				console.time('createZone()');
-				const zone = Pathfinding.createZone(_navmesh.geometry);
-				console.timeEnd('createZone()');
+		// Style interactive file-upload element
 
-				pathfinder.setZoneData( ZONE, zone );
+		document.addEventListener( 'dragenter', event => {
+			demoFile.enter();
+		});
 
-				const navWireframe = new THREE.Mesh(_navmesh.geometry, new THREE.MeshBasicMaterial({
-					color: 0x808080,
-					wireframe: true
-				}));
-				navWireframe.position.y = OFFSET / 2;
-				scene.add(navWireframe);
+		// Get file when file has been dropped on browser
 
-				navmesh = new THREE.Mesh(_navmesh.geometry, new THREE.MeshBasicMaterial({
-					color: Color.NAVMESH,
-					opacity: 0.75,
-					transparent: true
-				}));
+		document.addEventListener( 'drop', event => {
+			demoFile.leave();
 
-				scene.add(navmesh);
+			readFile( event.dataTransfer.files[0] );
+		});
 
-				// Set the player's navigation mesh group
-				groupID = pathfinder.getGroup( ZONE, playerPosition );
+		const readFile = file => {
 
-			}, null);
+			const fileType = file.name.split('.').slice(-1)[0]
+			if( !fileTypes.includes( fileType ) ) throw Error ( 'Wrong filetype' );
 
-			helper
-				.setPlayerPosition( new THREE.Vector3( -3.5, 0.5, 5.5 ) )
-				.setTargetPosition( new THREE.Vector3( -3.5, 0.5, 5.5 ) );
+			const reader = new FileReader();
+			reader.onload = event => {
+				if( event.target.readyState != 2) return;
+				if( event.target.error) {
+					alert('Error while reading file');
+					return;
+				}
 
-			document.addEventListener( 'pointerdown', onDocumentPointerDown, false );
-			document.addEventListener( 'pointerup', onDocumentPointerUp, false );
-			window.addEventListener( 'resize', onWindowResize, false );
+				gltfLoader.parse( event.target.result, './', gltf => {
+					let list = [];
+					gltf.scene.children.forEach( child => {
+						if( child.name && child.isMesh ) list = [ ...list, child ];
+					})
+
+					selectnavmesh.meshes = list;
+					const onNavmesh = event => {
+
+						demoFile.uploaded();
+
+						selectnavmesh.removeEventListener( 'navmesh', onNavmesh );
+						selectnavmesh.close();
+						init( gltf, list[ event.detail ] );
+
+					}
+					selectnavmesh.addEventListener( 'navmesh', onNavmesh );
+				} )
+			};
+			reader.readAsArrayBuffer( file );
+		}
+
+		const init = ( gltf, _navmesh ) => {
+
+			// Clear scene
+
+			if( oldChildren ) {
+				oldChildren.forEach( child => scene.remove( child ))
+			}
+
+			oldChildren = [...gltf.scene.children];
+			helper.reset()
+			playerPositioned = false;
+
+			// Add objects to scene
+
+			gltf.scene.children.forEach( child => {
+				if( child !== _navmesh ) scene.add( child );
+			})
+
+			// Clear navmesh
+
+			if( navWireframe && navmesh ) {
+
+				scene.remove( navWireframe );
+				scene.remove( navmesh );
+			}
+
+			// Add navmesh
+
+			console.time('createZone()');
+			const zone = Pathfinding.createZone(_navmesh.geometry);
+			console.timeEnd('createZone()');
+
+			pathfinder.setZoneData( ZONE, zone );
+
+			navWireframe = new THREE.Mesh(_navmesh.geometry, new THREE.MeshBasicMaterial({
+				color: 0x808080,
+				wireframe: true
+			}));
+			scene.add(navWireframe);
+
+			navmesh = new THREE.Mesh(_navmesh.geometry, new THREE.MeshBasicMaterial({
+				color: Color.NAVMESH,
+				opacity: 0.75,
+				transparent: true
+			}));
+
+			scene.add(navmesh);
+
+			groupID = pathfinder.getGroup( ZONE, playerPosition );
 
 		}
+
+		animate();
+
+		document.addEventListener( 'pointerdown', onDocumentPointerDown, false );
+		document.addEventListener( 'pointerup', onDocumentPointerUp, false );
+		window.addEventListener( 'resize', onWindowResize, false );
 
 		function onDocumentPointerDown (event) {
 
@@ -146,6 +247,8 @@
 		}
 
 		function onDocumentPointerUp (event) {
+
+			if ( !navmesh ) return;
 
 			mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
 			mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
@@ -159,6 +262,19 @@
 			const intersects = raycaster.intersectObject( navmesh );
 
 			if ( !intersects.length ) return;
+
+			if( !playerPositioned ) {
+
+				playerPosition.copy( intersects[0].point );
+				targetPosition.copy( intersects[0].point );
+				helper
+					.reset()
+					.setPlayerPosition( playerPosition )
+					.setTargetPosition( playerPosition )
+				playerPositioned = true;
+				return;
+
+			}
 
 			targetPosition.copy( intersects[0].point );
 
@@ -225,7 +341,7 @@
 		}
 
 		function tick ( dt ) {
-			if ( !level || !(path||[]).length ) return
+			if ( !playerPositioned || !(path||[]).length ) return
 
 			let targetPosition = path[ 0 ];
 			const velocity = targetPosition.clone().sub( playerPosition );

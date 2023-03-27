@@ -8,6 +8,7 @@ export default {
 		rollupOptions: {
 			input: {
 				index: resolve(__dirname, 'index.html'),
+				teleport: resolve(__dirname, 'teleport.html'),
 			},
 		},
 	},
