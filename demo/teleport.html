@@ -16,9 +16,11 @@
 		import { Pathfinding, PathfindingHelper, } from 'three-pathfinding';
 		import './components/demo-sidebar';
 
+		THREE.ColorManagement.enabled = true;
+
 		const Color = {
-			GROUND: new THREE.Color( 0x606060 ).convertSRGBToLinear().getHex(),
-			NAVMESH: new THREE.Color( 0xFFFFFF ).convertSRGBToLinear().getHex(),
+			GROUND: 0x606060,
+			NAVMESH: 0xFFFFFF,
 		};
 
 		const ZONE = 'level';
@@ -50,7 +52,7 @@
 		const renderer = new THREE.WebGLRenderer();
 		renderer.setPixelRatio( window.devicePixelRatio );
 		renderer.setSize( window.innerWidth, window.innerHeight );
-		renderer.setClearColor(0xffffff);
+		renderer.setClearColor( 0xFFFFFF );
 		renderer.outputEncoding = THREE.sRGBEncoding;
 		document.body.appendChild( renderer.domElement );
 

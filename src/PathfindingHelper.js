@@ -13,12 +13,12 @@ import {
 } from 'three';
 
 const colors = {
-  PLAYER: new Color( 0xee836f ).convertSRGBToLinear().getHex(),
-  TARGET: new Color( 0xdccb18 ).convertSRGBToLinear().getHex(),
-  PATH: new Color( 0x00a3af ).convertSRGBToLinear().getHex(),
-  WAYPOINT: new Color( 0x00a3af ).convertSRGBToLinear().getHex(),
-  CLAMPED_STEP: new Color( 0xdcd3b2 ).convertSRGBToLinear().getHex(),
-  CLOSEST_NODE: new Color( 0x43676b ).convertSRGBToLinear().getHex(),
+  PLAYER: 0xEE836F,
+  TARGET: 0xDCCB18,
+  PATH: 0x00A3AF,
+  WAYPOINT: 0x00A3AF,
+  CLAMPED_STEP: 0xDCD3B2,
+  CLOSEST_NODE: 0x43676B,
 };
 
 const OFFSET = 0.2;

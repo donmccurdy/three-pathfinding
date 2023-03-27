@@ -17,16 +17,16 @@
 			id="load-file"
 		/>
 		<ul>
-			<li><a download href="/assets/tower-small.glb">tower-small.glb</a></li>
-			<li><a download href="/assets/tower-middle.glb">tower-middle.glb</a></li>
-			<li><a download href="/assets/tower-big.glb">tower-big.glb</a></li>
+			<li><a download href="/tower-small.glb">tower-small.glb</a></li>
+			<li><a download href="/tower-middle.glb">tower-middle.glb</a></li>
+			<li><a download href="/tower-big.glb">tower-big.glb</a></li>
 		</ul>
 		These examples were created with <a href="https://www.blender.org/" target="_blank">Blender</a>.
 		To see how a navmesh should look in Blender, inspect the source files:
 		<ul>
-			<li><a download href="/assets/tower-small.blend">tower-small.blend</a></li>
-			<li><a download href="/assets/tower-middle.blend">tower-middle.blend</a></li>
-			<li><a download href="/assets/tower-big.blend">tower-big.blend</a></li>
+			<li><a download href="/tower-small.blend">tower-small.blend</a></li>
+			<li><a download href="/tower-middle.blend">tower-middle.blend</a></li>
+			<li><a download href="/tower-big.blend">tower-big.blend</a></li>
 		</ul>
 	</demo-sidebar>
 
@@ -38,6 +38,8 @@
 		import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 		import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 		import { Pathfinding, PathfindingHelper, } from 'three-pathfinding';
+
+		THREE.ColorManagement.enabled = true;
 
 		// Select navmesh dialog component
 		import './components/demo-selectnavmesh';
@@ -78,8 +80,8 @@
 		scene.add( helper );
 
 		const Color = {
-			GROUND: new THREE.Color( 0x606060 ).convertSRGBToLinear().getHex(),
-			NAVMESH: new THREE.Color( 0xFFFFFF ).convertSRGBToLinear().getHex(),
+			GROUND: 0x606060,
+			NAVMESH: 0xFFFFFF,
 		};
 
 		const camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
@@ -90,7 +92,7 @@
 		const renderer = new THREE.WebGLRenderer();
 		renderer.setPixelRatio( window.devicePixelRatio );
 		renderer.setSize( window.innerWidth, window.innerHeight );
-		renderer.setClearColor(0xffffff);
+		renderer.setClearColor( 0xFFFFFF );
 		renderer.outputEncoding = THREE.sRGBEncoding;
 		document.body.appendChild( renderer.domElement );
 
