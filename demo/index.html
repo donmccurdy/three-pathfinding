@@ -36,6 +36,7 @@
 		import * as THREE from 'three';
 		import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 		import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+		import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 		import { Pathfinding, PathfindingHelper, } from 'three-pathfinding';
 
 		// Select navmesh dialog component
@@ -51,7 +52,8 @@
 		// Allowed filetypes
 		const fileTypes = [ 'glb', 'gltf', ];
 
-		const gltfLoader = new GLTFLoader();
+		const gltfLoader = new GLTFLoader()
+			.setMeshoptDecoder(MeshoptDecoder);
 
 
 		const SPEED = 5;
@@ -171,7 +173,7 @@
 						selectnavmesh.removeEventListener( 'navmesh', onNavmesh );
 						selectnavmesh.close();
 						init( gltf, list[ event.detail ] );
-						
+
 					}
 					selectnavmesh.addEventListener( 'navmesh', onNavmesh );
 				} )
@@ -184,7 +186,7 @@
 			// Clear scene
 
 			if( oldChildren ) {
-				oldChildren.forEach( child => scene.remove( child )) 
+				oldChildren.forEach( child => scene.remove( child ))
 			}
 
 			oldChildren = [...gltf.scene.children];
@@ -203,7 +205,7 @@
 
 				scene.remove( navWireframe );
 				scene.remove( navmesh );
-			} 
+			}
 
 			// Add navmesh
 
@@ -245,7 +247,7 @@
 		}
 
 		function onDocumentPointerUp (event) {
-			
+
 			if ( !navmesh ) return;
 
 			mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
@@ -262,7 +264,7 @@
 			if ( !intersects.length ) return;
 
 			if( !playerPositioned ) {
-				
+
 				playerPosition.copy( intersects[0].point );
 				targetPosition.copy( intersects[0].point );
 				helper
