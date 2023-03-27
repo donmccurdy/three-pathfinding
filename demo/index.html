@@ -46,13 +46,10 @@
 		import './components/demo-sidebar';
 		import './components/demo-file';
 
-		const selectnavmesh = document.getElementById( 'selectnavmesh' );
+		const selectEl = document.getElementById( 'selectnavmesh' );
 
 		// Flag to check if player has been positioned already
 		let playerPositioned = false;
-
-		// Allowed filetypes
-		const fileTypes = [ 'glb', 'gltf', ];
 
 		const gltfLoader = new GLTFLoader()
 			.setMeshoptDecoder(MeshoptDecoder);
@@ -61,7 +58,6 @@
 		const SPEED = 5;
 		const OFFSET = 0.2;
 
-		let level, navmesh, navWireframe;
 		const ZONE = 'level';
 
 		let groupID, path;
@@ -76,8 +72,12 @@
 		const mouseDown = new THREE.Vector2();
 		const raycaster = new THREE.Raycaster();
 		const scene = new THREE.Scene();
+		const content= new THREE.Group();
+
+		let navmesh;
 
 		scene.add( helper );
+		scene.add( content );
 
 		const Color = {
 			GROUND: 0x606060,
@@ -150,8 +150,8 @@
 
 		const readFile = file => {
 
-			const fileType = file.name.split('.').slice(-1)[0]
-			if( !fileTypes.includes( fileType ) ) throw Error ( 'Wrong filetype' );
+			const extension = file.name.split('.').slice(-1)[0]
+			if( ![ 'glb', 'gltf', ].includes( extension ) ) throw Error ( 'Provide a .glb or .gltf file.' );
 
 			const reader = new FileReader();
 			reader.onload = event => {
@@ -162,74 +162,64 @@
 				}
 
 				gltfLoader.parse( event.target.result, './', gltf => {
-					let list = [];
-					gltf.scene.children.forEach( child => {
-						if( child.name && child.isMesh ) list = [ ...list, child ];
-					})
 
-					selectnavmesh.meshes = list;
-					const onNavmesh = event => {
+					const meshes = [];
 
+					gltf.scene.traverse((object) => {
+						if (object.name && object.isMesh) meshes.push(object);
+					});
+
+					selectEl.meshes = meshes;
+
+					const onNavmesh = ( event ) => {
 						demoFile.uploaded();
+						selectEl.removeEventListener( 'navmesh', onNavmesh );
+						selectEl.close();
+						init( gltf.scene, meshes[ event.detail ] );
+					};
 
-						selectnavmesh.removeEventListener( 'navmesh', onNavmesh );
-						selectnavmesh.close();
-						init( gltf, list[ event.detail ] );
+					selectEl.addEventListener( 'navmesh', onNavmesh );
 
-					}
-					selectnavmesh.addEventListener( 'navmesh', onNavmesh );
 				} )
 			};
 			reader.readAsArrayBuffer( file );
 		}
 
-		const init = ( gltf, _navmesh ) => {
+		const init = ( navmeshScene, _navmesh ) => {
 
-			// Clear scene
+			navmesh = _navmesh;
 
-			if( oldChildren ) {
-				oldChildren.forEach( child => scene.remove( child ))
-			}
-
-			oldChildren = [...gltf.scene.children];
+			// Clear state.
+			content.clear();
 			helper.reset()
 			playerPositioned = false;
 
-			// Add objects to scene
+			// Add navmesh scene.
+			navmesh.parent.remove(navmesh);
+			content.add(navmeshScene);
 
-			gltf.scene.children.forEach( child => {
-				if( child !== _navmesh ) scene.add( child );
-			})
-
-			// Clear navmesh
-
-			if( navWireframe && navmesh ) {
-
-				scene.remove( navWireframe );
-				scene.remove( navmesh );
-			}
-
-			// Add navmesh
-
+			// Compute navmesh zone.
 			console.time('createZone()');
-			const zone = Pathfinding.createZone(_navmesh.geometry);
+			const zone = Pathfinding.createZone(navmesh.geometry);
 			console.timeEnd('createZone()');
-
 			pathfinder.setZoneData( ZONE, zone );
 
-			navWireframe = new THREE.Mesh(_navmesh.geometry, new THREE.MeshBasicMaterial({
-				color: 0x808080,
-				wireframe: true
-			}));
-			scene.add(navWireframe);
+			// Display navmesh wireframe.
+			content.add(
+				new THREE.Mesh(
+					navmesh.geometry,
+					new THREE.MeshBasicMaterial({ color: 0x808080, wireframe: true })
+				)
+			);
 
-			navmesh = new THREE.Mesh(_navmesh.geometry, new THREE.MeshBasicMaterial({
-				color: Color.NAVMESH,
-				opacity: 0.75,
-				transparent: true
-			}));
-
-			scene.add(navmesh);
+			// Display navmesh fill.
+			content.add(
+				new THREE.Mesh(navmesh.geometry, new THREE.MeshBasicMaterial({
+					color: Color.NAVMESH,
+					opacity: 0.75,
+					transparent: true
+				}))
+			);
 
 			groupID = pathfinder.getGroup( ZONE, playerPosition );
 
@@ -250,7 +240,7 @@
 
 		function onDocumentPointerUp (event) {
 
-			if ( !navmesh ) return;
+			if ( content.children.length === 0 ) return;
 
 			mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
 			mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
