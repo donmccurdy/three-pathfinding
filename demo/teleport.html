@@ -12,7 +12,6 @@
 		import * as THREE from 'three';
 		import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 		import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-		import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 		import { Pathfinding, PathfindingHelper, } from 'three-pathfinding';
 		import './components/demo-sidebar';
 
@@ -66,15 +65,12 @@
 		directionalLight.position.set( 0, 0.5, 0.5 );
 		scene.add( directionalLight );
 
-		await MeshoptDecoder.ready;
-
 		init();
 		animate();
 
-		function init() {
+		async function init() {
 
-			const gltfLoader = new GLTFLoader()
-				.setMeshoptDecoder(MeshoptDecoder);
+			const gltfLoader = new GLTFLoader();
 
 			gltfLoader.load( '/level.glb', function( gltf ) {
 

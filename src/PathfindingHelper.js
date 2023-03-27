@@ -3,7 +3,6 @@ import {
   SphereGeometry,
   BufferAttribute,
   BufferGeometry,
-  Color,
   Line,
   LineBasicMaterial,
   Mesh,
