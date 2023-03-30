@@ -6050,10 +6050,10 @@ terser@^5.0.0, terser@^5.7.0:
     commander "^2.20.0"
     source-map-support "~0.5.20"
 
-three@0.150.1:
-  version "0.150.1"
-  resolved "https://registry.yarnpkg.com/three/-/three-0.150.1.tgz#870d324a4d2daf1c7d55be97f3f73d83783e28be"
-  integrity sha512-5C1MqKUWaHYo13BX0Q64qcdwImgnnjSOFgBscOzAo8MYCzEtqfQqorEKMcajnA3FHy1yVlIe9AmaMQ0OQracNA==
+three@0.151.0:
+  version "0.151.0"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.151.0.tgz#05b21fe1d97448916942b31658865b6adc666b48"
+  integrity sha512-ZvjJbNhZ/t0L8I36tc1I1ZP9j1q42ANE9WTlR+P3lZfOzlSfNa5VfR1rZRHNyjn/ZPP4kU7xGI1v8QSJOpxE4w==
 
 through2@^2.0.0:
   version "2.0.5"
