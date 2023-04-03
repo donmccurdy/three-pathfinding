@@ -49,7 +49,7 @@
 		"three": "0.x.x"
 	},
 	"devDependencies": {
-		"concurrently": "7.6.0",
+		"concurrently": "8.0.1",
 		"documentation": "14.0.1",
 		"microbundle": "0.15.1",
 		"replace-between": "0.0.8",
