@@ -55,7 +55,7 @@
 		"replace-between": "0.0.8",
 		"tap-spec": "5.0.0",
 		"tape": "5.7.0",
-		"three": "0.156.1",
+		"three": "0.157.0",
 		"vite": "^4.1.1"
 	},
 	"files": [
