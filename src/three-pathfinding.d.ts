@@ -90,8 +90,8 @@ export class PathfindingHelper extends Object3D {
  * Defines a zone of interconnected groups on a navigation mesh.
  */
 type Zone = {
-    groups: Group[],
-    vertices: Vector3[]
+    groups: Group[];
+    vertices: Vector3[];
 };
 
 /**
@@ -105,23 +105,23 @@ type Group = {
  * Defines a node (or polygon) within a group.
  */
 type Node = {
-    id: number,
+    id: number;
 
     /**
      * IDs of neighboring nodes.
      */
-    neighbours: number[],
+    neighbours: number[];
 
-    vertexIds: number[],
+    vertexIds: number[];
 
-    centroid: Vector3,
+    centroid: Vector3;
 
     /**
      * Array of portals, each defined by two vertex IDs.
      */
-    portals: number[][],
+    portals: number[][];
 
-    closed: boolean,
+    closed: boolean;
 
-    cost: number,
+    cost: number;
 };
