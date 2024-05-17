@@ -14,6 +14,7 @@
 	},
 	"main": "dist/three-pathfinding.js",
 	"module": "dist/three-pathfinding.module.js",
+	"types": "dist/three-pathfinding.d.ts",
 	"source": "src/index.js",
 	"browserslist": [
 		"last 2 versions and > 1%",
@@ -22,8 +23,8 @@
 	"scripts": {
 		"build": "yarn dist && vite build --config demo/vite.config.js",
 		"dev": "concurrently \"yarn watch\" \"vite --config demo/vite.config.js --port 3000\"",
-		"watch": "microbundle watch --target web --globals three=THREE --external three",
-		"dist": "microbundle --target web --globals three=THREE --external three",
+		"watch": "microbundle watch --target web --globals three=THREE --external three --no-generateTypes && node scripts/copy-definition.mjs",
+		"dist": "microbundle --target web --globals three=THREE --external three --no-generateTypes && node scripts/copy-definition.mjs",
 		"version": "npm run dist && yarn test",
 		"postversion": "git push && git push --tags && npm publish",
 		"docs": "documentation build src/Pathfinding.js src/PathfindingHelper.js --shallow -f md | replace-between --target README.md --token API",
