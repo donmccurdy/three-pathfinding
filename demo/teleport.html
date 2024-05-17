@@ -12,10 +12,9 @@
 		import * as THREE from 'three';
 		import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 		import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+		import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 		import { Pathfinding, PathfindingHelper, } from 'three-pathfinding';
 		import './components/demo-sidebar';
-
-		THREE.ColorManagement.enabled = true;
 
 		const Color = {
 			GROUND: 0x606060,
@@ -40,20 +39,26 @@
 		const mouseDown = new THREE.Vector2();
 		const raycaster = new THREE.Raycaster();
 
+		const renderer = new THREE.WebGLRenderer();
+		renderer.setPixelRatio( window.devicePixelRatio );
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		renderer.setClearColor( 0xFFFFFF );
+		renderer.toneMapping = THREE.ACESFilmicToneMapping;
+		document.body.appendChild( renderer.domElement );
+
+		const environment = new RoomEnvironment( renderer );
+		const pmremGenerator = new THREE.PMREMGenerator( renderer );
+
 		const scene = new THREE.Scene();
+		scene.background = new THREE.Color( 0xbbbbbb );
+		scene.environment = pmremGenerator.fromScene( environment ).texture;
 		scene.add( helper );
+		environment.dispose();
 
 		const camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
 		camera.position.x = -10;
 		camera.position.y = 14;
 		camera.position.z = 10;
-
-		const renderer = new THREE.WebGLRenderer();
-		renderer.setPixelRatio( window.devicePixelRatio );
-		renderer.setSize( window.innerWidth, window.innerHeight );
-		renderer.setClearColor( 0xFFFFFF );
-		renderer.outputEncoding = THREE.sRGBEncoding;
-		document.body.appendChild( renderer.domElement );
 
 		const controls = new OrbitControls( camera, renderer.domElement );
 		controls.damping = 0.2;

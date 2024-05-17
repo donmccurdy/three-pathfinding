@@ -36,10 +36,9 @@
 		import * as THREE from 'three';
 		import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 		import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+		import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 		import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 		import { Pathfinding, PathfindingHelper, } from 'three-pathfinding';
-
-		THREE.ColorManagement.enabled = true;
 
 		// Select navmesh dialog component
 		import './components/demo-selectnavmesh';
@@ -93,18 +92,19 @@
 		renderer.setPixelRatio( window.devicePixelRatio );
 		renderer.setSize( window.innerWidth, window.innerHeight );
 		renderer.setClearColor( 0xFFFFFF );
-		renderer.outputEncoding = THREE.sRGBEncoding;
+		renderer.toneMapping = THREE.ACESFilmicToneMapping;
 		document.body.appendChild( renderer.domElement );
+
+		const environment = new RoomEnvironment( renderer );
+		const pmremGenerator = new THREE.PMREMGenerator( renderer );
+
+		scene.background = new THREE.Color( 0xbbbbbb );
+		scene.environment = pmremGenerator.fromScene( environment ).texture;
+		scene.add( helper );
+		environment.dispose();
 
 		const controls = new OrbitControls( camera, renderer.domElement );
 		controls.damping = 0.2;
-
-		const ambient = new THREE.AmbientLight( 0x101030 );
-		scene.add( ambient );
-
-		const directionalLight = new THREE.DirectionalLight( 0xFFEEDD );
-		directionalLight.position.set( 0, 0.5, 0.5 );
-		scene.add( directionalLight );
 
 		let oldChildren;
 

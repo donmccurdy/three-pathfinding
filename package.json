@@ -57,7 +57,7 @@
 		"tap-spec": "5.0.0",
 		"tape": "5.7.5",
 		"three": "0.164.1",
-		"vite": "^4.1.1"
+		"vite": "^5.2.11"
 	},
 	"files": [
 		"dist/",
@@ -67,5 +67,5 @@
 		"package.json",
 		"package-lock.json"
 	],
-	"dependencies": {}
+	"packageManager": "yarn@4.2.2"
 }
