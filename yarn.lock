@@ -9266,17 +9266,17 @@ __metadata:
     replace-between: "npm:0.0.8"
     tap-spec: "npm:5.0.0"
     tape: "npm:5.7.5"
-    three: "npm:0.164.1"
+    three: "npm:0.165.0"
     vite: "npm:^5.2.11"
   peerDependencies:
     three: 0.x.x
   languageName: unknown
   linkType: soft
 
-"three@npm:0.164.1":
-  version: 0.164.1
-  resolution: "three@npm:0.164.1"
-  checksum: 10c0/f34dc945444fba814be542a907a2f6f2bed3189315604b8ef936d95513b2a4030807df63dcbb48b658bbe3d3e77a446cf2d164c1c08465578c23d4c278d76bb3
+"three@npm:0.165.0":
+  version: 0.165.0
+  resolution: "three@npm:0.165.0"
+  checksum: 10c0/235e52d4634c4fc400de7850af466fdcfaf70c621463a8d886b332faccfbc1c4f697cd67bf848da21e1b6e2fb3e7a153aafc217238ee50923b1a5ce7d47d3973
   languageName: node
   linkType: hard
 
@@ -9780,8 +9780,8 @@ __metadata:
   linkType: hard
 
 "vite@npm:^5.2.11":
-  version: 5.2.11
-  resolution: "vite@npm:5.2.11"
+  version: 5.2.12
+  resolution: "vite@npm:5.2.12"
   dependencies:
     esbuild: "npm:^0.20.1"
     fsevents: "npm:~2.3.3"
@@ -9815,7 +9815,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 10c0/664b8d68e4f5152ae16bd2041af1bbaf11c43630ac461835bc31ff7d019913b33e465386e09f66dc1037d7aeefbb06939e0173787c063319bc2bd30c3b9ad8e4
+  checksum: 10c0/f03fdfc320adea3397df3e327029fd875f8220779f679ab183a3a994e8788b4ce531fee28f830361fb274f3cf08ed9adb9429496ecefdc3faf535b38da7ea8b1
   languageName: node
   linkType: hard
 
