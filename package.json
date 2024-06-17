@@ -55,7 +55,7 @@
 		"microbundle": "0.15.1",
 		"replace-between": "0.0.8",
 		"tap-spec": "5.0.0",
-		"tape": "5.7.5",
+		"tape": "5.8.1",
 		"three": "0.165.0",
 		"vite": "^5.2.11"
 	},
