@@ -9606,17 +9606,17 @@ __metadata:
     replace-between: "npm:0.0.8"
     tap-spec: "npm:5.0.0"
     tape: "npm:5.8.1"
-    three: "npm:0.167.0"
+    three: "npm:0.167.1"
     vite: "npm:^5.2.11"
   peerDependencies:
     three: 0.x.x
   languageName: unknown
   linkType: soft
 
-"three@npm:0.167.0":
-  version: 0.167.0
-  resolution: "three@npm:0.167.0"
-  checksum: 10c0/2e6f3afb1b3430444a1212e1de27f0c43f9ae095506617f1852f2159026b74ffb174ff79ad9a5a3b66d01800aee0e31b7c2d029f7e83d0e2722404a33323ec5b
+"three@npm:0.167.1":
+  version: 0.167.1
+  resolution: "three@npm:0.167.1"
+  checksum: 10c0/3040ffb013b6bb063d96ecff51acc6e6390a92d616a0d0db39550ad516eb0be8e50342f0c2c97892fbd983d03c7319f44b56bde881e1f3e6bc612d559b1276ea
   languageName: node
   linkType: hard
 
