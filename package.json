@@ -50,7 +50,7 @@
 		"three": "0.x.x"
 	},
 	"devDependencies": {
-		"concurrently": "8.2.2",
+		"concurrently": "9.1.0",
 		"documentation": "14.0.3",
 		"microbundle": "0.15.1",
 		"replace-between": "0.0.8",
