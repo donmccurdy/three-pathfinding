@@ -9620,17 +9620,17 @@ __metadata:
     replace-between: "npm:0.0.8"
     tap-spec: "npm:5.0.0"
     tape: "npm:5.9.0"
-    three: "npm:0.172.0"
+    three: "npm:0.173.0"
     vite: "npm:^6.0.0"
   peerDependencies:
     three: 0.x.x
   languageName: unknown
   linkType: soft
 
-"three@npm:0.172.0":
-  version: 0.172.0
-  resolution: "three@npm:0.172.0"
-  checksum: 10c0/72eca48bf89990e799a1de1c63a93feff226277a8d49acaee0b46d3f4d085bcdc8b2cad8457cd0dd3168bd6c5775eee65deb66f79a7d2e93220214a1075500bf
+"three@npm:0.173.0":
+  version: 0.173.0
+  resolution: "three@npm:0.173.0"
+  checksum: 10c0/6c8ad9b7ab6baaa0dc033c550e76cd3afe462ecfa99ba1b445714f36eeb4994e7dfcb1b72d3c32f6b53ac38df457aa3341ae4f948cb6cfd1d3acc9ee7bba4e58
   languageName: node
   linkType: hard
 
