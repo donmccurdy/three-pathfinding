@@ -2607,9 +2607,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"concurrently@npm:9.1.2":
-  version: 9.1.2
-  resolution: "concurrently@npm:9.1.2"
+"concurrently@npm:9.2.0":
+  version: 9.2.0
+  resolution: "concurrently@npm:9.2.0"
   dependencies:
     chalk: "npm:^4.1.2"
     lodash: "npm:^4.17.21"
@@ -2621,7 +2621,7 @@ __metadata:
   bin:
     conc: dist/bin/concurrently.js
     concurrently: dist/bin/concurrently.js
-  checksum: 10c0/88e00269366aa885ca2b97fd53b04e7af2b0f31774d991bfc0e88c0de61cdebdf115ddacc9c897fbd1f1b90369014637fa77045a171d072a75693332b36dcc70
+  checksum: 10c0/adbb5c42d9b36d345654187003c73e2e97e600b038729eec8f8fe735e01d543097b44990f0655fba8266753f4a0bef45fec69850a2c66d119dc1eddeb427858c
   languageName: node
   linkType: hard
 
@@ -8243,23 +8243,23 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "three-pathfinding@workspace:."
   dependencies:
-    concurrently: "npm:9.1.2"
+    concurrently: "npm:9.2.0"
     documentation: "npm:14.0.3"
     microbundle: "npm:0.15.1"
     replace-between: "npm:0.0.8"
     tap-spec: "npm:5.0.0"
     tape: "npm:5.9.0"
-    three: "npm:0.177.0"
+    three: "npm:0.178.0"
     vite: "npm:^6.0.0"
   peerDependencies:
     three: 0.x.x
   languageName: unknown
   linkType: soft
 
-"three@npm:0.177.0":
-  version: 0.177.0
-  resolution: "three@npm:0.177.0"
-  checksum: 10c0/3e2ac1b9908e0d4dcecaf67c3d3e1b0b021dbfc7c80c2780005cc4e50532fb95b4c7f21669931e93c7b934d5576eb2364e1b34271bbd0e9484d1d723f836907b
+"three@npm:0.178.0":
+  version: 0.178.0
+  resolution: "three@npm:0.178.0"
+  checksum: 10c0/00bffd075f2e0fac396c2be121ae0b376508c2f91b97eba19606ace34c53f51b8287047841ef22a3762f6525a83e7b9143728b17639e6d8477e1207d9e9d1866
   languageName: node
   linkType: hard
 
