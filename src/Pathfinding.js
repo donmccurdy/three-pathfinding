@@ -13,7 +13,7 @@ import { Channel } from './Channel';
  * Defines an instance of the pathfinding module, with one or more zones.
  */
 class Pathfinding {
-	constructor () {
+	constructor() {
 		this.zones = {};
 	}
 
@@ -23,7 +23,7 @@ class Pathfinding {
 	 * @param  {number} tolerance Vertex welding tolerance.
 	 * @return {Zone}
 	 */
-	static createZone (geometry, tolerance = 1e-4) {
+	static createZone(geometry, tolerance = 1e-4) {
 		return Builder.buildZone(geometry, tolerance);
 	}
 
@@ -32,7 +32,7 @@ class Pathfinding {
 	 * @param {string} zoneID
 	 * @param {Zone} zone
 	 */
-	setZoneData (zoneID, zone) {
+	setZoneData(zoneID, zone) {
 		this.zones[zoneID] = zone;
 	}
 
@@ -44,7 +44,7 @@ class Pathfinding {
 	 * @param  {number} nearRange
 	 * @return {Node}
 	 */
-	getRandomNode (zoneID, groupID, nearPosition, nearRange) {
+	getRandomNode(zoneID, groupID, nearPosition, nearRange) {
 
 		if (!this.zones[zoneID]) return new Vector3();
 
@@ -75,7 +75,7 @@ class Pathfinding {
 	 * @param  {boolean} checkPolygon
 	 * @return {Node}
 	 */
-	getClosestNode (position, zoneID, groupID, checkPolygon = false) {
+	getClosestNode(position, zoneID, groupID, checkPolygon = false) {
 		const nodes = this.zones[zoneID].groups[groupID];
 		const vertices = this.zones[zoneID].vertices;
 		let closestNode = null;
@@ -84,7 +84,7 @@ class Pathfinding {
 		nodes.forEach((node) => {
 			const distance = Utils.distanceToSquared(node.centroid, position);
 			if (distance < closestDistance
-					&& (!checkPolygon || Utils.isVectorInPolygon(position, node, vertices))) {
+				&& (!checkPolygon || Utils.isVectorInPolygon(position, node, vertices))) {
 				closestNode = node;
 				closestDistance = distance;
 			}
@@ -103,7 +103,7 @@ class Pathfinding {
 	 * @param  {number} groupID Current group ID.
 	 * @return {Array<Vector3>} Array of points defining the path.
 	 */
-	findPath (startPosition, targetPosition, zoneID, groupID) {
+	findPath(startPosition, targetPosition, zoneID, groupID) {
 		const nodes = this.zones[zoneID].groups[groupID];
 		const vertices = this.zones[zoneID].vertices;
 
@@ -128,6 +128,15 @@ class Pathfinding {
 		// We have the corridor, now pull the rope.
 		const channel = new Channel();
 		channel.push(startPosition);
+
+		if (paths.length) {
+			const portal1 = getPortalFromTo(closestNode, paths[0]);
+			channel.push(
+				vertices[portal1[0]],
+				vertices[portal1[1]]
+			);
+		}
+
 		for (let i = 0; i < paths.length; i++) {
 			const polygon = paths[i];
 			const nextPolygon = paths[i + 1];
@@ -156,7 +165,7 @@ class Pathfinding {
  * @param  {Vector3} position
  * @return {number}
  */
-Pathfinding.prototype.getGroup = (function() {
+Pathfinding.prototype.getGroup = (function () {
 	const plane = new Plane();
 	return function (zoneID, position, checkPolygon = false) {
 		if (!this.zones[zoneID]) return null;
@@ -180,7 +189,7 @@ Pathfinding.prototype.getGroup = (function() {
 							zone.vertices[node.vertexIds[1]],
 							zone.vertices[node.vertexIds[2]]
 						];
-						if(Utils.isPointInPoly(poly, position)) {
+						if (Utils.isPointInPoly(poly, position)) {
 							return i;
 						}
 					}
