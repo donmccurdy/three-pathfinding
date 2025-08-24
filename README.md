@@ -83,8 +83,8 @@ The origin of an agent should initially be placed on the surface of the nav mesh
 git clone https://github.com/donmccurdy/three-pathfinding.git
 cd three-pathfinding
 
-npm install
-npm run dev
+yarn install
+yarn run dev
 ```
 
 The demo will start at http://localhost:3000/.
