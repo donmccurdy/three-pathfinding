@@ -4,10 +4,10 @@ import {
 	Triangle,
 } from 'three';
 
-import { Utils } from './Utils';
-import { AStar } from './AStar';
-import { Builder } from './Builder';
-import { Channel } from './Channel';
+import { Utils } from './Utils.js';
+import { AStar } from './AStar.js';
+import { Builder } from './Builder.js';
+import { Channel } from './Channel.js';
 
 /**
  * Defines an instance of the pathfinding module, with one or more zones.

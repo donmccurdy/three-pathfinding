@@ -1,4 +1,4 @@
-import { Pathfinding } from './Pathfinding';
-import { PathfindingHelper } from './PathfindingHelper';
+import { Pathfinding } from './Pathfinding.js';
+import { PathfindingHelper } from './PathfindingHelper.js';
 
 export { Pathfinding, PathfindingHelper };

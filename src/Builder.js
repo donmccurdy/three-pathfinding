@@ -1,6 +1,6 @@
 import { Vector3 } from 'three';
 
-import { Utils } from './Utils';
+import { Utils } from './Utils.js';
 
 class Builder {
   /**
