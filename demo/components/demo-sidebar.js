@@ -29,7 +29,7 @@ customElements.define( 'demo-sidebar', class extends HTMLElement {
         this._onViewport();
     }
     disconnectedCallback() {
-        if( _media ) this._media.removeListener( this._onViewport );
+        if( this._media ) this._media.removeListener( this._onViewport );
     }
 
     #openIcon() {
