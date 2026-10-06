@@ -29,7 +29,7 @@ customElements.define( 'demo-sidebar', class extends HTMLElement {
         this._onViewport();
     }
     disconnectedCallback() {
-        if( _media ) this._media.removeListener( this._onViewport );
+        if( this._media ) this._media.removeListener( this._onViewport );
     }
 
     #openIcon() {
@@ -144,7 +144,7 @@ customElements.define( 'demo-sidebar', class extends HTMLElement {
                 <a href="https://github.com/donmccurdy/three-pathfinding">Source</a> •
                 <a href="https://github.com/donmccurdy/three-pathfinding#api">Documentation</a>
                 <p>
-                    Click anywhere on the level to calculate a path. 
+                    Click anywhere on the level to calculate a path.
                 </p>
                 <ul class="swatches">
                     <li>
